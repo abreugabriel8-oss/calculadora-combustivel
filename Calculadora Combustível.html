@@ -1,0 +1,1096 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Calculadora Combustível</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: banda escura de marca no topo com corte diagonal de combustão; abaixo, ferramenta em duas colunas (entradas | plano), empilhando no celular */
+:root{
+  --bg:#F7F4F1; --surface:#FFFFFF; --sunk:#EFEAE4; --ink:#1E1914; --muted:#6B6158; --line:#E2DAD1;
+  --accent:#F26419; --accent-ink:#B04A10; --blue:#1F5FBF; --blue-soft:#E3ECFA; --orange-soft:#FDE9DD;
+  --warn:#9A5A00; --warn-bg:#FFF3D6; --crit:#A32A1F; --crit-bg:#FBE4E1; --ok:#2E7149;
+  --band:#14100C; --band-ink:#F7F4F1; --sand:#B7ACA0;
+  --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --grad:linear-gradient(120deg,#A8440F 0%,#F26419 55%,#F5874A 100%);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14100C; --surface:#1D1813; --sunk:#26201A; --ink:#F3EEE8; --muted:#B7ACA0; --line:#352D25;
+  --accent:#F5874A; --accent-ink:#F7A06F; --blue:#7AABF2; --blue-soft:#1A2638; --orange-soft:#33200F;
+  --warn:#F2C26B; --warn-bg:#2E2412; --crit:#F2938A; --crit-bg:#3A1A16; --ok:#7CC79A;
+  --band:#0C0906; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14100C; --surface:#1D1813; --sunk:#26201A; --ink:#F3EEE8; --muted:#B7ACA0; --line:#352D25;
+  --accent:#F5874A; --accent-ink:#F7A06F; --blue:#7AABF2; --blue-soft:#1A2638; --orange-soft:#33200F;
+  --warn:#F2C26B; --warn-bg:#2E2412; --crit:#F2938A; --crit-bg:#3A1A16; --ok:#7CC79A;
+  --band:#0C0906; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* Cabeçalho */
+.band{background:var(--band);color:var(--band-ink);position:relative;overflow:hidden}
+.band .wrap{padding-block:28px 34px;position:relative;z-index:1;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.cut{position:absolute;top:0;right:0;bottom:0;width:min(46%,520px);background:var(--grad);clip-path:polygon(38% 0,100% 0,100% 100%,0 100%);opacity:.95}
+.cut::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(120deg,transparent 0 22px,rgba(20,16,12,.18) 22px 24px)}
+.mono{font-family:var(--display);font-weight:900;font-size:58px;line-height:.8;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-1px}
+.htxt{min-width:0;flex:1}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#B7ACA0;font-weight:700}
+h1{font-family:var(--display);font-weight:900;font-size:clamp(34px,6vw,58px);line-height:.92;margin:4px 0 8px;text-transform:uppercase;text-wrap:balance;letter-spacing:.5px}
+h1 span{color:#F26419}
+.sub{max-width:56ch;color:#D9D0C6;margin:0;font-size:14px}
+/* Grade principal */
+main.wrap{padding-block:24px 48px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;align-items:start}
+@media (max-width:960px){main.wrap{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.results{position:sticky;top:12px}
+@media (max-width:960px){.results{position:static}}
+section.step{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.sh{display:flex;align-items:baseline;gap:10px}
+.sh b{font-family:var(--display);font-weight:800;font-size:15px;color:var(--accent-ink);letter-spacing:.06em}
+.sh h2{font-family:var(--display);font-weight:800;font-size:22px;margin:0;text-transform:uppercase;letter-spacing:.03em}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>*{flex:1 1 140px;min-width:0}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+input,select{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 10px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seg{display:inline-flex;background:var(--sunk);border-radius:10px;padding:3px;gap:3px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:13px;font-weight:700;border:0;background:transparent;color:var(--muted);padding:7px 12px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.segcard{border:1px dashed var(--line);border-radius:11px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.segcard .tag{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:16px;letter-spacing:.04em;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.segcard .tag small{font-family:var(--body);font-weight:600;font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0}
+.hint{font-size:12px;color:var(--muted);margin:0}
+.btn{font:inherit;font-weight:700;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:9px 12px;cursor:pointer}
+.btn.primary{background:var(--accent);color:#14100C;border-color:transparent}
+.status{font-size:12px;padding:8px 10px;border-radius:8px;background:var(--sunk);color:var(--muted)}
+.status.ok{background:var(--blue-soft);color:var(--blue)}
+.status.bad{background:var(--warn-bg);color:var(--warn)}
+details{border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--accent-ink)}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600}
+.chk input{width:auto}
+.pv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pv label.f{font-size:11px}
+.flag{font-size:11px;font-weight:700;color:var(--warn);background:var(--warn-bg);border-radius:6px;padding:2px 7px;align-self:flex-start}
+/* Resultados */
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.metrics{grid-template-columns:minmax(0,1fr)}}
+.m{border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.m.cho{background:var(--orange-soft)} .m.flu{background:var(--blue-soft)} .m.na{background:var(--sunk)}
+.m .lbl{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.m .val{font-family:var(--display);font-weight:900;font-size:52px;line-height:.95;font-variant-numeric:tabular-nums}
+.m.cho .val{color:var(--accent-ink)} .m.flu .val{color:var(--blue)}
+.m .val small{font-size:20px;font-weight:700;margin-left:3px}
+.m .tot{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h3{font-family:var(--display);font-weight:800;font-size:20px;text-transform:uppercase;margin:0;letter-spacing:.03em}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:right;font-weight:800;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td{padding:8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.carry{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.carry li{display:flex;gap:12px;align-items:baseline;font-size:14px}
+.carry .q{font-family:var(--display);font-weight:900;font-size:26px;min-width:56px;text-align:right;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
+.carry .q.b{color:var(--blue)}
+.tl{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto;border-left:2px solid var(--line);margin-left:6px}
+.tl li{position:relative;padding:5px 0 5px 16px;font-size:13px;display:flex;gap:10px}
+.tl li::before{content:"";position:absolute;left:-6px;top:11px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.tl li.e::before{background:var(--sand)} .tl li.w::before{background:var(--blue)} .tl li.s::before{background:var(--ink)}
+.tl time{font-weight:800;font-variant-numeric:tabular-nums;min-width:74px}
+.alerts{display:flex;flex-direction:column;gap:8px}
+.al{font-size:13px;border-radius:10px;padding:10px 12px;background:var(--sunk)}
+.al.w{background:var(--warn-bg);color:var(--warn)} .al.c{background:var(--crit-bg);color:var(--crit)} .al.i{background:var(--blue-soft);color:var(--blue)}
+.al b{font-weight:800}
+.method{font-size:13px;color:var(--muted)}
+.method ol{padding-left:18px;margin:6px 0 0}
+.method p{margin:0 0 8px;max-width:70ch}
+footer{border-top:1px solid var(--line)}
+footer .wrap{padding-block:18px 28px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+footer b{color:var(--ink)}
+.ex{font-size:11px;font-weight:700;color:var(--muted);background:var(--sunk);border-radius:6px;padding:2px 7px}
+@media (prefers-reduced-motion:no-preference){.m .val{transition:color .2s}}
+/* Navegação entre calculadora e diário */
+.tabs{background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:4px;padding-block:0}
+.tabs button{font:inherit;font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:.06em;text-transform:uppercase;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:12px 14px 10px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs .cnt{font-family:var(--body);font-size:11px;font-weight:800;background:var(--orange-soft);color:var(--accent-ink);border-radius:20px;padding:1px 8px;letter-spacing:0}
+main.dview{padding-block:24px 48px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;align-items:start}
+main.dview[hidden]{display:none!important}
+@media (max-width:960px){main.dview{grid-template-columns:minmax(0,1fr)}}
+textarea{font:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 10px;width:100%;resize:vertical}
+input.gi{padding:0;border:0;background:none;accent-color:var(--accent);height:28px}
+.gisc{display:flex;justify-content:space-between;font-size:10.5px;font-weight:600;color:var(--muted)}
+.calhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{font-size:11px;font-weight:800;border-radius:20px;padding:3px 10px;background:var(--sunk);color:var(--muted);letter-spacing:.02em}
+.chip.cloud{background:var(--blue-soft);color:var(--blue)}
+.chip.local{background:var(--warn-bg);color:var(--warn)}
+.calgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.calgrid{grid-template-columns:minmax(0,1fr)}}
+.cal{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.cal h4{margin:0;font-family:var(--display);font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.cal h4 small{font-family:var(--body);font-size:11px;font-weight:700;color:var(--muted);text-transform:none;letter-spacing:0}
+.kv{display:flex;flex-direction:column;gap:1px}
+.kv .k{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.kv .v{font-family:var(--display);font-weight:900;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.kv .v small{font-size:15px;font-weight:700;margin-left:2px}
+.kv .s{font-size:12px;color:var(--muted)}
+.conf{display:flex;gap:3px;align-items:center;font-size:11px;font-weight:700;color:var(--muted)}
+.conf i{width:14px;height:5px;border-radius:3px;background:var(--line);display:inline-block}
+.conf i.on{background:var(--accent)}
+.cal.none{color:var(--muted);font-size:13px}
+.empty{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);background:var(--sunk);border-radius:10px;padding:14px}
+.empty b{color:var(--ink)}
+.gib{display:inline-block;min-width:26px;text-align:center;border-radius:6px;padding:1px 6px;font-weight:800;font-size:12px}
+.gib.g0{background:var(--blue-soft);color:var(--blue)} .gib.g1{background:var(--warn-bg);color:var(--warn)} .gib.g2{background:var(--crit-bg);color:var(--crit)}
+.xbtn{font:inherit;font-size:12px;font-weight:700;border:0;background:none;color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:6px}
+.xbtn.armed{background:var(--crit-bg);color:var(--crit)}
+td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;padding-top:0}
+.calsw{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:700;background:var(--blue-soft);color:var(--blue);border-radius:10px;padding:9px 12px}
+.calsw input{width:auto;accent-color:var(--blue)}
+.lgcta{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+</style>
+
+<header class="band">
+  <div class="cut" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="mono" aria-hidden="true">GA</div>
+    <div class="htxt">
+      <div class="eyebrow">@gabreutri · Nutrição esportiva</div>
+      <h1>Calculadora <span>Combustível</span></h1>
+      <p class="sub">Carboidrato, líquido e sódio por hora para treino, prova, brick e triathlon. Ajustado ao clima, ao seu suor e ao seu intestino.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Seções"><div class="wrap" role="tablist">
+  <button type="button" role="tab" data-v="calc" aria-selected="true">Calculadora</button>
+  <button type="button" role="tab" data-v="diario" aria-selected="false">Diário <span class="cnt" id="tabCnt" hidden>0</span></button>
+</div></nav>
+
+<main class="wrap" id="viewCalc">
+  <div class="col">
+    <section class="step">
+      <div class="sh"><b>1</b><h2>Sessão</h2></div>
+      <div class="row">
+        <div><div class="hint" style="margin-bottom:6px;font-weight:700">Tipo</div>
+          <div class="seg" id="tipo"><button data-v="treino">Treino</button><button data-v="prova">Prova</button></div></div>
+        <div><div class="hint" style="margin-bottom:6px;font-weight:700">Formato</div>
+          <div class="seg" id="formato"><button data-v="single">Uma modalidade</button><button data-v="brick">Brick (bike + T2)</button><button data-v="tri">Triathlon</button></div></div>
+      </div>
+      <div class="row" id="singleRow">
+        <label class="f">Modalidade<select id="sport"><option value="corrida">Corrida</option><option value="ciclismo">Ciclismo</option><option value="natacao">Natação</option></select></label>
+        <label class="f" id="indoorWrap">Ambiente<select id="indoor"><option value="0">Ao ar livre</option><option value="1">Indoor (rolo ou esteira)</option></select></label>
+      </div>
+      <div><div class="hint" style="margin-bottom:6px;font-weight:700">Como informar a intensidade</div>
+        <div class="seg" id="modo"><button data-v="simples">Zona ou esforço</button><button data-v="tss">TSS planejado</button></div></div>
+    </section>
+
+    <section class="step">
+      <div class="sh"><b>2</b><h2>Duração e intensidade</h2></div>
+      <label class="f" id="distWrap">Prova ou distância<select id="dist"></select></label>
+      <div id="segs" style="display:flex;flex-direction:column;gap:10px"></div>
+      <div class="status" id="totDur" hidden></div>
+      <p class="hint" id="tssHint" hidden>Com TSS e duração calculamos o IF (TSS = horas × IF² × 100). O IF define a intensidade real, porque o mesmo TSS pode ser 3 h leves ou 1h30 forte.</p>
+    </section>
+
+    <section class="step">
+      <div class="sh"><b>3</b><h2>Atleta</h2></div>
+      <label class="calsw" id="calSwWrap" hidden><input type="checkbox" id="calSw" checked> <span id="calSwTxt">Usar minha calibração do diário</span></label>
+      <div class="row">
+        <label class="f">Peso (kg)<input id="peso" type="number" inputmode="decimal" min="35" max="140" step="0.5" value="70"></label>
+      </div>
+      <div class="row">
+        <label class="f">Tolerância a carbo pedalando<select id="gutBike">
+          <option value="0">Iniciante (até 40 g/h)</option>
+          <option value="1" selected>Intermediário (40 a 70 g/h)</option>
+          <option value="2">Treinado (80 g/h ou mais)</option></select></label>
+        <label class="f">Tolerância a carbo correndo<select id="gutRun">
+          <option value="0">Iniciante (até 40 g/h)</option>
+          <option value="1" selected>Intermediário (40 a 60 g/h)</option>
+          <option value="2">Treinado (70 g/h ou mais)</option></select></label>
+      </div>
+      <p class="status ok" id="gutNote" hidden style="margin:-4px 0 0"></p>
+      <p class="hint" style="margin-top:-6px">O intestino tolera menos carboidrato correndo do que pedalando, e cada um se treina separadamente. Use o que você já consome sem desconforto.</p>
+      <div class="row">
+        <label class="f">Perfil de sal no suor<select id="sal">
+          <option value="0">Baixo (pouca marca na roupa)</option>
+          <option value="1" selected>Médio / não sei</option>
+          <option value="2">Alto (marcas brancas, olhos ardem)</option></select></label>
+        <label class="f">Aclimatado ao calor?<select id="aclim"><option value="0">Não</option><option value="1" selected>Sim (treina no calor há 2+ semanas)</option></select></label>
+      </div>
+      <details>
+        <summary>Tenho dados medidos (taxa de suor ou sódio)</summary>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+          <div class="row">
+            <label class="f">Suor pedalando (L/h)<input id="srBike" type="number" inputmode="decimal" step="0.05" min="0" placeholder="ex.: 1,1"></label>
+            <label class="f">Suor correndo (L/h)<input id="srRun" type="number" inputmode="decimal" step="0.05" min="0" placeholder="ex.: 1,8"></label>
+            <label class="f">Sódio no suor (mg/L)<input id="naMedido" type="number" inputmode="numeric" step="10" min="0" placeholder="ex.: 1100"></label>
+          </div>
+          <p class="hint">Sua taxa muda entre modalidades e entre indoor e ao ar livre. Para calcular, pese-se sem roupa antes e depois de 1 h de treino, sem urinar no meio, em condições parecidas com a sessão planejada.</p>
+          <div class="row">
+            <label class="f">Peso antes (kg)<input id="tA" type="number" step="0.1" inputmode="decimal"></label>
+            <label class="f">Peso depois (kg)<input id="tB" type="number" step="0.1" inputmode="decimal"></label>
+            <label class="f">Bebeu (ml)<input id="tC" type="number" step="50" inputmode="numeric"></label>
+            <label class="f">Duração (min)<input id="tD" type="number" step="5" inputmode="numeric" value="60"></label>
+            <label class="f">Modalidade<select id="tS"><option value="srBike">Pedalando</option><option value="srRun">Correndo</option></select></label>
+          </div>
+          <div class="row" style="align-items:center"><button class="btn" id="tGo" type="button">Calcular e usar</button><span class="hint" id="tOut"></span></div>
+        </div>
+      </details>
+    </section>
+
+    <section class="step">
+      <div class="sh"><b>4</b><h2>Clima</h2></div>
+      <div class="row">
+        <label class="f">Cidade<input id="cidade" type="text" value="Vila Velha" autocomplete="off"></label>
+        <label class="f">Data<input id="data" type="date"></label>
+        <label class="f">Início<input id="hora" type="time" value="06:00"></label>
+      </div>
+      <div class="row" style="align-items:center"><button class="btn primary" id="wGo" type="button">Buscar previsão</button><span class="hint">Previsão horária para até 16 dias, média da janela da sessão.</span></div>
+      <div class="status" id="wStatus">Valores de exemplo preenchidos. Busque a previsão ou ajuste à mão.</div>
+      <div class="row">
+        <label class="f">Temperatura (°C)<input id="temp" type="number" step="0.5" inputmode="decimal" value="28"></label>
+        <label class="f">Umidade relativa (%)<input id="rh" type="number" step="1" inputmode="numeric" value="75"></label>
+        <label class="f">Condição<select id="cond"><option value="sol">Sol direto</option><option value="nublado">Nublado ou noite</option><option value="indoor">Indoor</option></select></label>
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="sh"><b>5</b><h2>Produtos</h2></div>
+      <p class="hint">Escolha o que você vai usar. A calculadora converte as metas em unidades reais. Itens marcados como estimados: confira o rótulo e ajuste os valores.</p>
+      <label class="f">Gel ou alimento sólido<select id="pGel"></select></label>
+      <div id="pGelV"></div>
+      <div id="drinkWrap" style="display:flex;flex-direction:column;gap:14px">
+        <label class="f">Bebida ou pó de carboidrato na caramanhola<select id="pDrink"></select></label>
+        <div id="pDrinkV"></div>
+      </div>
+      <label class="f">Eletrólito<select id="pElec"></select></label>
+      <div id="pElecV"></div>
+      <div class="row">
+        <label class="f"><span id="bottleLbl">Caramanhola</span><select id="bottle"></select></label>
+      </div>
+      <details>
+        <summary>Adicionar produto próprio</summary>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+          <div class="row">
+            <label class="f">Categoria<select id="cTipo"><option value="gel">Gel / sólido</option><option value="bebida">Bebida (porção + ml)</option><option value="eletrolito">Eletrólito</option></select></label>
+            <label class="f">Nome<input id="cNome" type="text" placeholder="ex.: Gel da marca X"></label>
+          </div>
+          <div class="row">
+            <label class="f">Carbo por porção (g)<input id="cCho" type="number" step="1"></label>
+            <label class="f">Sódio por porção (mg)<input id="cNa" type="number" step="5"></label>
+            <label class="f">Cafeína (mg)<input id="cCaf" type="number" step="5"></label>
+            <label class="f">Água por porção (ml)<input id="cMl" type="number" step="50" placeholder="só bebida"></label>
+          </div>
+          <label class="chk"><input type="checkbox" id="cMulti"> Tem glicose + frutose (ou maltodextrina + frutose)</label>
+          <div><button class="btn" id="cAdd" type="button">Adicionar à lista</button></div>
+        </div>
+      </details>
+    </section>
+  </div>
+
+  <div class="col results" aria-live="polite">
+    <div class="metrics">
+      <div class="m cho"><span class="lbl">Carboidrato</span><span class="val" id="vCho">0<small>g/h</small></span><span class="tot" id="tCho"></span></div>
+      <div class="m flu"><span class="lbl">Líquido</span><span class="val" id="vFl">0<small>ml/h</small></span><span class="tot" id="tFl"></span></div>
+      <div class="m na"><span class="lbl">Sódio</span><span class="val" id="vNa">0<small>mg/h</small></span><span class="tot" id="tNa"></span></div>
+    </div>
+    <div class="alerts" id="alerts"></div>
+    <div class="card">
+      <h3>Plano por segmento</h3>
+      <div class="tw"><table><thead><tr><th>Segmento</th><th>Tempo</th><th>Intens.</th><th>Suor est.</th><th>CHO g/h</th><th>Líq. ml/h</th><th>Na mg/h</th></tr></thead><tbody id="tbody"></tbody></table></div>
+      <p class="hint" id="lossLine"></p>
+    </div>
+    <div class="card">
+      <h3>O que levar</h3>
+      <ul class="carry" id="carry"></ul>
+    </div>
+    <div class="card">
+      <h3>Cronograma</h3>
+      <ol class="tl" id="tl"></ol>
+    </div>
+    <div class="card">
+      <div class="lgcta"><div><h3>Depois do treino</h3><p class="hint" style="margin:4px 0 0">Registre peso, líquido e carbo. Cada registro ajusta sua taxa de suor e sua tolerância a carbo.</p></div>
+      <button class="btn primary" id="lgFromPlan" type="button">Registrar no diário</button></div>
+    </div>
+    <div class="card method">
+      <h3>Como calculamos</h3>
+      <p><b>Carboidrato</b> pela duração total da sessão (somando todas as modalidades) e pela intensidade, com transição contínua entre as faixas: abaixo de 1 h, bochecho ou nada; 1 a 2 h, 30 a 70 g/h; a partir de 2,5 h, até 90 g/h com glicose + frutose. Acima de 90 g/h só com intestino treinado. A tolerância é avaliada separadamente no pedal e na corrida, que tem teto menor pelo impacto gastrointestinal.</p>
+      <p><b>Líquido</b> pela taxa de suor medida ou estimada em cada modalidade. O déficit tolerável (até 2% do peso) é calculado para a sessão inteira: onde você sua mais do que consegue beber, como na corrida, o pedal compensa. Nunca se bebe mais do que se sua.</p>
+      <p><b>Sódio</b> pela taxa de suor × concentração de sódio no suor, repondo de 35% a 65% conforme a duração. Aclimatação reduz o sódio do suor.</p>
+      <ol>
+        <li>Thomas DT, Erdman KA, Burke LM. Nutrition and Athletic Performance. Med Sci Sports Exerc, 2016 (ACSM).</li>
+        <li>Sawka MN et al. ACSM Position Stand: Exercise and Fluid Replacement. Med Sci Sports Exerc, 2007.</li>
+        <li>Baker LB. Sweating Rate and Sweat Sodium Concentration in Athletes. Sports Med, 2017.</li>
+      </ol>
+      <p style="margin-top:10px">Estimativas de ponto de partida. Teste em treino antes de usar em prova. Para um plano individualizado com teste de suor, fale com <b>@gabreutri</b>.</p>
+    </div>
+  </div>
+</main>
+
+<main class="wrap dview" id="viewDiario" hidden>
+  <div class="col">
+    <section class="step" id="logForm">
+      <div class="sh"><b>+</b><h2>Registrar treino</h2></div>
+      <p class="hint">Pese-se sem roupa e seco, antes e depois. Em brick, pese-se também na T2 e registre bike e corrida separadamente.</p>
+      <div class="row">
+        <label class="f">Data<input id="lgData" type="date"></label>
+        <label class="f">Modalidade<select id="lgSport"><option value="ciclismo">Ciclismo</option><option value="corrida">Corrida</option></select></label>
+        <label class="f">Ambiente<select id="lgCond"><option value="sol">Ao ar livre, com sol</option><option value="nublado">Ao ar livre, nublado ou noite</option><option value="indoor">Indoor (rolo ou esteira)</option></select></label>
+      </div>
+      <div class="row">
+        <label class="f">Duração (min)<input id="lgDur" type="number" inputmode="numeric" min="10" step="5" placeholder="ex.: 90"></label>
+        <label class="f">Intensidade média<select id="lgInt"><option value="1">Leve (Z1-Z2)</option><option value="2" selected>Moderado (Z3)</option><option value="3">Forte (Z4)</option><option value="4">Prova / limiar+ (Z5)</option></select></label>
+      </div>
+      <div class="row">
+        <label class="f">Temperatura (°C)<input id="lgTemp" type="number" inputmode="decimal" step="0.5" placeholder="ex.: 27"></label>
+        <label class="f">Umidade (%)<input id="lgRh" type="number" inputmode="numeric" step="1" placeholder="ex.: 75"></label>
+      </div>
+      <div class="row">
+        <label class="f">Peso antes (kg)<input id="lgPre" type="number" inputmode="decimal" step="0.05" placeholder="ex.: 72,6"></label>
+        <label class="f">Peso depois (kg)<input id="lgPos" type="number" inputmode="decimal" step="0.05" placeholder="ex.: 71,4"></label>
+      </div>
+      <div class="row">
+        <label class="f">Bebeu (ml)<input id="lgBebeu" type="number" inputmode="numeric" step="50" min="0" placeholder="ex.: 1200"></label>
+        <label class="f">Urinou no meio (ml, se houve)<input id="lgUrina" type="number" inputmode="numeric" step="50" min="0" placeholder="0"></label>
+      </div>
+      <div class="row">
+        <label class="f">Carboidrato consumido (g)<input id="lgCho" type="number" inputmode="numeric" step="5" min="0" placeholder="ex.: 120"></label>
+        <label class="f">Sódio consumido (mg)<input id="lgNa" type="number" inputmode="numeric" step="50" min="0" placeholder="ex.: 900"></label>
+      </div>
+      <label class="f">Desconforto gastrointestinal: <span id="lgGiTxt">0 · nenhum</span>
+        <input id="lgGi" type="range" min="0" max="10" step="1" value="0" class="gi">
+        <span class="gisc" aria-hidden="true"><span>0 nenhum</span><span>3 leve</span><span>6 atrapalhou</span><span>10 parou</span></span>
+      </label>
+      <label class="f">Observações<input id="lgNotas" type="text" maxlength="200" placeholder="ex.: náusea no km 15, 2 idas ao banheiro"></label>
+      <div class="status" id="lgPrev">Preencha duração e pesos para ver sua taxa de suor.</div>
+      <div class="row" style="align-items:center">
+        <button class="btn primary" id="lgSave" type="button">Salvar registro</button>
+        <span class="hint" id="lgMsg"></span>
+      </div>
+    </section>
+  </div>
+
+  <div class="col results">
+    <div class="card">
+      <div class="calhead">
+        <h3>Sua calibração</h3>
+        <span class="chip" id="storeChip">Carregando...</span>
+      </div>
+      <div class="calgrid" id="calGrid"></div>
+      <p class="hint" id="calHow">A taxa de suor vira um fator pessoal sobre o modelo: quem sua 30% acima da média no calor também sua 30% acima no frio, e a calculadora ajusta para o clima de cada sessão. Com poucos registros, o fator é puxado para a média da população até ganhar confiança.</p>
+    </div>
+    <div class="card">
+      <h3>Histórico</h3>
+      <div id="histEmpty" class="empty">
+        <b>Nenhum treino registrado ainda.</b>
+        <span>Cada registro mostra aqui a taxa de suor, o carbo por hora, a perda de peso e o desconforto. Comece por um treino que você já pesou antes e depois.</span>
+      </div>
+      <div class="tw"><table id="histTable" hidden><thead><tr><th>Data</th><th>Treino</th><th>Clima</th><th>Suor</th><th>Carbo</th><th>Perda</th><th>GI</th><th></th></tr></thead><tbody id="histBody"></tbody></table></div>
+    </div>
+    <div class="card">
+      <h3>Backup</h3>
+      <p class="hint">Copie seus registros para guardar ou levar para outro aparelho. Para restaurar, cole o texto copiado e importe.</p>
+      <div class="row" style="align-items:center">
+        <button class="btn" id="bkCopy" type="button">Copiar registros</button>
+        <button class="btn" id="bkShow" type="button">Importar</button>
+        <span class="hint" id="bkMsg"></span>
+      </div>
+      <div id="bkBox" hidden style="display:flex;flex-direction:column;gap:8px">
+        <textarea id="bkText" rows="4" placeholder="Cole aqui o texto copiado"></textarea>
+        <div><button class="btn primary" id="bkImport" type="button">Importar registros</button></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer><div class="wrap"><span><b>Gabriel Abreu</b> · Nutricionista esportivo · CRN 23100384</span><span>@gabreutri</span></div></footer>
+
+<script>
+/* ===== MOTOR DE CÁLCULO ===== */
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const r5=v=>Math.round(v/5)*5;
+const r50=v=>Math.round(v/50)*50;
+
+const INT_I=[0.25,0.5,0.75,1];
+const CARB_CAP={corrida:[45,65,90],ciclismo:[60,90,120],natacao:[0,0,0]};
+const FLUID_CAP={corrida:0.8,ciclismo:1.0,natacao:0};
+const SPORT_F={corrida:1.0,ciclismo:0.8,natacao:0.45};
+const NA_CONC=[500,950,1400];
+
+function intensity(seg,mode){
+  const h=seg.h;
+  if(mode==='tss' && seg.tss>0 && h>0){
+    const IF=Math.sqrt(seg.tss/(100*h));
+    return {i:clamp((IF-0.55)/0.35,0,1),IF};
+  }
+  return {i:INT_I[(seg.int||2)-1],IF:null};
+}
+/* faixas de carboidrato interpoladas pela duração total (sem degraus) */
+const CARB_PTS=[[0.75,0,0],[1,0,30],[1.5,30,60],[2,40,70],[2.5,50,90]];
+const lerp=(a,b,f)=>a+(b-a)*f;
+function carbBand(T){
+  if(T<=CARB_PTS[0][0]) return [0,0];
+  for(let k=1;k<CARB_PTS.length;k++){
+    const [t1,l1,h1]=CARB_PTS[k];
+    if(T<=t1){const [t0,l0,h0]=CARB_PTS[k-1];const f=(T-t0)/(t1-t0);return [lerp(l0,l1,f),lerp(h0,h1,f)];}
+  }
+  return [50,90];
+}
+function gutOf(inp,sport){const g=inp.gut;return typeof g==='object'?(g[sport]??1):g;}
+function carbPerHour(sport,T,i,gut){
+  if(sport==='natacao'||T<1) return 0;
+  let [lo,hi]=carbBand(T);
+  if(gut===2){const ext=sport==='corrida'?90:120;hi=lerp(hi,Math.max(hi,ext),clamp((T-2)/1,0,1));}
+  const c=lo+(hi-lo)*i;
+  return r5(Math.min(c,CARB_CAP[sport][gut]));
+}
+function heatFactor(T,RH,cond){
+  let h=1+0.035*(T-20);
+  h+=0.004*(RH-50)*clamp((T-15)/15,0,1.5);
+  if(cond==='sol') h+=0.08;
+  if(cond==='indoor') h*=1.25;
+  return clamp(h,0.55,1.9);
+}
+function sweatRate(sport,i,inp){
+  const m=typeof inp.srMedida==='object'?inp.srMedida[sport]:inp.srMedida;
+  if(m>0 && sport!=='natacao') return m;
+  const pf=(inp.srFactor&&inp.srFactor[sport])||1;
+  const cond=(sport==='natacao' && inp.cond==='indoor')?'nublado':inp.cond;
+  const sr=SPORT_F[sport]*(0.4+0.8*i)*heatFactor(inp.temp,inp.rh,sport==='natacao'?'nublado':cond)*Math.pow(inp.peso/70,0.8)*(inp.aclim?1.1:1);
+  return clamp(sr*pf,0.2,3.2);
+}
+function naFrac(T){ if(T<1) return 0; if(T<2) return 0.35; if(T<4) return 0.5; return 0.65; }
+
+function calcular(inp){
+  const segs=inp.segs.filter(s=>s.h>0);
+  const T=segs.reduce((a,s)=>a+s.h,0);
+  const conc=inp.naMedido>0?inp.naMedido:NA_CONC[inp.sal]*(inp.aclim?0.85:1);
+  let swimCarbDef=0;
+  const out=segs.map(s=>{
+    const {i,IF}=intensity(s,inp.modo);
+    const sr=sweatRate(s.sport,i,inp);
+    let carb=carbPerHour(s.sport,T,i,gutOf(inp,s.sport));
+    let fl=0,na=0;
+    if(s.sport!=='natacao'){
+      fl=Math.min(sr,FLUID_CAP[s.sport]);
+      na=sr*conc*naFrac(T);
+      if(T>=2) na=Math.max(na,300);
+      na=Math.min(na,1500);
+    } else {
+      swimCarbDef+=carbPerHour('ciclismo',T,i,gutOf(inp,'ciclismo'))*s.h;
+    }
+    return {sport:s.sport,h:s.h,i,IF,sr,carb,fl,na,carbExtra:0};
+  });
+  /* líquido: orçamento de déficit da sessão inteira (até 2% do peso, com margem).
+     Bebe-se o máximo tolerável onde se sua mais do que dá para beber;
+     a folga do orçamento reduz a ingestão onde sobra, nunca abaixo de 0,4 L/h em sessões de 1h30+ */
+  const feed=out.filter(o=>o.sport!=='natacao');
+  const budget=0.02*inp.peso*0.8;
+  const forced=out.reduce((a,o)=>a+(o.sr-o.fl)*o.h,0);
+  let slack=budget-forced;
+  const fh=feed.reduce((a,o)=>a+o.h,0);
+  if(slack>0&&fh>0){
+    const floor=T>=1.5?0.4:0;
+    const cut=slack/fh;
+    feed.forEach(o=>{o.fl=Math.max(Math.min(floor,o.fl),o.fl-cut);});
+  }
+  feed.forEach(o=>{
+    if(T<1) o.fl=0;
+    o.fl=Math.round(o.fl*20)/20;
+    o.na=r50(Math.min(o.na,Math.max(o.fl,0.5)*1500));
+  });
+  // déficit da natação compensado no ciclismo
+  const bike=out.find(o=>o.sport==='ciclismo');
+  if(bike && swimCarbDef>0){
+    const add=swimCarbDef/bike.h;
+    const nc=r5(Math.min(bike.carb+add,CARB_CAP.ciclismo[gutOf(inp,'ciclismo')]));
+    bike.carbExtra=nc-bike.carb; bike.carb=nc;
+  }
+  // brick: T2 curta (<=45 min) -> carbo da corrida antecipado para o fim do pedal
+  const run=out.find(o=>o.sport==='corrida');
+  if(inp.formato==='brick' && bike && run && run.h<=0.75 && run.carb>0){
+    const need=run.carb*run.h;
+    const nc=r5(Math.min(bike.carb+need/bike.h,CARB_CAP.ciclismo[gutOf(inp,'ciclismo')]));
+    const moved=(nc-bike.carb)*bike.h;
+    bike.carbExtra+=nc-bike.carb; bike.carb=nc;
+    run.carb=r5(Math.max(0,need-moved)/run.h); if(run.carb<15) run.carb=0; run.shifted=Math.round(moved);
+  }
+  const loss=out.reduce((a,o)=>a+o.sr*o.h,0);
+  const intake=out.reduce((a,o)=>a+o.fl*o.h,0);
+  const deficitPct=T>0?((loss-intake)/inp.peso)*100:0;
+  const feedH=out.filter(o=>o.sport!=='natacao').reduce((a,o)=>a+o.h,0)||1;
+  const avg=k=>out.filter(o=>o.sport!=='natacao').reduce((a,o)=>a+o[k]*o.h,0)/feedH;
+  return {T,conc,segs:out,loss,intake,deficitPct,
+    carbH:r5(avg('carb')),flH:Math.round(avg('fl')*1000/50)*50,naH:r50(avg('na')),
+    carbTot:Math.round(out.reduce((a,o)=>a+o.carb*o.h,0)),
+    naTot:r50(out.reduce((a,o)=>a+o.na*o.h,0)),flTot:Math.round(intake*1000/50)*50};
+}
+if(typeof module!=='undefined') module.exports={calcular};
+
+
+/* ===== BANCO DE PRODUTOS =====
+   cho/na/caf por porção. est:true = valor estimado, conferir rótulo. multi = glicose+frutose */
+const PRODUTOS=[
+ {id:'maurten100',t:'gel',g:'Géis',nome:'Maurten Gel 100',cho:25,na:20,caf:0,multi:true},
+ {id:'maurten100caf',t:'gel',g:'Géis',nome:'Maurten Gel 100 CAF 100',cho:25,na:22,caf:100,multi:true},
+ {id:'maurten160',t:'gel',g:'Géis',nome:'Maurten Gel 160',cho:40,na:0,caf:0,multi:true,est:true},
+ {id:'pf30',t:'gel',g:'Géis',nome:'PF 30 Gel (Precision)',cho:30,na:0,caf:0,multi:true},
+ {id:'pf30caf',t:'gel',g:'Géis',nome:'PF 30 Caffeine Gel (Precision)',cho:30,na:0,caf:100,multi:true,est:true},
+ {id:'pf90',t:'gel',g:'Géis',nome:'PF 90 Gel (Precision, 3 porções)',cho:90,na:0,caf:0,multi:true},
+ {id:'vo2',t:'gel',g:'Géis',nome:'Integralmédica Energy Gel VO2 C30',cho:30,na:106,caf:0,multi:true},
+ {id:'vitafor',t:'gel',g:'Géis',nome:'Vitafor Endurance Energy Gel',cho:20,na:56,caf:0,multi:true},
+ {id:'carbup',t:'gel',g:'Géis',nome:'Probiótica Carb Up Gel Super Fórmula',cho:20,na:0,caf:0,multi:true,est:true},
+ {id:'carbupblack',t:'gel',g:'Géis',nome:'Probiótica Carb Up Gel Black',cho:18,na:0,caf:0,multi:false,est:true},
+ {id:'goenergy',t:'gel',g:'Géis',nome:'Atlhetica Go! Energy Now Gel',cho:20,na:85,caf:100,multi:false,est:true},
+ {id:'dobro',t:'gel',g:'Géis',nome:'Dobro Carbs Gel',cho:22,na:0,caf:0,multi:true,est:true},
+ {id:'fourlab',t:'gel',g:'Géis',nome:'FourLab Energy Gel (35 g)',cho:23,na:50,caf:0,multi:true,est:true},
+ {id:'fourlabcaf',t:'gel',g:'Géis',nome:'FourLab Energy Gel Cafeína (35 g)',cho:23,na:50,caf:75,multi:true},
+ {id:'paceneutro',t:'gel',g:'Géis',nome:'Pace It Hidrogel Neutro',cho:30,na:200,caf:0,multi:true},
+ {id:'pacelimao',t:'gel',g:'Géis',nome:'Pace It Hidrogel Limão',cho:30,na:80,caf:0,multi:true},
+ {id:'pacetropical',t:'gel',g:'Géis',nome:'Pace It Hidrogel Tropical',cho:30,na:242,caf:0,multi:true},
+ {id:'pacefreeze',t:'gel',g:'Géis',nome:'Pace It Hidrogel Freeze',cho:30,na:182,caf:0,multi:true},
+ {id:'pacemorango',t:'gel',g:'Géis',nome:'Pace It Hidrogel Morango com Limão',cho:30,na:300,caf:0,multi:true},
+ {id:'pacebanana',t:'gel',g:'Géis',nome:'Pace It Hidrogel Sweet Banana (cafeína)',cho:30,na:342,caf:75,multi:true},
+ {id:'pacecapu',t:'gel',g:'Géis',nome:'Pace It Hidrogel Cappuccino (cafeína)',cho:30,na:300,caf:150,multi:true},
+ {id:'truesource',t:'gel',g:'Géis',nome:'True Source Gel Intra-treino (35 g)',cho:25,na:110,caf:0,multi:true},
+ {id:'truesourcecaf',t:'gel',g:'Géis',nome:'True Source Gel Intra-treino com Cafeína',cho:25,na:110,caf:80,multi:true},
+ {id:'z2gel',t:'gel',g:'Géis',nome:'Z2 Gel Original',cho:25,na:0,caf:0,multi:true,est:true},
+ {id:'dobrohidrogel',t:'gel',g:'Géis',nome:'Dobro Hidrogel Tech (40 g)',cho:25,na:0,caf:0,multi:true,est:true},
+ {id:'gu',t:'gel',g:'Géis',nome:'GU Energy Gel',cho:22,na:60,caf:0,multi:true,est:true},
+ {id:'sis',t:'gel',g:'Géis',nome:'SiS GO Isotonic Gel',cho:22,na:10,caf:0,multi:false,est:true},
+ {id:'banana',t:'gel',g:'Alimentos',nome:'Banana prata média (70 g)',cho:18,na:0,caf:0,multi:true,est:true},
+ {id:'mel',t:'gel',g:'Alimentos',nome:'Mel, sachê 15 g',cho:12,na:0,caf:0,multi:true,est:true},
+ {id:'rapadura',t:'gel',g:'Alimentos',nome:'Rapadura, tablete 25 g',cho:22,na:5,caf:0,multi:true,est:true},
+ {id:'dm160',t:'bebida',g:'Bebidas prontas para misturar',nome:'Maurten Drink Mix 160 (500 ml)',cho:40,na:100,caf:0,ml:500,multi:true,est:true},
+ {id:'dm320',t:'bebida',g:'Bebidas prontas para misturar',nome:'Maurten Drink Mix 320 (500 ml)',cho:79,na:200,caf:0,ml:500,multi:true},
+ {id:'c90',t:'bebida',g:'Bebidas prontas para misturar',nome:'FourLab C90 Isotônico (94 g em 500 ml)',cho:90,na:0,caf:0,ml:500,multi:true,est:true},
+ {id:'pfce',t:'bebida',g:'Bebidas prontas para misturar',nome:'PF Carb & Electrolyte Drink Mix (500 ml)',cho:30,na:500,caf:0,ml:500,multi:true,est:true},
+ {id:'gatorade',t:'bebida',g:'Bebidas prontas para misturar',nome:'Isotônico tipo Gatorade (500 ml)',cho:30,na:225,caf:0,ml:500,multi:true,est:true},
+ {id:'malto',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Maltodextrina pura',choG:0.95,multi:false},
+ {id:'mix108',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Mix caseiro malto + frutose (1:0,8)',choG:0.97,multi:true},
+ {id:'dextrose',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Dextrose',choG:0.91,multi:false},
+ {id:'acucar',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Açúcar refinado (sacarose)',choG:1.0,multi:true},
+ {id:'saltz500',t:'eletrolito',g:'Sachês e tabletes',nome:'Saltz 500 (Z2 Foods), sachê',na:500,un:'sachê',half:true},
+ {id:'saltz1000',t:'eletrolito',g:'Sachês e tabletes',nome:'Saltz 1000 (Z2 Foods), sachê',na:1000,un:'sachê',half:true},
+ {id:'ph1500',t:'eletrolito',g:'Sachês e tabletes',nome:'Precision PH 1500, tablete (500 ml)',na:750,un:'tablete',half:true},
+ {id:'ph1000',t:'eletrolito',g:'Sachês e tabletes',nome:'Precision PH 1000, tablete (500 ml)',na:500,un:'tablete',half:true},
+ {id:'ph500',t:'eletrolito',g:'Sachês e tabletes',nome:'Precision PH 500, tablete (500 ml)',na:250,un:'tablete',half:true},
+ {id:'hidraiso',t:'eletrolito',g:'Sachês e tabletes',nome:'Dobro Hidra Iso, tablete',na:400,un:'tablete',half:true},
+ {id:'saltreload',t:'eletrolito',g:'Cápsulas',nome:'Body Action Salt Reload, cápsula',na:380,un:'cápsula'},
+ {id:'phcap',t:'eletrolito',g:'Cápsulas',nome:'Precision Electrolyte Capsule',na:250,un:'cápsula',est:true},
+ {id:'saltstick',t:'eletrolito',g:'Cápsulas',nome:'SaltStick Caps',na:215,un:'cápsula',est:true},
+ {id:'sal',t:'eletrolito',g:'Caseiro',nome:'Sal de cozinha',na:393,un:'g',gram:true}
+];
+
+/* ===== ESTADO ===== */
+const $=id=>document.getElementById(id);
+const fmt=(n,d=0)=>Number(n).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const SPORT_NOME={corrida:'Corrida',ciclismo:'Ciclismo',natacao:'Natação'};
+const INT_NOME=['Leve (Z1-Z2)','Moderado (Z3)','Forte (Z4)','Prova / limiar+ (Z5)'];
+const PRESETS={
+  sprint:[[0.3,4],[0.67,4],[0.42,4]],
+  olimpico:[[0.5,3],[1.25,3],[0.83,3]],
+  '703':[[0.67,3],[2.75,3],[1.92,3]],
+  im:[[1.25,2],[5.75,2],[4.25,2]]
+};
+const RUN_DIST={'5':['5 km',5,25/60],'10':['10 km',10,50/60],'15':['15 km',15,75/60],'21':['Meia maratona (21,1 km)',21.0975,110/60],'42':['Maratona (42,2 km)',42.195,225/60]};
+const TRI_NOME={sprint:'Sprint (750 m · 20 km · 5 km)',olimpico:'Olímpico (1,5 km · 40 km · 10 km)','703':'70.3 (1,9 km · 90 km · 21 km)',im:'Ironman (3,8 km · 180 km · 42 km)'};
+const S={tipo:'treino',formato:'single',modo:'simples',dist:{single:'livre',tri:'703'},
+  segs:{single:[{sport:'corrida',h:1.75,int:3,tss:0}],
+        brick:[{sport:'ciclismo',h:2,int:2,tss:0},{sport:'corrida',h:0.5,int:3,tss:0}],
+        tri:PRESETS['703'].map((p,k)=>({sport:['natacao','ciclismo','corrida'][k],h:p[0],int:p[1],tss:0}))},
+  prodOver:{}};
+
+try{const c=JSON.parse(localStorage.getItem('gaCustom')||'[]');c.forEach(p=>PRODUTOS.push(p));}catch(e){}
+
+function pressSeg(id,val){document.querySelectorAll('#'+id+' button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===val?'true':'false'));}
+function bindSeg(id,key,after){
+  $(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S[key]=b.dataset.v;pressSeg(id,S[key]);after&&after();renderSegs();run();});
+  pressSeg(id,S[key]);
+}
+
+function hm(h){const t=Math.round(h*60);return {h:Math.floor(t/60),m:t%60};}
+function segList(){return S.segs[S.formato];}
+
+function renderSegs(){
+  $('singleRow').hidden=S.formato!=='single';
+  $('tssHint').hidden=S.modo!=='tss';
+  const sp=segList();
+  if(S.formato==='single'){sp[0].sport=$('sport').value;}
+  $('indoorWrap').hidden=S.formato!=='single'||sp[0].sport==='natacao';
+  renderDist();renderBottle();
+  $('drinkWrap').hidden=!sp.some(s=>s.sport==='ciclismo');
+  const box=$('segs');box.innerHTML='';
+  sp.forEach((s,k)=>{
+    const t=hm(s.h);
+    const d=document.createElement('div');d.className='segcard';
+    const label=S.formato==='brick'&&s.sport==='corrida'?'Corrida (T2)':SPORT_NOME[s.sport];
+    d.innerHTML=`<div class="tag"><span>${label}</span><small id="ifl${k}"></small></div>
+      <div class="row">
+        <label class="f">Horas<input type="number" min="0" max="17" step="1" inputmode="numeric" id="sh${k}" value="${t.h}"></label>
+        <label class="f">Minutos<input type="number" min="0" max="59" step="5" inputmode="numeric" id="sm${k}" value="${t.m}"></label>
+        ${S.modo==='tss'
+          ?`<label class="f">TSS<input type="number" min="0" step="5" inputmode="numeric" id="st${k}" value="${s.tss||''}" placeholder="ex.: 120"></label>`
+          :`<label class="f">Intensidade<select id="si${k}">${INT_NOME.map((n,j)=>`<option value="${j+1}" ${s.int===j+1?'selected':''}>${n}</option>`).join('')}</select></label>`}
+      </div>`;
+    box.appendChild(d);
+    if(isRunRace()){d.querySelector('label.f').firstChild.textContent='Tempo alvo (h)';}
+    const upd=()=>{s.h=(+$('sh'+k).value||0)+(+$('sm'+k).value||0)/60;
+      if(S.modo==='tss')s.tss=+$('st'+k).value||0;else s.int=+$('si'+k).value;
+      if(S.formato==='tri'&&S.dist.tri!=='custom'&&PRESETS[S.dist.tri]&&Math.abs(PRESETS[S.dist.tri][k][0]-s.h)>0.01){S.dist.tri='custom';$('dist').value='custom';}
+      run();};
+    d.addEventListener('input',upd);d.addEventListener('change',upd);
+  });
+}
+
+function isRunRace(){return S.formato==='single'&&segList()[0].sport==='corrida'&&S.dist.single!=='livre';}
+function renderDist(){
+  const sel=$('dist');const sp=segList();let opts=null,key=null;
+  if(S.formato==='tri'){key='tri';opts=[...Object.entries(TRI_NOME),['custom','Personalizado (ajuste os tempos)']];}
+  else if(S.formato==='single'&&sp[0].sport==='corrida'){key='single';opts=[['livre','Treino livre (só duração)'],...Object.entries(RUN_DIST).map(([k,v])=>[k,v[0]])];}
+  $('distWrap').hidden=!opts;if(!opts)return;
+  sel.innerHTML=opts.map(([v,n])=>`<option value="${v}">${n}</option>`).join('');sel.value=S.dist[key];
+}
+function paceTxt(s){if(!isRunRace()||!s.h)return '';const km=RUN_DIST[S.dist.single][1];const sec=Math.round(s.h*3600/km);return `ritmo ${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}/km`;}
+function renderBottle(){
+  const bike=segList().some(s=>s.sport==='ciclismo');const sel=$('bottle');const cur=sel.dataset.ctx;const ctx=bike?'bike':'run';
+  if(cur===ctx)return;sel.dataset.ctx=ctx;
+  const opts=bike?[[500,'Caramanhola 500 ml'],[600,'Caramanhola 600 ml'],[750,'Caramanhola 750 ml']]:[[150,'Copo do posto de hidratação (~150 ml)'],[250,'Flask 250 ml'],[500,'Flask ou garrafa 500 ml']];
+  sel.innerHTML=opts.map(([v,n])=>`<option value="${v}">${n}</option>`).join('');sel.value=bike?600:(S.tipo==='prova'?150:500);
+  $('bottleLbl').textContent=bike?'Caramanhola':'Como você vai beber';
+}
+function bottleName(n){const o=$('bottle').selectedOptions[0];const t=o?o.textContent:'';
+  if(t.startsWith('Copo'))return n>1?'copos de ~150 ml nos postos':'copo de ~150 ml no posto';
+  if(t.startsWith('Flask'))return (n>1?'flasks de ':'flask de ')+$('bottle').value+' ml';
+  return (n>1?'caramanholas de ':'caramanhola de ')+$('bottle').value+' ml';}
+function fillSelect(sel,types,none){
+  const el=$(sel);const cur=el.value;el.innerHTML='';
+  if(none){const o=document.createElement('option');o.value='';o.textContent=none;el.appendChild(o);}
+  const groups={};
+  PRODUTOS.filter(p=>types.includes(p.t)).forEach(p=>{(groups[p.g]=groups[p.g]||[]).push(p);});
+  Object.entries(groups).forEach(([g,ps])=>{const og=document.createElement('optgroup');og.label=g;
+    ps.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.nome+(p.est?' · estimado':'');og.appendChild(o);});el.appendChild(og);});
+  if(cur&&[...el.options].some(o=>o.value===cur))el.value=cur;
+}
+function prod(id){if(!id)return null;const p=PRODUTOS.find(x=>x.id===id);if(!p)return null;return {...p,...(S.prodOver[id]||{})};}
+function renderProdEdit(sel,box){
+  const p=prod($(sel).value);const b=$(box);b.innerHTML='';if(!p)return;
+  const fields=p.t==='po'?[]:p.t==='eletrolito'?(p.gram?[]:[['na','Sódio (mg)']]):[['cho','Carbo (g)'],['na','Sódio (mg)'],['caf','Cafeína (mg)']];
+  if(!fields.length&&!p.est)return;
+  const wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;gap:6px';
+  if(p.est)wrap.innerHTML='<span class="flag">Valores estimados: confira o rótulo</span>';
+  if(fields.length){const g=document.createElement('div');g.className='pv';
+    fields.forEach(([k,l])=>{const lab=document.createElement('label');lab.className='f';lab.textContent=l+' por porção';
+      const inp=document.createElement('input');inp.type='number';inp.value=p[k]??0;inp.id='ov_'+sel+'_'+k;
+      inp.addEventListener('input',()=>{S.prodOver[p.id]={...(S.prodOver[p.id]||{}),[k]:+inp.value||0};run();});
+      lab.appendChild(inp);g.appendChild(lab);});
+    wrap.appendChild(g);}
+  b.appendChild(wrap);
+}
+
+function readInputs(){
+  return {modo:S.modo,peso:+$('peso').value||70,gut:{ciclismo:+$('gutBike').value,corrida:+$('gutRun').value},sal:+$('sal').value,
+    naMedido:+$('naMedido').value||0,srMedida:{ciclismo:+$('srBike').value||0,corrida:+$('srRun').value||0},aclim:$('aclim').value==='1',
+    temp:+$('temp').value||25,rh:+$('rh').value||60,
+    cond:(S.formato==='single'&&$('indoor').value==='1')?'indoor':$('cond').value,
+    formato:S.formato,srFactor:calFactor(),segs:segList().map(s=>({...s}))};
+}
+
+/* ===== PLANO COM PRODUTOS ===== */
+function plano(r,inp){
+  const gel=prod($('pGel').value),dr=$('drinkWrap').hidden?null:prod($('pDrink').value),el=prod($('pElec').value);
+  const bottle=+$('bottle').value;
+  const tot={gels:0,drinkServ:0,poG:0,elec:0,water:0,caf:0,bottles:0};
+  const rows=[];
+  r.segs.forEach(s=>{
+    const x={s,dCho:0,dNa:0,dServ:0,poG:0,gels:0,gelCho:0,gelNa:0,elec:0,elecNa:0};
+    if(s.sport!=='natacao'&&s.h>0){
+      const F=s.fl*1000;
+      if(dr&&dr.t==='bebida'&&F>0){x.dServ=Math.min(F/dr.ml,s.carb/(dr.cho||1));x.dCho=x.dServ*dr.cho;x.dNa=x.dServ*(dr.na||0);}
+      if(dr&&dr.t==='po'&&F>0){const c=Math.min(s.carb,F/1000*90);x.poG=c/dr.choG;x.dCho=c;}
+      const rem=Math.max(0,s.carb-x.dCho);
+      if(gel&&gel.cho>0){x.gels=Math.round(rem*s.h/gel.cho);x.gelCho=x.gels*gel.cho/s.h;x.gelNa=x.gels*(gel.na||0)/s.h;tot.caf+=x.gels*(gel.caf||0);}
+      const naRem=Math.max(0,s.na-x.dNa-x.gelNa);
+      if(el&&el.na>0){
+        const raw=naRem*s.h/el.na;
+        x.elec=el.gram?Math.round(raw*10)/10:el.half?Math.round(raw*2)/2:Math.round(raw);
+        x.elecNa=x.elec*el.na/s.h;
+      }
+      tot.gels+=x.gels;tot.drinkServ+=x.dServ*s.h;tot.poG+=x.poG*s.h;tot.elec+=x.elec;tot.water+=F*s.h;
+    }
+    rows.push(x);
+  });
+  tot.bottles=tot.water/bottle;
+  return {rows,tot,gel,dr,el,bottle};
+}
+
+/* ===== RENDER ===== */
+function run(){
+  const inp=readInputs();
+  const r=calcular(inp);
+  const P=plano(r,inp);
+  const feeding=r.segs.some(s=>s.sport!=='natacao');
+  $('vCho').innerHTML=fmt(feeding?r.carbH:0)+'<small>g/h</small>';
+  $('vFl').innerHTML=fmt(feeding?r.flH:0)+'<small>ml/h</small>';
+  $('vNa').innerHTML=fmt(feeding?r.naH:0)+'<small>mg/h</small>';
+  $('tCho').textContent=`Total ${fmt(r.carbTot)} g`;
+  $('tFl').textContent=`Total ${fmt(r.flTot/1000,1)} L`;
+  $('tNa').textContent=`Total ${fmt(r.naTot)} mg`;
+
+  // duração total
+  const td=$('totDur');td.hidden=r.segs.length<2;
+  if(!td.hidden){const t=hm(r.T);td.textContent=`Duração total ${t.h}h${String(t.m).padStart(2,'0')}. A faixa de carboidrato é definida pela sessão inteira, não por cada modalidade separada.`;}
+  // tabela
+  const tb=$('tbody');tb.innerHTML='';
+  r.segs.forEach((s,k)=>{const t=hm(s.h);
+    const lbl=s.IF?`IF ${fmt(s.IF,2)}`:INT_NOME[Math.max(0,Math.round(s.i*4)-1)].split(' ')[0];
+    const el=$('ifl'+k);if(el)el.textContent=[paceTxt(s),s.IF?`IF ${fmt(s.IF,2)} · ${INT_NOME[Math.min(3,Math.floor(s.i*4))]}`:''].filter(Boolean).join(' · ');
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${SPORT_NOME[s.sport]}</td><td>${t.h}h${String(t.m).padStart(2,'0')}</td><td>${lbl}</td><td>${fmt(s.sr,2)} L/h</td>
+      <td>${s.sport==='natacao'?'pré':fmt(s.carb)}${s.carbExtra?'*':''}</td><td>${s.sport==='natacao'?'0':fmt(s.fl*1000)}</td><td>${s.sport==='natacao'?'0':fmt(s.na)}</td>`;
+    tb.appendChild(tr);});
+  const extra=r.segs.find(s=>s.carbExtra);
+  $('lossLine').textContent=`Perda de suor estimada ${fmt(r.loss,1)} L · você repõe ${fmt(r.intake,1)} L · déficit projetado ${fmt(Math.max(0,r.deficitPct),1)}% do peso.`+(extra?` *Inclui +${extra.carbExtra} g/h ${S.formato==='brick'?'antecipados da corrida':'para compensar a natação'}.`:'')+` Sódio do suor considerado: ${fmt(r.conc)} mg/L.`+(inp.srFactor?' Taxa de suor ajustada pelo seu diário.':'');
+
+  // o que levar
+  const c=$('carry');c.innerHTML='';
+  const add=(q,txt,cls)=>{const li=document.createElement('li');li.innerHTML=`<span class="q ${cls||''}">${q}</span><span>${txt}</span>`;c.appendChild(li);};
+  const isTri=S.formato==='tri';
+  if(isTri&&r.T>=1.5&&P.gel)add('+1',`${P.gel.nome} 10 a 15 min antes da largada da natação`);
+  if(P.gel&&P.tot.gels>0)add(fmt(P.tot.gels),`${P.gel.nome} (${fmt(P.gel.cho)} g cada)`);
+  if(P.dr&&P.dr.t==='bebida'&&P.tot.drinkServ>0)add(fmt(P.tot.drinkServ,1),`porções de ${P.dr.nome}`);
+  if(P.dr&&P.dr.t==='po'&&P.tot.poG>0)add(fmt(P.tot.poG)+' g',`de ${P.dr.nome} dissolvidos nas caramanholas (${fmt(P.tot.poG/Math.max(1,P.tot.bottles))} g por caramanhola)`);
+  if(P.el&&P.tot.elec>0)add(P.el.gram?fmt(P.tot.elec,1)+' g':fmt(P.tot.elec,P.tot.elec%1?1:0),P.el.gram?`de sal de cozinha (¼ colher de chá ≈ 1,5 g ≈ 590 mg de sódio), dissolvido nas caramanholas`:`${P.el.un}${P.tot.elec>1?'s':''} de ${P.el.nome.split(',')[0]}`);
+  if(P.tot.water>0){const nb=Math.ceil(P.tot.bottles*2)/2;add(fmt(nb,nb%1?1:0),`${bottleName(nb)} (${fmt(P.tot.water/1000,1)} L no total${P.bottle>=500?', contando reabastecimentos':''})`,'b');}
+  if(!c.children.length){const li=document.createElement('li');li.innerHTML='<span>Sessão curta: água pela sede é suficiente. Para treino forte acima de 45 min, um bochecho com bebida esportiva ajuda.</span>';c.appendChild(li);}
+
+  // cronograma
+  const tl=$('tl');tl.innerHTML='';
+  const [hh,mm]=($('hora').value||'06:00').split(':').map(Number);
+  const clock=min=>{const t=hh*60+mm+Math.round(min);const h=Math.floor(t/60)%24,m=((t%60)+60)%60;return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;};
+  const rel=min=>{const h=Math.floor(min/60),m=Math.round(min%60);return `${h}:${String(m).padStart(2,'0')}`;};
+  const ev=[];let off=0;
+  if(isTri&&r.T>=1.5&&P.gel)ev.push({t:-12,cls:'',txt:`1 ${P.gel.nome} antes da largada`});
+  P.rows.forEach((x,k)=>{const s=x.s;const len=s.h*60;
+    ev.push({t:off,cls:'s',txt:`Início ${SPORT_NOME[s.sport].toLowerCase()}${S.formato==='brick'&&s.sport==='corrida'?' (T2)':''}`});
+    if(s.sport!=='natacao'){
+      if(x.gels>0){const first=Math.min(20,len/(x.gels+1));const step=(len-first)/x.gels;
+        const brickEnd=S.formato!=='single'&&s.sport==='ciclismo';
+        for(let j=0;j<x.gels;j++){let t=first+j*step;if(brickEnd&&j===x.gels-1)t=Math.max(t,len-20);ev.push({t:off+t,cls:'',txt:`1 ${P.gel.nome}`});}}
+      if(x.elec>0&&P.el&&!P.el.gram){const n=Math.ceil(x.elec);const step=len/n;
+        for(let j=0;j<n;j++)ev.push({t:off+step*j+step/2,cls:'e',txt:`${j===n-1&&x.elec%1?'½':'1'} ${P.el.un} de eletrólito`});}
+      if(x.s.fl>0){const every=15;const ml=Math.round(x.s.fl*1000*every/60/10)*10;
+        ev.push({t:off+5,cls:'w',txt:`Beber ~${ml} ml a cada ${every} min${P.dr?' ('+P.dr.nome.split(' (')[0]+')':''}${P.el&&P.el.gram?', com sal dissolvido':''}`});}
+    }
+    off+=len;});
+  ev.push({t:off,cls:'s',txt:'Fim da sessão'});
+  ev.sort((a,b)=>a.t-b.t).forEach(e=>{const li=document.createElement('li');li.className=e.cls;
+    li.innerHTML=`<time>${e.t<0?'-0:12':rel(e.t)} <span class="hint">${clock(e.t)}</span></time><span>${e.txt}</span>`;tl.appendChild(li);});
+
+  // alertas
+  const A=[];
+  const al=(c,t)=>A.push(`<div class="al ${c}">${t}</div>`);
+  if(r.deficitPct>2.5)al('c',`<b>Déficit hídrico projetado de ${fmt(r.deficitPct,1)}%.</b> O volume tolerável por hora não cobre o seu suor. Comece bem hidratado (5 a 7 ml/kg 2 a 4 h antes), use os pontos de água e aceite reduzir o ritmo no calor.`);
+  if(r.T>=4&&r.segs.some(s=>s.fl>0&&s.fl>=s.sr*0.9))al('c',`<b>Risco de hiponatremia.</b> Ingestão próxima da taxa de suor em sessão longa. Não beba acima do plano e garanta o sódio indicado.`);
+  const ta=inp.temp+(inp.rh>60?(inp.rh-60)*0.1:0);
+  if(ta>=30)al('w',`<b>Estresse térmico alto.</b> Calor e umidade aumentam o suor e a temperatura central. Prefira horários mais frescos e resfriamento (gelo, água na cabeça).`);
+  const maxCarb=Math.max(...r.segs.map(s=>s.carb));
+  const multi=(P.gel&&P.gel.multi)||(P.dr&&P.dr.multi);
+  if(maxCarb>60&&(P.gel||P.dr)&&!multi)al('w',`<b>Acima de 60 g/h use glicose + frutose.</b> O produto escolhido usa um tipo só de carboidrato, que satura a absorção intestinal por volta de 60 g/h.`);
+  if(maxCarb>60&&!P.gel&&!P.dr)al('i',`Escolha um gel ou bebida para transformar as metas em unidades.`);
+  if(r.segs.some(s=>s.sport==='corrida'&&s.carb>=80))al('w',`<b>Corrida com 80 g/h ou mais.</b> Só se o intestino já estiver treinado nessa faixa correndo. Suba 10 g/h por semana nos longões.`);
+  const has=sp=>r.segs.some(s=>s.sport===sp);const gb=has('ciclismo')&&inp.gut.ciclismo===0,gr=has('corrida')&&inp.gut.corrida===0;
+  if((gb||gr)&&r.T>=2)al('i',`<b>Tolerância iniciante ${gb&&gr?'no pedal e na corrida':gb?'no pedal':'na corrida'}.</b> A meta foi limitada para conforto. Treinar o intestino (aumentar gradualmente o carboidrato nos treinos longos) libera metas maiores e melhor desempenho.`);
+  if(P.tot.caf>0){const mgkg=P.tot.caf/inp.peso;al(mgkg>6?'w':'i',`<b>Cafeína total ${fmt(P.tot.caf)} mg (${fmt(mgkg,1)} mg/kg).</b> Faixa eficaz 3 a 6 mg/kg; acima disso aumentam tremor, taquicardia e desconforto gástrico.`);}
+  if(S.formato==='brick'){const rn=r.segs.find(s=>s.sport==='corrida');
+    if(rn&&rn.shifted)al('i',`<b>Brick:</b> com T2 de até 45 min, os ${rn.shifted} g de carboidrato da corrida foram antecipados para o pedal. O último gel entra nos 15 a 20 min finais da bike. Na corrida, só água e sódio, porque o esvaziamento gástrico piora com o impacto.`);
+    else al('i',`<b>Brick:</b> tome o último gel nos 15 a 20 min finais do pedal. Na corrida o esvaziamento gástrico piora, então chegue à T2 já abastecido.`);}
+  if(isTri)al('i',`<b>Triathlon:</b> sem ingestão na natação; o ciclismo é a janela principal de abastecimento e já compensa o déficit da água.`);
+  if(r.segs.length===1&&r.segs[0].sport==='natacao')al('i',`<b>Natação:</b> acima de 75 min, deixe uma garrafa na borda e beba nas pausas da série.`);
+  if(r.T<1&&feeding)al('i',`Sessão abaixo de 1 h: líquido pela sede. No calor intenso, 200 a 300 ml ajudam.`);
+  if(S.tipo==='prova')al('i',`<b>Regra de prova:</b> use só produtos e quantidades já testados em treino.`);
+  $('alerts').innerHTML=A.join('');
+}
+
+/* ===== CLIMA (Open-Meteo) ===== */
+async function buscarClima(){
+  const st=$('wStatus');st.className='status';st.textContent='Buscando previsão...';
+  try{
+    const q=encodeURIComponent($('cidade').value.trim()||'Vila Velha');
+    const g=await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=1&language=pt&format=json`)).json();
+    if(!g.results||!g.results.length)throw new Error('cidade');
+    const loc=g.results[0];
+    const d=$('data').value;const T=readInputs().segs.reduce((a,s)=>a+s.h,0)||1;
+    const [hh,mm]=($('hora').value||'06:00').split(':').map(Number);
+    const end=new Date(d+'T00:00');end.setMinutes(hh*60+mm+T*60);
+    const e=end.toLocaleDateString('sv-SE');
+    const w=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&hourly=temperature_2m,relative_humidity_2m,cloud_cover,is_day&timezone=auto&start_date=${d}&end_date=${e}`)).json();
+    if(!w.hourly)throw new Error('fora');
+    const t0=new Date(`${d}T${String(hh).padStart(2,'0')}:00`).getTime(),t1=t0+Math.max(1,T)*3600e3;
+    let n=0,ts=0,rs=0,cs=0,day=0;
+    w.hourly.time.forEach((t,k)=>{const x=new Date(t).getTime();if(x>=t0&&x<t1){n++;ts+=w.hourly.temperature_2m[k];rs+=w.hourly.relative_humidity_2m[k];cs+=w.hourly.cloud_cover[k];day+=w.hourly.is_day[k];}});
+    if(!n)throw new Error('fora');
+    $('temp').value=(ts/n).toFixed(1);$('rh').value=Math.round(rs/n);
+    if($('cond').value!=='indoor')$('cond').value=(cs/n<50&&day/n>0.5)?'sol':'nublado';
+    st.className='status ok';st.textContent=`${loc.name}${loc.admin1?', '+loc.admin1:''}: média de ${fmt(ts/n,1)} °C, ${Math.round(rs/n)}% de umidade e ${Math.round(cs/n)}% de nuvens na janela da sessão.`;
+    run();
+  }catch(err){
+    st.className='status bad';
+    st.textContent=err.message==='cidade'?'Cidade não encontrada. Confira o nome ou preencha o clima abaixo.':err.message==='fora'?'Data fora do alcance da previsão (até 16 dias). Preencha o clima esperado abaixo.':'A busca automática não roda dentro da prévia do Claude, que bloqueia acesso a sites externos. Na versão publicada no seu domínio ela funciona. Por enquanto, preencha temperatura e umidade abaixo.';
+  }
+}
+
+/* ===== DIÁRIO PÓS-TREINO ===== */
+const LS_KEY='gaDiario';
+const ST={mode:'carregando',db:null,col:null,logs:[],unsub:null};
+const CAL={on:true,f:{ciclismo:1,corrida:1},n:{ciclismo:0,corrida:0},gut:{ciclismo:null,corrida:null},detail:{}};
+const GI_TXT=['nenhum','quase nada','leve','leve','incomodou','incomodou','atrapalhou','atrapalhou','forte','muito forte','parou o treino'];
+const COND_TXT={sol:'sol',nublado:'nublado',indoor:'indoor'};
+
+function lsRead(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]')}catch(e){return []}}
+function lsWrite(a){try{localStorage.setItem(LS_KEY,JSON.stringify(a));return true}catch(e){return false}}
+
+/* Armazenamento: privado na conta (db) quando disponível, senão no navegador */
+async function storeInit(){
+  let db=null,uid=null;
+  try{
+    if(window.claude&&window.claude.use){
+      const [d,u]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+      if(d&&u){uid=await u.id();db=d;}
+    }
+  }catch(e){db=null;}
+  if(db&&uid){
+    ST.mode='nuvem';ST.db=db;ST.col=db.collection('data/users/'+uid);
+    ST.unsub=ST.col.onSnapshot(snap=>{ST.logs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(l=>l.sport);afterLogs();},
+      err=>{toLocal();});
+  }else toLocal();
+  storeChip();
+}
+function toLocal(){
+  if(ST.unsub){try{ST.unsub()}catch(e){}ST.unsub=null;}
+  ST.mode='local';ST.col=null;ST.logs=lsRead();storeChip();afterLogs();
+}
+function storeChip(){
+  const c=$('storeChip');
+  if(ST.mode==='nuvem'){c.className='chip cloud';c.textContent='Salvo na sua conta, privado';}
+  else if(ST.mode==='local'){c.className='chip local';c.textContent='Salvo só neste navegador';}
+}
+async function storeSave(log){
+  if(ST.mode==='nuvem'){
+    try{await ST.col.doc(log.id).set(log);return true;}
+    catch(e){if(e&&e.code==='quota_exceeded'){$('lgMsg').textContent='Limite de registros atingido. Apague registros antigos para continuar.';return false;}
+      toLocal();}
+  }
+  const a=lsRead().filter(l=>l.id!==log.id);a.push(log);
+  if(!lsWrite(a)){$('lgMsg').textContent='Este navegador bloqueou o armazenamento. Use o backup para não perder o registro.';}
+  ST.logs=a;afterLogs();return true;
+}
+async function storeDelete(id){
+  if(ST.mode==='nuvem'){try{await ST.col.doc(id).delete();return;}catch(e){toLocal();}}
+  const a=lsRead().filter(l=>l.id!==id);lsWrite(a);ST.logs=a;afterLogs();
+}
+
+/* Derivados de um registro */
+function derive(l){
+  const h=l.durMin/60;
+  const lossL=(l.pesoPre-l.pesoPos)+(l.bebeuMl||0)/1000-(l.urinaMl||0)/1000;
+  const sr=h>0?lossL/h:0;
+  const model=sweatRate(l.sport,INT_I[(l.int||2)-1],{temp:l.temp??25,rh:l.rh??60,cond:l.cond||'sol',peso:l.pesoPre,aclim:$('aclim').value==='1',srMedida:0,srFactor:null});
+  return {h,sr,ratio:model>0?sr/model:1,model,choH:h>0?(l.choG||0)/h:0,naH:h>0?(l.naMg||0)/h:0,
+    perdaPct:l.pesoPre>0?(l.pesoPre-l.pesoPos)/l.pesoPre*100:0,ganhou:l.pesoPos>l.pesoPre};
+}
+
+/* Calibração: fator de suor com encolhimento para 1 e tolerância a carbo por modalidade */
+const GUT_CUT={ciclismo:[40,80],corrida:[40,70]};
+function calibrar(){
+  ['ciclismo','corrida'].forEach(sp=>{
+    const ls=ST.logs.filter(l=>l.sport===sp).sort((a,b)=>b.data.localeCompare(a.data));
+    const valid=ls.map(l=>({l,d:derive(l)})).filter(x=>x.d.sr>0.15&&x.d.sr<4&&x.d.h>=0.4).slice(0,12);
+    const n=valid.length;
+    let f=1,mean=null,ratioMean=null;
+    if(n){
+      let wsum=0,rs=0,ss=0;valid.forEach((x,k)=>{const w=Math.pow(0.85,k);wsum+=w;rs+=w*x.d.ratio;ss+=w*x.d.sr;});
+      ratioMean=rs/wsum;mean=ss/wsum;f=1+(ratioMean-1)*n/(n+2);
+    }
+    CAL.f[sp]=f;CAL.n[sp]=n;
+    // tolerância a carbo: sessões de 45 min ou mais
+    const longos=ls.map(l=>({l,d:derive(l)})).filter(x=>x.d.h>=0.75);
+    const ok=longos.filter(x=>(x.l.gi||0)<=3).map(x=>x.d.choH);
+    const bad=longos.filter(x=>(x.l.gi||0)>=6).map(x=>x.d.choH);
+    let tol=ok.length?Math.max(...ok):null;
+    const badMin=bad.length?Math.min(...bad):null;
+    if(tol!==null&&badMin!==null&&badMin<=tol)tol=Math.max(0,badMin-10);
+    let lvl=null;if(tol!==null){const [a,b]=GUT_CUT[sp];lvl=tol>=b?2:tol>=a?1:0;}
+    CAL.gut[sp]=lvl;
+    CAL.detail[sp]={n,mean,ratioMean,f,tol,badMin,nLong:longos.length};
+  });
+}
+function confBars(n){const lv=n>=6?3:n>=3?2:n>=1?1:0;return `<span class="conf">${[1,2,3].map(k=>`<i class="${k<=lv?'on':''}"></i>`).join('')} ${['sem dados','baixa','média','alta'][lv]}</span>`;}
+
+function renderCal(){
+  const g=$('calGrid');g.innerHTML='';
+  const LV={ciclismo:['Iniciante','Intermediário','Treinado'],corrida:['Iniciante','Intermediário','Treinado']};
+  ['ciclismo','corrida'].forEach(sp=>{
+    const d=CAL.detail[sp];const box=document.createElement('div');box.className='cal';
+    if(!d||!d.n){box.classList.add('none');box.innerHTML=`<h4>${sp==='ciclismo'?'Pedal':'Corrida'}</h4><span>Sem registros ${sp==='ciclismo'?'pedalando':'correndo'}. A calculadora usa a média da população.</span>`;g.appendChild(box);return;}
+    const pct=Math.round((d.f-1)*100);
+    box.innerHTML=`<h4>${sp==='ciclismo'?'Pedal':'Corrida'} <small>${d.n} registro${d.n>1?'s':''}</small></h4>
+      <div class="kv"><span class="k">Taxa de suor média</span><span class="v">${fmt(d.mean,2)}<small>L/h</small></span>
+        <span class="s">${pct===0?'Igual à média':`${Math.abs(pct)}% ${pct>0?'acima':'abaixo'} da média`} para as mesmas condições</span></div>
+      ${confBars(d.n)}
+      <div class="kv"><span class="k">Tolerância a carbo</span>${d.tol!==null?`<span class="v">${fmt(d.tol)}<small>g/h</small></span><span class="s">${LV[sp][CAL.gut[sp]]}${d.badMin!==null?` · desconforto a partir de ${fmt(d.badMin)} g/h`:''}</span>`:`<span class="s">Registre um treino de 45 min ou mais com o carbo consumido.</span>`}</div>`;
+    g.appendChild(box);
+  });
+}
+
+function renderHist(){
+  const logs=[...ST.logs].sort((a,b)=>b.data.localeCompare(a.data)||(b.created||0)-(a.created||0));
+  $('histEmpty').hidden=logs.length>0;$('histTable').hidden=!logs.length;
+  const tb=$('histBody');tb.innerHTML='';
+  logs.forEach(l=>{const d=derive(l);const t=hm(d.h);
+    const giC=(l.gi||0)<=3?'g0':(l.gi||0)<=5?'g1':'g2';
+    const tr=document.createElement('tr');
+    const dt=l.data.split('-').reverse().slice(0,2).join('/');
+    tr.innerHTML=`<td>${dt}</td><td>${SPORT_NOME[l.sport]} ${t.h}h${String(t.m).padStart(2,'0')}</td><td>${l.temp!=null?fmt(l.temp)+'°':''} ${COND_TXT[l.cond]||''}</td>
+      <td>${fmt(d.sr,2)} L/h</td><td>${fmt(d.choH)} g/h</td><td style="color:${d.ganhou||d.perdaPct>2?'var(--crit)':'inherit'}">${d.ganhou?'+':''}${fmt(Math.abs(d.perdaPct),1)}%</td>
+      <td><span class="gib ${giC}">${l.gi||0}</span></td><td><button class="xbtn" type="button">Apagar</button></td>`;
+    const x=tr.querySelector('.xbtn');
+    x.addEventListener('click',()=>{if(x.classList.contains('armed')){storeDelete(l.id);}else{x.classList.add('armed');x.textContent='Confirmar';setTimeout(()=>{x.classList.remove('armed');x.textContent='Apagar';},4000);}});
+    tb.appendChild(tr);
+    if(l.notas){const tn=document.createElement('tr');const td=document.createElement('td');td.colSpan=8;td.className='note';td.textContent=l.notas;tn.appendChild(td);tb.appendChild(tn);}
+  });
+}
+
+/* Aplica a calibração na calculadora */
+function applyCal(){
+  const has=ST.logs.length>0;
+  $('calSwWrap').hidden=!has;
+  const on=has&&$('calSw').checked;CAL.on=on;
+  const sets=[['gutBike','ciclismo'],['gutRun','corrida']];
+  const LVN=['Iniciante','Intermediário','Treinado'];const notes=[];
+  sets.forEach(([id,sp])=>{const el=$(id);const lvl=CAL.gut[sp];el.disabled=false;
+    if(!on||lvl===null)return;
+    const nm=sp==='ciclismo'?'Pedal':'Corrida';
+    if(el.dataset.user){notes.push(el.value===String(lvl)?`${nm}: ${LVN[lvl]}, igual ao diário`:`${nm}: sua escolha (o diário sugere ${LVN[lvl]})`);}
+    else{el.value=String(lvl);notes.push(`${nm}: ${LVN[lvl]} pelo diário`);}
+  });
+  const gn=$('gutNote');gn.hidden=!notes.length;gn.textContent=notes.join(' · ')+'. Você pode mudar quando quiser.';
+  const parts=[];['ciclismo','corrida'].forEach(sp=>{if(CAL.n[sp])parts.push(`${sp==='ciclismo'?'pedal':'corrida'} ${CAL.n[sp]}`);});
+  $('calSwTxt').textContent=`Usar minha calibração do diário (${parts.join(', ')} registro${ST.logs.length>1?'s':''})`;
+  const c=$('tabCnt');c.textContent=ST.logs.length;c.hidden=!ST.logs.length;
+}
+function afterLogs(){calibrar();renderCal();renderHist();applyCal();run();}
+function calFactor(){return CAL.on&&ST.logs.length?{...CAL.f}:null;}
+
+/* Formulário */
+function lgVal(){
+  const n=id=>{const v=$(id).value;return v===''?null:+v;};
+  return {data:$('lgData').value,sport:$('lgSport').value,cond:$('lgCond').value,durMin:n('lgDur'),int:+$('lgInt').value,
+    temp:n('lgTemp'),rh:n('lgRh'),pesoPre:n('lgPre'),pesoPos:n('lgPos'),bebeuMl:n('lgBebeu')||0,urinaMl:n('lgUrina')||0,
+    choG:n('lgCho')||0,naMg:n('lgNa')||0,gi:+$('lgGi').value,notas:$('lgNotas').value.trim()};
+}
+function lgPreview(){
+  const l=lgVal();$('lgGiTxt').textContent=`${l.gi} · ${GI_TXT[l.gi]}`;
+  const p=$('lgPrev');
+  if(!(l.durMin>0&&l.pesoPre>0&&l.pesoPos>0)){p.className='status';p.textContent='Preencha duração e pesos para ver sua taxa de suor.';return null;}
+  const d=derive(l);
+  const bits=[`Taxa de suor ${fmt(d.sr,2)} L/h`,`${d.ganhou?'ganhou':'perdeu'} ${fmt(Math.abs(d.perdaPct),1)}% do peso`];
+  if(l.choG)bits.push(`${fmt(d.choH)} g/h de carbo`);
+  let cls='status ok',warn='';
+  if(d.ganhou){cls='status bad';warn=' Ganhar peso no treino indica que você bebeu mais do que suou, o principal fator de risco de hiponatremia.';}
+  else if(d.perdaPct>3){cls='status bad';warn=' Perda acima de 3% costuma derrubar o desempenho, principalmente no calor.';}
+  else if(d.sr>3.2||d.sr<0.15){cls='status bad';warn=' Valor fora do esperado. Confira pesos, volume bebido e duração.';}
+  p.className=cls;p.textContent=bits.slice(0,3).join(' · ')+'.'+warn;
+  return d;
+}
+async function lgSave(){
+  const l=lgVal();const m=$('lgMsg');
+  if(!l.data||!(l.durMin>0)||!(l.pesoPre>0)||!(l.pesoPos>0)){m.textContent='Preencha data, duração e os dois pesos.';return;}
+  if(Math.abs(l.pesoPre-l.pesoPos)>l.pesoPre*0.08){m.textContent='A diferença de peso passa de 8%. Confira os valores.';return;}
+  const log={...l,id:'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now()};
+  $('lgSave').disabled=true;
+  const ok=await storeSave(log);
+  $('lgSave').disabled=false;
+  if(ok){m.textContent='Registro salvo. Calibração atualizada.';['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa','lgNotas'].forEach(id=>$(id).value='');$('lgGi').value=0;lgPreview();}
+}
+
+/* Pré-preenche o diário a partir do plano calculado */
+function prefillFromPlan(){
+  const inp=readInputs();const r=calcular(inp);
+  const seg=r.segs.find(s=>s.sport!=='natacao');if(!seg)return;
+  $('lgSport').value=seg.sport;$('lgDur').value=Math.round(seg.h*60);
+  $('lgInt').value=String(clamp(Math.round(seg.i*4),1,4));
+  $('lgTemp').value=inp.temp;$('lgRh').value=inp.rh;$('lgCond').value=inp.cond;
+  $('lgCho').value=Math.round(seg.carb*seg.h);$('lgNa').value=Math.round(seg.na*seg.h/50)*50;
+  $('lgData').value=$('data').value||new Date().toLocaleDateString('sv-SE');
+  showView('diario');lgPreview();
+  $('lgMsg').textContent=r.segs.length>1?'Pré-preenchido com o pedal do plano. Depois registre a corrida separadamente.':'Pré-preenchido com o plano. Ajuste para o que você realmente consumiu.';
+  $('lgPre').focus();
+}
+
+function showView(v){
+  $('viewCalc').hidden=v!=='calc';$('viewDiario').hidden=v!=='diario';
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v?'true':'false'));
+}
+
+function initDiario(){
+  $('lgData').value=new Date().toLocaleDateString('sv-SE');
+  document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.v)));
+  if(location.hash==='#diario')showView('diario');
+  $('logForm').addEventListener('input',lgPreview);$('logForm').addEventListener('change',lgPreview);
+  $('lgSave').addEventListener('click',lgSave);
+  $('calSw').addEventListener('change',()=>{applyCal();run();});
+  ['gutBike','gutRun'].forEach(id=>$(id).addEventListener('change',()=>{$(id).dataset.user='1';applyCal();}));
+  $('lgFromPlan').addEventListener('click',prefillFromPlan);
+  $('bkCopy').addEventListener('click',()=>{const t=JSON.stringify({app:'calculadora-combustivel',v:1,logs:ST.logs});
+    const done=()=>{$('bkMsg').textContent=`${ST.logs.length} registros copiados.`;};
+    try{navigator.clipboard.writeText(t).then(done,()=>{$('bkBox').hidden=false;$('bkText').value=t;$('bkText').select();$('bkMsg').textContent='Copie o texto selecionado.';});}
+    catch(e){$('bkBox').hidden=false;$('bkText').value=t;$('bkText').select();$('bkMsg').textContent='Copie o texto selecionado.';}});
+  $('bkShow').addEventListener('click',()=>{$('bkBox').hidden=!$('bkBox').hidden;$('bkText').value='';});
+  $('bkImport').addEventListener('click',async()=>{
+    try{const j=JSON.parse($('bkText').value);const arr=(j.logs||j).filter(l=>l&&l.sport&&l.data&&l.durMin&&l.pesoPre);
+      const have=new Set(ST.logs.map(l=>l.id));let k=0;
+      for(const l of arr){if(!have.has(l.id)){await storeSave(l);k++;}}
+      $('bkMsg').textContent=`${k} registro${k===1?'':'s'} importado${k===1?'':'s'}.`;$('bkBox').hidden=true;
+    }catch(e){$('bkMsg').textContent='Texto inválido. Cole exatamente o que foi copiado no backup.';}});
+  lgPreview();
+  storeInit();
+}
+
+/* ===== INICIALIZAÇÃO ===== */
+(function init(){
+  const today=new Date();today.setDate(today.getDate()+1);$('data').value=today.toLocaleDateString('sv-SE');
+  bindSeg('tipo','tipo');
+  bindSeg('formato','formato');
+  bindSeg('modo','modo');
+  fillSelect('pGel',['gel'],'Nenhum');fillSelect('pDrink',['bebida','po'],'Só água');fillSelect('pElec',['eletrolito'],'Nenhum');
+  $('pGel').value='vo2';$('pElec').value='saltz500';
+  ['pGel','pDrink','pElec'].forEach((id,k)=>$(id).addEventListener('change',()=>{renderProdEdit(id,id+'V');run();}));
+  ['pGel','pDrink','pElec'].forEach(id=>renderProdEdit(id,id+'V'));
+  $('sport').addEventListener('change',()=>{renderSegs();run();});
+  $('dist').addEventListener('change',()=>{const v=$('dist').value;
+    if(S.formato==='tri'){S.dist.tri=v;if(PRESETS[v])S.segs.tri=PRESETS[v].map((x,k)=>({sport:['natacao','ciclismo','corrida'][k],h:x[0],int:S.tipo==='prova'?x[1]:Math.max(1,x[1]-1),tss:0}));}
+    else{S.dist.single=v;if(RUN_DIST[v])S.segs.single[0].h=RUN_DIST[v][2];}
+    renderSegs();run();});
+  $('tipo').addEventListener('click',()=>{$('bottle').dataset.ctx='';renderBottle();run();});
+  ['peso','gutBike','gutRun','sal','aclim','srBike','srRun','naMedido','temp','rh','cond','indoor','bottle','hora'].forEach(id=>{$(id).addEventListener('input',run);$(id).addEventListener('change',run);});
+  $('wGo').addEventListener('click',buscarClima);
+  $('tGo').addEventListener('click',()=>{const a=+$('tA').value,b=+$('tB').value,c=+$('tC').value||0,d=+$('tD').value||60;
+    if(!(a>0&&b>0)){$('tOut').textContent='Informe os dois pesos.';return;}
+    const sr=((a-b)+c/1000)/(d/60);const tgt=$('tS').value;$(tgt).value=sr.toFixed(2);$('tOut').textContent=`Taxa de ${fmt(sr,2)} L/h aplicada ${tgt==='srBike'?'ao pedal':'à corrida'}.`;run();});
+  $('cAdd').addEventListener('click',()=>{const nome=$('cNome').value.trim();if(!nome)return;const t=$('cTipo').value;
+    const p={id:'c'+Date.now(),t,g:'Meus produtos',nome,cho:+$('cCho').value||0,na:+$('cNa').value||0,caf:+$('cCaf').value||0,ml:+$('cMl').value||500,multi:$('cMulti').checked,un:'dose',half:true};
+    PRODUTOS.push(p);try{const c=JSON.parse(localStorage.getItem('gaCustom')||'[]');c.push(p);localStorage.setItem('gaCustom',JSON.stringify(c));}catch(e){}
+    fillSelect('pGel',['gel'],'Nenhum');fillSelect('pDrink',['bebida','po'],'Só água');fillSelect('pElec',['eletrolito'],'Nenhum');
+    const sel=t==='gel'?'pGel':t==='bebida'?'pDrink':'pElec';$(sel).value=p.id;renderProdEdit(sel,sel+'V');$('cNome').value='';run();});
+  renderSegs();run();
+  initDiario();
+})();
+</script>
+
+</body></html>
