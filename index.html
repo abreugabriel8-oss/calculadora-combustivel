@@ -1919,30 +1919,46 @@ function gTarget(t,sport){
 function gSteps(seg,k){
   const P=LAST.P;const sec=seg.h*3600;
   const bl=(segList().filter(q=>q.h>0)[k]||{}).blocks;
-  let base;
-  if(bl&&bl.length)base=bl.map(b=>({start:b.start,sec:b.sec,int:b.int,tgt:b.tgt,m:b.m}));
-  else{ // treino contínuo: blocos de 15 min para lembrar de beber
-    const n=Math.max(1,Math.round(sec/900));const d=sec/n;base=[];
-    for(let i=0;i<n;i++)base.push({start:i*d,sec:d,int:'active',tgt:null});}
-  const gels=((LAST.gt||{})[k]||[]).map(t=>t*60);
-  const els=((LAST.et||{})[k]||[]);
-  // corta o passo no momento do gel, para o relógio avisar na troca de passo
-  gels.forEach(t=>{
-    const i=base.findIndex(b=>t>b.start+20&&t<b.start+b.sec-20);if(i<0)return;
-    const b=base[i];const a={...b,sec:t-b.start,m:null};const c={...b,start:t,sec:b.start+b.sec-t,m:null};
-    base.splice(i,1,a,c);});
+  let base=bl&&bl.length?bl.map(b=>({start:b.start,sec:b.sec,int:b.int,tgt:b.tgt,m:b.m,if:b.if}))
+    :[{start:0,sec,int:'active',tgt:null,m:null,if:seg.i}];
+  const bounds=()=>base.map(b=>b.start).concat([sec]);
+  const blockAt=t=>base.find(b=>t>=b.start&&t<b.start+b.sec);
+  // pontos de aviso: géis (já deslocados para trechos leves) e água a cada 15 min, como no cronograma
+  const pts=[];
+  ((LAST.gt||{})[k]||[]).forEach(t=>pts.push({t:t*60,gel:true}));
+  const ml15=Math.round(seg.fl*1000/4/10)*10;
+  if(ml15>=50)for(let t=900;t<sec-120;t+=900){
+    let tt=t;const b=blockAt(t);const easy=x=>x.if<.85;
+    if(b&&easy(b)){ // trecho leve: usa o início dele ou do próximo trecho leve, se estiver perto
+      const nx=base[base.indexOf(b)+1];
+      if(t-b.start<=180)tt=b.start;else if(nx&&easy(nx)&&nx.start-t<=180)tt=nx.start;}
+    else if(b){ // no meio do tiro: leva para o trecho leve mais próximo (até 5 min)
+      let best=null,bd=1e9;
+      base.forEach(x=>{if(!easy(x)||x.sec<90)return;const c=clamp(t,x.start,x.start+x.sec-60);const d=Math.abs(c-t);if(d<bd&&d<=300){bd=d;best=c-x.start<=180?x.start:c;}});
+      if(best!==null)tt=best;}
+    if(tt<=0)tt=Math.min(sec-60,60);
+    pts.push({t:tt,drink:ml15});
+  }
+  // junta avisos próximos (até 60 s) num só
+  pts.sort((a,b)=>a.t-b.t);const merged=[];
+  pts.forEach(p=>{const m=merged.find(q=>Math.abs(q.t-p.t)<=60);if(m){m.gel=m.gel||p.gel;m.drink=(m.drink||0)+(p.drink||0);if(p.gel)m.t=p.t;}else merged.push({...p});});
+  // corta os passos nos pontos de aviso
+  merged.forEach(p=>{
+    const i=base.findIndex(b=>p.t>b.start+20&&p.t<b.start+b.sec-20);if(i<0)return;
+    const b=base[i];base.splice(i,1,{...b,sec:p.t-b.start,m:null},{...b,start:p.t,sec:b.start+b.sec-p.t,m:null});});
   if(base.length>100)throw new Error('passos');
-  const mlH=seg.fl*1000;
+  const els=((LAST.et||{})[k]||[]);
   return base.map((b,i)=>{
     const notes=[];
-    if(gels.some(t=>Math.abs(t-b.start)<=20)&&P.gel)notes.push(`GEL AGORA: 1 ${P.gel.nome.split(' (')[0]} (${fmt(P.gel.cho)} g)`);
+    const here=merged.filter(p=>Math.abs(p.t-b.start)<=20);
+    if(here.some(p=>p.gel)&&P.gel)notes.push(`GEL AGORA: 1 ${P.gel.nome.split(' (')[0]} (${fmt(P.gel.cho)} g)`);
+    const dml=here.reduce((a,p)=>a+(p.drink||0),0);if(dml)notes.push(`BEBA ~${dml} ml`);
     els.forEach(e=>{if(e.t*60>=b.start&&e.t*60<b.start+b.sec)notes.push(`ELETRÓLITO: ${e.q} ${P.el?P.el.un:''}`.trim());});
-    const ml=Math.round(mlH*b.sec/3600/10)*10;if(ml>=80)notes.push(`BEBA ~${ml} ml`);
-    const step={type:'WorkoutStep',stepOrder:i+1,intensity:G_INT[b.int]||'ACTIVE',description:notes.join(' · ').slice(0,512),
+    if(i===0&&ml15>=50)notes.push(`Hidratação: ~${ml15} ml a cada 15 min`);
+    return {type:'WorkoutStep',stepOrder:i+1,intensity:G_INT[b.int]||'ACTIVE',description:notes.join(' · ').slice(0,512),
       durationType:b.m?'DISTANCE':'TIME',durationValue:b.m?Math.round(b.m):Math.round(b.sec),durationValueType:b.m?'METER':null,
       ...gTarget(b.tgt,seg.sport),secondaryTargetType:null,secondaryTargetValue:null,secondaryTargetValueLow:null,secondaryTargetValueHigh:null,secondaryTargetValueType:null,
-      strokeType:null,drillType:null,equipmentType:null,exerciseCategory:null,exerciseName:null,weightValue:null,weightDisplayUnit:null};
-    return step;});
+      strokeType:null,drillType:null,equipmentType:null,exerciseCategory:null,exerciseName:null,weightValue:null,weightDisplayUnit:null};});
 }
 function gWorkout(){
   const r=LAST.r,P=LAST.P;if(!r)throw new Error('vazio');
