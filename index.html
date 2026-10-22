@@ -159,6 +159,24 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
 .calsw{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:700;background:var(--blue-soft);color:var(--blue);border-radius:10px;padding:9px 12px}
 .calsw input{width:auto;accent-color:var(--blue)}
 .lgcta{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.tabs .wrap{align-items:center}
+.acctbtn{margin-left:auto;font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;cursor:pointer;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0}
+.acctwrap{position:fixed;inset:0;z-index:50;background:rgba(20,16,12,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.acct{background:var(--surface);color:var(--ink);border-radius:16px;border:1px solid var(--line);width:min(480px,100%);padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.acct>div{display:flex;flex-direction:column;gap:12px}
+.acct-h{display:flex!important;flex-direction:row!important;justify-content:space-between;align-items:center}
+.acct h3{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;margin:0;letter-spacing:.03em}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;background:var(--sunk);border-radius:10px;padding:10px 12px}
+.consent input{width:auto;margin-top:3px;accent-color:var(--accent)}
+.gbtn{width:100%;padding:11px 12px}
+.orline{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
+.orline::before,.orline::after{content:"";flex:1;height:1px;background:var(--line)}
+.acct-me{display:flex;flex-direction:column;gap:2px}
+.acct-me b{word-break:break-all}
+.danger summary{color:var(--crit)} .danger{display:flex;flex-direction:column;gap:8px}
+.dangerbtn{background:var(--crit-bg);color:var(--crit);border-color:transparent}
+.priv{font-size:12px;color:var(--muted)} .priv p{margin:6px 0 0}
+.status:empty{display:none}
 </style>
 
 <header class="band">
@@ -176,6 +194,7 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
 <nav class="tabs" aria-label="Seções"><div class="wrap" role="tablist">
   <button type="button" role="tab" data-v="calc" aria-selected="true">Calculadora</button>
   <button type="button" role="tab" data-v="diario" aria-selected="false">Diário <span class="cnt" id="tabCnt" hidden>0</span></button>
+  <button type="button" class="acctbtn" id="acctBtn" hidden>Entrar</button>
 </div></nav>
 
 <main class="wrap" id="viewCalc">
@@ -435,8 +454,54 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
   </div>
 </main>
 
+<div class="acctwrap" id="acctPanel" hidden>
+  <div class="acct" role="dialog" aria-modal="true" aria-labelledby="acctTitle">
+    <div class="acct-h"><h3 id="acctTitle">Sua conta</h3><button class="xbtn" id="acctClose" type="button" aria-label="Fechar">Fechar</button></div>
+
+    <div id="acctOut">
+      <p class="hint">Com a conta, seu diário, sua calibração e seu perfil ficam guardados e aparecem em qualquer aparelho. Sem senha: você entra pelo Google ou por um link enviado ao seu e-mail.</p>
+      <label class="consent"><input type="checkbox" id="acConsent"> <span>Autorizo guardar meus dados de treino (peso, suor, consumo e desconforto gastrointestinal) para calibrar a calculadora. Esses dados ficam visíveis só para mim, e posso apagar tudo a qualquer momento.</span></label>
+      <button class="btn gbtn" id="acGoogle" type="button">Entrar com Google</button>
+      <div class="orline"><span>ou</span></div>
+      <form id="acForm" class="row" style="align-items:flex-end" novalidate>
+        <label class="f">E-mail<input id="acEmail" type="email" autocomplete="email" inputmode="email" placeholder="voce@email.com"></label>
+        <button class="btn primary" id="acSend" type="submit" style="flex:0 0 auto">Receber link de acesso</button>
+      </form>
+    </div>
+
+    <div id="acctGate" hidden>
+      <p class="hint">Antes de guardar seus dados na conta, precisamos do seu consentimento.</p>
+      <label class="consent"><input type="checkbox" id="acConsent2"> <span>Autorizo guardar meus dados de treino (peso, suor, consumo e desconforto gastrointestinal) para calibrar a calculadora. Esses dados ficam visíveis só para mim, e posso apagar tudo a qualquer momento.</span></label>
+      <div class="row"><button class="btn primary" id="acGateOk" type="button">Confirmar</button><button class="btn" id="acGateOut" type="button">Sair</button></div>
+    </div>
+
+    <div id="acctIn" hidden>
+      <div class="acct-me"><span class="hint">Conectado como</span><b id="acctEmail"></b></div>
+      <p class="hint">Diário, calibração e perfil de atleta (peso, perfil de suor, tolerância a carbo) são salvos na sua conta automaticamente.</p>
+      <div class="row"><button class="btn" id="acOut" type="button">Sair</button></div>
+      <details class="danger">
+        <summary>Excluir minha conta</summary>
+        <p class="hint">Apaga a conta, todos os registros do diário e o perfil, de forma definitiva.</p>
+        <button class="btn" id="acDel" type="button">Quero excluir</button>
+        <div id="acDelBox" hidden class="row" style="align-items:flex-end;margin-top:8px">
+          <label class="f">Digite EXCLUIR para confirmar<input id="acDelTxt" type="text" autocomplete="off"></label>
+          <button class="btn dangerbtn" id="acDelGo" type="button" style="flex:0 0 auto">Excluir tudo</button>
+        </div>
+      </details>
+    </div>
+
+    <p class="status" id="acctMsg" aria-live="polite"></p>
+    <details class="priv">
+      <summary>Como seus dados são usados</summary>
+      <p>Os dados servem só para calcular e calibrar o seu plano. Ficam guardados em servidor com acesso restrito: cada conta só lê os próprios registros. Não são vendidos nem compartilhados. Você pode excluir a conta e todos os dados quando quiser, aqui mesmo.</p>
+      <p>Responsável: Gabriel Abreu, nutricionista esportivo, CRN 23100384.</p>
+    </details>
+  </div>
+</div>
+
 <footer><div class="wrap"><span><b>Gabriel Abreu</b> · Nutricionista esportivo · CRN 23100384</span><span>@gabreutri</span></div></footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
 <script>
 /* ===== MOTOR DE CÁLCULO ===== */
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
@@ -928,11 +993,25 @@ const COND_TXT={sol:'sol',nublado:'nublado',indoor:'indoor'};
 function lsRead(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]')}catch(e){return []}}
 function lsWrite(a){try{localStorage.setItem(LS_KEY,JSON.stringify(a));return true}catch(e){return false}}
 
-/* Armazenamento: privado na conta (db) quando disponível, senão no navegador */
+/* Armazenamento: conta própria (Supabase) no site publicado; conta do Claude na prévia; navegador como reserva */
+const SB_URL='https://ivvmptiaoruatyvensqe.supabase.co';
+const SB_KEY='sb_publishable_x29ctnGxafVWM6ZTjy9ukA_930OE0Gr';
+const IN_CLAUDE=!!(window.claude&&window.claude.use);
+const SB=(!IN_CLAUDE&&window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
+const ACC={user:null,perfil:null,consent:false,syncing:false};
+const CFG_IDS=['peso','sal','aclim','srBike','srRun','naMedido','gutBike','gutRun','cidade'];
+
 async function storeInit(){
+  if(SB){
+    $('acctBtn').hidden=false;
+    SB.auth.onAuthStateChange((ev,session)=>{setTimeout(()=>onSession(session),0);});
+    const {data}=await SB.auth.getSession();
+    if(!data||!data.session)toLocal();
+    return;
+  }
   let db=null,uid=null;
   try{
-    if(window.claude&&window.claude.use){
+    if(IN_CLAUDE){
       const [d,u]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
       if(d&&u){uid=await u.id();db=d;}
     }
@@ -950,10 +1029,17 @@ function toLocal(){
 }
 function storeChip(){
   const c=$('storeChip');
-  if(ST.mode==='nuvem'){c.className='chip cloud';c.textContent='Salvo na sua conta, privado';}
-  else if(ST.mode==='local'){c.className='chip local';c.textContent='Salvo só neste navegador';}
+  if(ST.mode==='conta'){c.className='chip cloud';c.textContent='Salvo na sua conta';}
+  else if(ST.mode==='nuvem'){c.className='chip cloud';c.textContent='Salvo na sua conta, privado';}
+  else if(ST.mode==='local'){c.className='chip local';c.textContent=SB?'Salvo só neste navegador · entre para guardar na conta':'Salvo só neste navegador';}
 }
 async function storeSave(log){
+  if(ST.mode==='conta'){
+    const {error}=await SB.from('registros').upsert({user_id:ACC.user.id,id:log.id,data:log.data,dados:log});
+    if(!error){ST.logs=[...ST.logs.filter(l=>l.id!==log.id),log];afterLogs();return true;}
+    $('lgMsg').textContent='Não foi possível salvar na conta agora. Guardado neste navegador; ele sobe para a conta no próximo acesso.';
+    const a=lsRead().filter(l=>l.id!==log.id);a.push(log);lsWrite(a);ST.logs=[...ST.logs.filter(l=>l.id!==log.id),log];afterLogs();return true;
+  }
   if(ST.mode==='nuvem'){
     try{await ST.col.doc(log.id).set(log);return true;}
     catch(e){if(e&&e.code==='quota_exceeded'){$('lgMsg').textContent='Limite de registros atingido. Apague registros antigos para continuar.';return false;}
@@ -964,8 +1050,118 @@ async function storeSave(log){
   ST.logs=a;afterLogs();return true;
 }
 async function storeDelete(id){
+  if(ST.mode==='conta'){
+    const {error}=await SB.from('registros').delete().eq('id',id);
+    if(!error){ST.logs=ST.logs.filter(l=>l.id!==id);afterLogs();}
+    return;
+  }
   if(ST.mode==='nuvem'){try{await ST.col.doc(id).delete();return;}catch(e){toLocal();}}
   const a=lsRead().filter(l=>l.id!==id);lsWrite(a);ST.logs=a;afterLogs();
+}
+
+/* ===== CONTA ===== */
+async function onSession(session){
+  const u=session&&session.user;
+  if(!u){ACC.user=null;ACC.perfil=null;ACC.consent=false;if(ST.mode==='conta')toLocal();renderAcct();return;}
+  if(ACC.user&&ACC.user.id===u.id&&ST.mode==='conta')return;
+  ACC.user=u;
+  const {data:perfil}=await SB.from('perfis').select('nome,config,consentimento_em').eq('id',u.id).maybeSingle();
+  ACC.perfil=perfil||null;
+  let pend=null;try{pend=localStorage.getItem('gaConsent');}catch(e){}
+  if(!(perfil&&perfil.consentimento_em)&&pend){
+    const nome=(u.user_metadata&&(u.user_metadata.full_name||u.user_metadata.name))||null;
+    const {error}=await SB.from('perfis').upsert({id:u.id,nome,consentimento_em:new Date(+pend||Date.now()).toISOString()});
+    if(!error){ACC.perfil={...(perfil||{}),consentimento_em:new Date().toISOString()};try{localStorage.removeItem('gaConsent');}catch(e){}}
+  }
+  ACC.consent=!!(ACC.perfil&&ACC.perfil.consentimento_em);
+  if(ACC.consent)await enterAccount();
+  else{toLocal();openAcct();}
+  renderAcct();
+}
+async function enterAccount(){
+  const {data,error}=await SB.from('registros').select('id,dados').order('data',{ascending:false});
+  if(error){toLocal();$('acctMsg').textContent='Não foi possível carregar seus registros. Tente de novo em instantes.';return;}
+  ST.mode='conta';ST.logs=data.map(r=>({...r.dados,id:r.id}));
+  // registros feitos sem login sobem para a conta
+  const local=lsRead();const have=new Set(ST.logs.map(l=>l.id));
+  const novos=local.filter(l=>!have.has(l.id));
+  if(novos.length){
+    const {error:e2}=await SB.from('registros').upsert(novos.map(l=>({user_id:ACC.user.id,id:l.id,data:l.data,dados:l})));
+    if(!e2){ST.logs=ST.logs.concat(novos);lsWrite([]);$('acctMsg').textContent=`${novos.length} registro${novos.length>1?'s':''} deste navegador ${novos.length>1?'foram enviados':'foi enviado'} para a sua conta.`;}
+  }else if(local.length){lsWrite([]);}
+  applyConfig(ACC.perfil&&ACC.perfil.config);
+  storeChip();afterLogs();
+}
+function applyConfig(cfg){
+  if(!cfg)return;
+  CFG_IDS.forEach(id=>{if(cfg[id]==null||!$(id))return;$(id).value=cfg[id];if(id==='gutBike'||id==='gutRun')$(id).dataset.user='1';});
+  applyCal();run();
+}
+let cfgTimer=null;
+function queueConfigSave(){
+  if(ST.mode!=='conta'||!ACC.user)return;
+  clearTimeout(cfgTimer);
+  cfgTimer=setTimeout(async()=>{
+    const cfg={};CFG_IDS.forEach(id=>{const el=$(id);if(!el)return;
+      if((id==='gutBike'||id==='gutRun')&&!el.dataset.user)return;
+      if(el.value!=='')cfg[id]=el.value;});
+    await SB.from('perfis').update({config:cfg}).eq('id',ACC.user.id);
+  },1500);
+}
+
+function openAcct(){$('acctPanel').hidden=false;renderAcct();}
+function closeAcct(){$('acctPanel').hidden=true;}
+function renderAcct(){
+  const u=ACC.user;
+  $('acctBtn').textContent=u?(u.email||'Minha conta'):'Entrar';
+  $('acctOut').hidden=!!u;$('acctIn').hidden=!u||!ACC.consent;$('acctGate').hidden=!u||ACC.consent;
+  if(u){$('acctEmail').textContent=u.email||'';}
+}
+function redirectUrl(){return location.origin+location.pathname;}
+function wantConsent(){
+  if(!$('acConsent').checked){$('acctMsg').textContent='Para criar a conta, marque o consentimento acima.';return false;}
+  try{localStorage.setItem('gaConsent',String(Date.now()));}catch(e){}
+  return true;
+}
+function initConta(){
+  $('acctBtn').addEventListener('click',()=>{$('acctPanel').hidden?openAcct():closeAcct();});
+  $('acctClose').addEventListener('click',closeAcct);
+  $('acctPanel').addEventListener('click',e=>{if(e.target===$('acctPanel'))closeAcct();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('acctPanel').hidden)closeAcct();});
+  $('acGoogle').addEventListener('click',async()=>{
+    if(!SB||!wantConsent())return;
+    const {error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirectUrl()}});
+    if(error)$('acctMsg').textContent='O login com Google ainda não está ativo. Use o link por e-mail.';
+  });
+  $('acForm').addEventListener('submit',async e=>{
+    e.preventDefault();if(!SB||!wantConsent())return;
+    const email=$('acEmail').value.trim();
+    if(!/^\S+@\S+\.\S+$/.test(email)){$('acctMsg').textContent='Confira o e-mail digitado.';return;}
+    $('acSend').disabled=true;$('acctMsg').textContent='Enviando...';
+    const {error}=await SB.auth.signInWithOtp({email,options:{emailRedirectTo:redirectUrl()}});
+    $('acSend').disabled=false;
+    $('acctMsg').textContent=error?(/rate|limit/i.test(error.message)?'Muitos pedidos de link em pouco tempo. Espere alguns minutos e tente de novo.':'Não foi possível enviar o link. Confira o e-mail e tente de novo.')
+      :`Link enviado para ${email}. Abra o e-mail neste aparelho e toque no link para entrar.`;
+  });
+  $('acGateOk').addEventListener('click',async()=>{
+    if(!$('acConsent2').checked){$('acctMsg').textContent='Marque o consentimento para guardar seus dados na conta.';return;}
+    const u=ACC.user;const nome=(u.user_metadata&&(u.user_metadata.full_name||u.user_metadata.name))||null;
+    const {error}=await SB.from('perfis').upsert({id:u.id,nome,consentimento_em:new Date().toISOString()});
+    if(error){$('acctMsg').textContent='Não foi possível registrar o consentimento. Tente de novo.';return;}
+    ACC.perfil={...(ACC.perfil||{}),consentimento_em:new Date().toISOString()};ACC.consent=true;
+    await enterAccount();renderAcct();
+  });
+  const sair=async()=>{await SB.auth.signOut();ACC.user=null;ACC.consent=false;toLocal();renderAcct();$('acctMsg').textContent='Você saiu da conta.';};
+  $('acOut').addEventListener('click',sair);$('acGateOut').addEventListener('click',sair);
+  $('acDel').addEventListener('click',()=>{$('acDelBox').hidden=false;$('acDelTxt').focus();});
+  $('acDelGo').addEventListener('click',async()=>{
+    if($('acDelTxt').value.trim().toUpperCase()!=='EXCLUIR'){$('acctMsg').textContent='Digite EXCLUIR para confirmar.';return;}
+    const {error}=await SB.rpc('excluir_minha_conta');
+    if(error){$('acctMsg').textContent='Não foi possível excluir agora. Tente de novo em instantes.';return;}
+    await SB.auth.signOut();ACC.user=null;ACC.consent=false;lsWrite([]);toLocal();renderAcct();$('acDelBox').hidden=true;
+    $('acctMsg').textContent='Conta e todos os registros excluídos.';
+  });
+  CFG_IDS.forEach(id=>{const el=$(id);if(el){el.addEventListener('change',queueConfigSave);el.addEventListener('input',queueConfigSave);}});
 }
 
 /* Derivados de um registro */
@@ -1109,12 +1305,12 @@ function prefillFromPlan(){
 
 function showView(v){
   $('viewCalc').hidden=v!=='calc';$('viewDiario').hidden=v!=='diario';
-  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v?'true':'false'));
+  document.querySelectorAll('.tabs button[data-v]').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v?'true':'false'));
 }
 
 function initDiario(){
   $('lgData').value=new Date().toLocaleDateString('sv-SE');
-  document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.v)));
+  document.querySelectorAll('.tabs button[data-v]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.v)));
   if(location.hash==='#diario')showView('diario');
   $('logForm').addEventListener('input',lgPreview);$('logForm').addEventListener('change',lgPreview);
   $('lgSave').addEventListener('click',lgSave);
@@ -1163,6 +1359,7 @@ function initDiario(){
     fillSelect('pGel',['gel'],'Nenhum');fillSelect('pDrink',['bebida','po'],'Só água');fillSelect('pElec',['eletrolito'],'Nenhum');
     const sel=t==='gel'?'pGel':t==='bebida'?'pDrink':'pElec';$(sel).value=p.id;renderProdEdit(sel,sel+'V');$('cNome').value='';run();});
   renderSegs();run();
+  initConta();
   initDiario();
 })();
 </script>
