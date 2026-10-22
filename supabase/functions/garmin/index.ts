@@ -128,6 +128,28 @@ Deno.serve(async (req) => {
         }
         return json(req, { workoutId, schedule });
       }
+      case "agenda": {
+        // teste: o Garmin devolve treinos agendados por outros apps (TrainingPeaks, Garmin Coach)?
+        const tok = await accessTokenFor(user.id);
+        if (!tok) return json(req, { error: "not_connected" }, 400);
+        const d0 = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
+        const d1 = new Date(Date.now() + 10 * 86400000).toISOString().slice(0, 10);
+        const s = await garmin(tok, "GET", `/training-api/schedule?startDate=${d0}&endDate=${d1}`);
+        const list = Array.isArray(s.data) ? s.data : [];
+        const workouts = [];
+        for (const it of list.slice(0, 10)) {
+          const w = it?.workoutId ? await garmin(tok, "GET", `/training-api/workout/v2/${it.workoutId}`) : null;
+          workouts.push({
+            date: it?.date, workoutId: it?.workoutId,
+            status: w?.status ?? null,
+            name: w?.data?.workoutName ?? null,
+            provider: w?.data?.workoutProvider ?? null,
+            sport: w?.data?.sport ?? null,
+            steps: w?.data?.segments?.reduce?.((a: number, sg: any) => a + (sg?.steps?.length ?? 0), 0) ?? null,
+          });
+        }
+        return json(req, { range: [d0, d1], status: s.status, count: list.length, workouts, raw: Array.isArray(s.data) ? undefined : s.data });
+      }
       case "disconnect": {
         const tok = await accessTokenFor(user.id).catch(() => null);
         if (tok) await garmin(tok, "DELETE", "/partner-gateway/rest/user/registration");
