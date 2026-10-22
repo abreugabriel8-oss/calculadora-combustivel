@@ -345,7 +345,7 @@ body.has-mbar{padding-bottom:96px}
           <div class="wkht"><b>Importar treino do TrainingPeaks ou Garmin</b><span class="hint">Arquivo do treino estruturado: .fit, .zwo, .erg ou .mrc. A calculadora lê cada trecho, calcula o IF e encaixa os géis fora dos tiros.</span></div>
           <button class="btn" id="wkPick" type="button">Escolher arquivo</button>
         </div>
-        <input type="file" id="wkInput" accept=".fit,.zwo,.erg,.mrc,.zip" hidden>
+        <input type="file" id="wkInput" hidden>
         <p class="status bad" id="wkMsg"></p>
         <div id="wkRes" class="wkres" hidden>
           <div><b id="wkTitle"></b><div class="hint" id="wkStats"></div></div>
@@ -520,7 +520,8 @@ body.has-mbar{padding-bottom:96px}
       <div class="sh"><b>+</b><h2>Registrar treino</h2></div>
       <p class="hint">Pese-se sem roupa e seco, antes e depois. Em brick, pese-se também na T2 e registre bike e corrida separadamente.</p>
       <div class="row" style="align-items:center"><button class="btn" id="lgFitPick" type="button">Importar atividade do Garmin (.fit)</button><span class="hint" style="flex:1 1 180px">Preenche data, duração, modalidade e intensidade.</span></div>
-      <input type="file" id="lgFitInput" accept=".fit,.zip" hidden>
+      <input type="file" id="lgFitInput" hidden>
+      <p class="status" id="lgFitMsg" aria-live="polite"></p>
       <div class="row">
         <label class="f">Data<input id="lgData" type="date"></label>
         <label class="f">Modalidade<select id="lgSport"><option value="ciclismo">Ciclismo</option><option value="corrida">Corrida</option></select></label>
@@ -1582,7 +1583,7 @@ function parseFitBytes(buf){
   const rd=(bt,off,le)=>{switch(bt){case 0:case 2:case 10:case 13:return dv.getUint8(off);case 1:return dv.getInt8(off);
     case 3:return dv.getInt16(off,le);case 4:case 11:return dv.getUint16(off,le);case 5:return dv.getInt32(off,le);case 6:case 12:return dv.getUint32(off,le);
     case 8:return dv.getFloat32(off,le);case 9:return dv.getFloat64(off,le);default:return null;}};
-  while(p<end){
+  try{while(p<end){
     const h=u8[p++];
     if(h&0x80){const lt=(h>>5)&3;const d=defs[lt];if(!d)throw new Error('fit');msgs.push(readData(d));continue;}
     const lt=h&0x0F;
@@ -1592,7 +1593,7 @@ function parseFitBytes(buf){
       let dsz=0;if(h&0x20){const nd=u8[p++];for(let i=0;i<nd;i++){dsz+=u8[p+1];p+=3;}}
       defs[lt]={gnum,le,fields,dsz};
     }else{const d=defs[lt];if(!d)throw new Error('fit');msgs.push(readData(d));}
-  }
+  }}catch(e){if(!msgs.length)throw new Error('fit');}
   function readData(d){
     const m={_n:d.gnum};
     d.fields.forEach(f=>{
@@ -1608,10 +1609,11 @@ const FIT_INT={0:'active',1:'rest',2:'warmup',3:'cooldown',4:'recovery',5:'inter
 function readFitFile(buf){
   const msgs=parseFitBytes(buf);
   const fid=msgs.find(m=>m._n===0)||{};
-  const ses=msgs.find(m=>m._n===18);
+  const sess=msgs.filter(m=>m._n===18);const ses=sess.sort((a,b)=>(b[8]||b[7]||0)-(a[8]||a[7]||0))[0];
   if(ses||fid[0]===4){
     if(!ses)throw new Error('semsessao');
-    return {kind:'atividade',sport:FIT_SPORT[ses[5]]||null,start:ses[2]!=null?new Date((ses[2]+FIT_EPOCH)*1000):null,
+    const tot=sess.reduce((a,s)=>a+((s[8]??s[7]??0)/1000),0);
+    return {kind:'atividade',multi:sess.length>1,totalMulti:tot,sport:FIT_SPORT[ses[5]]||null,start:ses[2]!=null?new Date((ses[2]+FIT_EPOCH)*1000):null,
       timer:ses[8]!=null?ses[8]/1000:(ses[7]!=null?ses[7]/1000:null),dist:ses[9]!=null?ses[9]/100:null,
       hr:ses[16]??null,np:ses[34]??null,tss:ses[35]!=null?ses[35]/10:null,ifac:ses[36]!=null?ses[36]/1000:null,temp:ses[57]??null};
   }
@@ -1666,16 +1668,21 @@ function readErgMrc(txt,ext){
 
 /* .zip do Garmin Connect (Exportar original): pega o primeiro .fit de dentro */
 async function unzipFirstFit(buf){
-  const dv=new DataView(buf);let p=0;
-  while(p+30<=buf.byteLength&&dv.getUint32(p,true)===0x04034b50){
-    const method=dv.getUint16(p+8,true),csize=dv.getUint32(p+18,true),nlen=dv.getUint16(p+26,true),xlen=dv.getUint16(p+28,true);
-    const name=new TextDecoder().decode(new Uint8Array(buf,p+30,nlen));const start=p+30+nlen+xlen;
-    if(/\.fit$/i.test(name)){const data=new Uint8Array(buf,start,csize);
+  const dv=new DataView(buf);const n=buf.byteLength;
+  let eo=-1;for(let i=n-22;i>=Math.max(0,n-65557);i--){if(dv.getUint32(i,true)===0x06054b50){eo=i;break;}}
+  if(eo<0)throw new Error('zip');
+  const cnt=dv.getUint16(eo+10,true);let p=dv.getUint32(eo+16,true);
+  for(let k=0;k<cnt&&p+46<=n;k++){
+    if(dv.getUint32(p,true)!==0x02014b50)break;
+    const method=dv.getUint16(p+10,true),csize=dv.getUint32(p+20,true),nlen=dv.getUint16(p+28,true),xlen=dv.getUint16(p+30,true),clen=dv.getUint16(p+32,true),lho=dv.getUint32(p+42,true);
+    const name=new TextDecoder().decode(new Uint8Array(buf,p+46,nlen));
+    if(/\.fit$/i.test(name)){
+      const start=lho+30+dv.getUint16(lho+26,true)+dv.getUint16(lho+28,true);const data=new Uint8Array(buf,start,csize);
       if(method===0)return data.slice().buffer;
-      if(method===8&&'DecompressionStream' in window){const s=new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return await new Response(s).arrayBuffer();}
+      if(method===8){if(!('DecompressionStream' in window))throw new Error('zipold');const s=new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return await new Response(s).arrayBuffer();}
       throw new Error('zip');}
-    p=start+csize;}
-  throw new Error('zip');
+    p+=46+nlen+xlen+clen;}
+  throw new Error('zipsemfit');
 }
 async function fitBuffer(f){const b=await f.arrayBuffer();const u=new Uint8Array(b,0,4);return (u[0]===0x50&&u[1]===0x4b)?unzipFirstFit(b):b;}
 /* intensidade de cada trecho como fração do limiar (IF) */
@@ -1771,22 +1778,23 @@ function initWorkout(){
   // importar atividade concluída no diário
   const ai=$('lgFitInput');
   $('lgFitPick').addEventListener('click',()=>ai.click());
-  ai.addEventListener('change',async()=>{const f=ai.files[0];ai.value='';if(!f)return;const m=$('lgMsg');
+  const fm=(t,ok)=>{const el=$('lgFitMsg');el.className='status '+(ok?'ok':'bad');el.textContent=t;};
+  ai.addEventListener('change',async()=>{const f=ai.files[0];ai.value='';if(!f)return;fm('Lendo arquivo...',true);
     try{const r=readFitFile(await fitBuffer(f));
-      if(r.kind!=='atividade'){m.textContent='Esse arquivo é de um treino planejado. Aqui vai a atividade já feita, exportada do Garmin Connect.';return;}
+      if(r.kind!=='atividade'){fm('Esse arquivo é de um treino planejado. Aqui vai a atividade já feita, exportada do Garmin Connect.',false);return;}
       if(r.sport==='ciclismo'||r.sport==='corrida')$('lgSport').value=r.sport;
-      if(r.timer)$('lgDur').value=Math.round(r.timer/60);
+      const secs=r.multi?r.totalMulti:r.timer;if(secs)$('lgDur').value=Math.round(secs/60);
       if(r.start)$('lgData').value=r.start.toLocaleDateString('sv-SE');
       let lvl=null;
       if(r.ifac)lvl=r.ifac<.72?1:r.ifac<.85?2:r.ifac<.95?3:4;
       else if(r.hr){const hrmax=+$('wkHr').value||190;const p=r.hr/hrmax;lvl=p<.75?1:p<.83?2:p<.9?3:4;}
       if(lvl)$('lgInt').value=String(lvl);
       lgPreview();
-      const bits=[r.timer?`${Math.round(r.timer/60)} min`:'',r.dist?`${fmt(r.dist/1000,1)} km`:'',r.ifac?`IF ${fmt(r.ifac,2)}`:'',r.hr?`FC média ${r.hr}`:''].filter(Boolean).join(' · ');
-      m.textContent=`Atividade importada (${bits}). Agora preencha pesos, líquido e carbo.`;
+      const bits=[secs?`${Math.round(secs/60)} min`:'',r.dist?`${fmt(r.dist/1000,1)} km`:'',r.ifac?`IF ${fmt(r.ifac,2)}`:'',r.hr?`FC média ${r.hr}`:''].filter(Boolean).join(' · ');
+      fm(`Atividade importada (${bits})${r.multi?'. Arquivo com várias modalidades: registre cada uma separadamente se possível':''}. Agora preencha pesos, líquido e carbo.`,true);
       track('atividade_importada',{modalidade:r.sport||'outra'});
       $('lgPre').focus();
-    }catch(e){m.textContent='Não consegui ler esse arquivo. Exporte a atividade como .fit original no Garmin Connect.';}
+    }catch(e){fm(e&&e.message==='zipold'?'Este navegador não abre .zip. Descompacte o arquivo e envie o .fit.':e&&e.message==='zipsemfit'?'Esse .zip não tem um arquivo .fit dentro.':'Não consegui ler esse arquivo. No Garmin Connect (site), abra a atividade, toque na engrenagem e escolha Exportar original.',false);}
   });
 }
 
