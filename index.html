@@ -287,6 +287,20 @@ body.has-mbar{padding-bottom:96px}
 .wkseg{display:flex;flex-direction:column;gap:6px}
 .wkseg .wkn{font-size:12px;font-weight:700;color:var(--muted);display:flex;justify-content:space-between;gap:4px 10px;flex-wrap:wrap}
 .wkseg .wkn button{font:inherit;font-size:12px;background:none;border:0;color:var(--accent-ink);cursor:pointer;padding:0}
+
+/* Garmin */
+.gsec{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.ghead{display:flex;gap:12px;align-items:center}
+.ghead img{border-radius:9px;flex:0 0 auto}
+.ghead div{display:flex;flex-direction:column}
+.gst{font-size:12px;font-weight:700;color:var(--muted)} .gst.on{color:var(--ok)}
+.gactlist{display:flex;flex-direction:column;gap:8px}
+.gact{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--sunk);border-radius:10px;padding:10px 12px}
+.gact-i{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 180px}
+.gact-b{display:flex;gap:6px}
+.gact-b .btn{min-height:40px;padding:6px 12px}
+.gsrc{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+#gDisc.armed{background:var(--crit-bg);color:var(--crit);border-color:transparent}
 </style>
 
 <header class="band">
@@ -473,7 +487,8 @@ body.has-mbar{padding-bottom:96px}
       <div class="m flu"><span class="lbl">Líquido</span><span class="val" id="vFl">0<small>ml/h</small></span><span class="tot" id="tFl"></span></div>
       <div class="m na"><span class="lbl">Sódio</span><span class="val" id="vNa">0<small>mg/h</small></span><span class="tot" id="tNa"></span></div>
     </div>
-    <div class="sharerow"><button class="btn primary" id="shOpen" type="button">Compartilhar plano nos Stories</button></div>
+    <div class="sharerow"><button class="btn primary" id="shOpen" type="button">Compartilhar plano nos Stories</button><button class="btn" id="gSend" type="button" hidden>Enviar para o relógio (Garmin Connect™)</button></div>
+    <p class="status" id="gSendMsg" aria-live="polite"></p>
     <div class="alerts" id="alerts"></div>
     <div class="card">
       <h3>Plano por segmento</h3>
@@ -516,6 +531,11 @@ body.has-mbar{padding-bottom:96px}
 
 <main class="wrap dview" id="viewDiario" hidden>
   <div class="col">
+    <section class="step" id="gActs" hidden>
+      <div class="sh"><b>⟳</b><h2>Atividades do Garmin</h2></div>
+      <p class="hint">Atividades recebidas do Garmin Connect que ainda não estão no diário.</p>
+      <div id="gActList" class="gactlist"></div>
+    </section>
     <section class="step" id="logForm">
       <div class="sh"><b>+</b><h2>Registrar treino</h2></div>
       <p class="hint">Pese-se sem roupa e seco, antes e depois. Em brick, pese-se também na T2 e registre bike e corrida separadamente.</p>
@@ -567,6 +587,7 @@ body.has-mbar{padding-bottom:96px}
         <span class="chip" id="storeChip">Carregando...</span>
       </div>
       <div class="calgrid" id="calGrid"></div>
+      <p class="hint" id="calSrc" hidden><b>Calibração derivada em parte de dados de dispositivos Garmin.</b></p>
       <p class="hint" id="calHow">A taxa de suor vira um fator pessoal sobre o modelo: quem sua 30% acima da média no calor também sua 30% acima no frio, e a calculadora ajusta para o clima de cada sessão. Com poucos registros, o fator é puxado para a média da população até ganhar confiança.</p>
     </div>
     <div class="card">
@@ -662,6 +683,12 @@ body.has-mbar{padding-bottom:96px}
     <div id="acctIn" hidden>
       <div class="acct-me"><span class="hint">Conectado como</span><b id="acctEmail"></b></div>
       <p class="hint">Diário, calibração e perfil de atleta (peso, perfil de suor, tolerância a carbo) são salvos na sua conta automaticamente.</p>
+      <div class="gsec" id="gSec" hidden>
+        <div class="ghead"><img src="data:image/png;base64,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" alt="" width="40" height="40"><div><b>Garmin Connect™</b><span class="gst" id="gStatus">Não conectado</span></div></div>
+        <p class="hint">Envia seus treinos com o plano de combustível para o relógio e traz suas atividades para o diário.</p>
+        <div class="row"><button class="btn primary" id="gConnect" type="button">Conectar com Garmin Connect™</button><button class="btn" id="gDisc" type="button" hidden>Desconectar</button></div>
+        <p class="status" id="gMsg" aria-live="polite"></p>
+      </div>
       <div class="row"><button class="btn" id="acOut" type="button">Sair</button></div>
       <details class="danger">
         <summary>Excluir minha conta</summary>
@@ -1096,6 +1123,7 @@ function run(){
   const rel=min=>{const h=Math.floor(min/60),m=Math.round(min%60);return `${h}:${String(m).padStart(2,'0')}`;};
   const ev=[];let off=0;
   if(isTri&&r.T>=1.5&&P.gel)ev.push({t:-12,cls:'',txt:`1 ${P.gel.nome} antes da largada`});
+  LAST.gt={};LAST.et={};
   P.rows.forEach((x,k)=>{const s=x.s;const len=s.h*60;
     ev.push({t:off,cls:'s',txt:`Início ${SPORT_NOME[s.sport].toLowerCase()}${S.formato==='brick'&&s.sport==='corrida'?' (T2)':''}`});
     if(s.sport!=='natacao'){
@@ -1103,10 +1131,10 @@ function run(){
         const brickEnd=S.formato!=='single'&&s.sport==='ciclismo';
         const bl=(segList().filter(q=>q.h>0)[k]||{}).blocks;const gt=[];
         for(let j=0;j<x.gels;j++){let t=first+j*step;if(brickEnd&&j===x.gels-1)t=Math.max(t,len-20);t=placeGel(t,bl);gt.push(t);ev.push({t:off+t,cls:'',txt:`1 ${P.gel.nome}`});}
-        if(bl&&$('wkseg'+k))$('wkseg'+k).innerHTML=profileSvg(bl,gt);}
+        LAST.gt[k]=gt;if(bl&&$('wkseg'+k))$('wkseg'+k).innerHTML=profileSvg(bl,gt);}
       else{const bl=(segList().filter(q=>q.h>0)[k]||{}).blocks;if(bl&&$('wkseg'+k))$('wkseg'+k).innerHTML=profileSvg(bl,[]);}
       if(x.elec>0&&P.el&&!P.el.gram){const n=Math.ceil(x.elec);const step=len/n;
-        for(let j=0;j<n;j++)ev.push({t:off+step*j+step/2,cls:'e',txt:`${j===n-1&&x.elec%1?'½':'1'} ${P.el.un} de eletrólito`});}
+        LAST.et[k]=[];for(let j=0;j<n;j++){const q=j===n-1&&x.elec%1?'½':'1';LAST.et[k].push({t:step*j+step/2,q});ev.push({t:off+step*j+step/2,cls:'e',txt:`${q} ${P.el.un} de eletrólito`});}}
       if(x.s.fl>0){const every=15;const ml=Math.round(x.s.fl*1000*every/60/10)*10;
         ev.push({t:off+5,cls:'w',txt:`Beber ~${ml} ml a cada ${every} min${P.dr&&s.sport==='ciclismo'?' ('+P.dr.nome.split(' (')[0]+')':''}${P.el&&P.el.gram?', com sal dissolvido':''}`});}
     }
@@ -1285,6 +1313,7 @@ async function enterAccount(){
   }else if(local.length){lsWrite([]);}
   applyConfig(ACC.perfil&&ACC.perfil.config);
   storeChip();afterLogs();
+  gStatus();gFinish();
 }
 function applyConfig(cfg){
   if(!cfg)return;
@@ -1325,6 +1354,8 @@ function renderAcct(){
   const rec=!!(u&&ACC.recovery);
   $('acctReset').hidden=!rec;$('acctOut').hidden=!!u;$('acctIn').hidden=!u||!ACC.consent||rec;$('acctGate').hidden=!u||ACC.consent||rec;
   if(u){$('acctEmail').textContent=u.email||'';}
+  if(!u||!ACC.consent){G.connected=false;G.acts=[];if($('gActs'))gRenderActs();}
+  if($('gSec'))gRender();
 }
 function redirectUrl(){return location.origin+location.pathname;}
 function wantConsent(){
@@ -1394,6 +1425,7 @@ function initConta(){
   $('acDel').addEventListener('click',()=>{$('acDelBox').hidden=false;$('acDelTxt').focus();});
   $('acDelGo').addEventListener('click',async()=>{
     if($('acDelTxt').value.trim().toUpperCase()!=='EXCLUIR'){$('acctMsg').textContent='Digite EXCLUIR para confirmar.';return;}
+    if(G.connected)await gCall({action:'disconnect'});
     const {error}=await SB.rpc('excluir_minha_conta');
     if(error){$('acctMsg').textContent='Não foi possível excluir agora. Tente de novo em instantes.';return;}
     await SB.auth.signOut();ACC.user=null;ACC.consent=false;lsWrite([]);toLocal();renderAcct();$('acDelBox').hidden=true;
@@ -1441,6 +1473,7 @@ function confBars(n){const lv=n>=6?3:n>=3?2:n>=1?1:0;return `<span class="conf">
 
 function renderCal(){
   const g=$('calGrid');g.innerHTML='';
+  const gsrc=ST.logs.some(l=>l.fonte==='garmin');$('calSrc').hidden=!gsrc;
   const LV={ciclismo:['Iniciante','Intermediário','Treinado'],corrida:['Iniciante','Intermediário','Treinado']};
   ['ciclismo','corrida'].forEach(sp=>{
     const d=CAL.detail[sp];const box=document.createElement('div');box.className='cal';
@@ -1469,7 +1502,8 @@ function renderHist(){
     const x=tr.querySelector('.xbtn');
     x.addEventListener('click',()=>{if(x.classList.contains('armed')){storeDelete(l.id);}else{x.classList.add('armed');x.textContent='Confirmar';setTimeout(()=>{x.classList.remove('armed');x.textContent='Apagar';},4000);}});
     tb.appendChild(tr);
-    if(l.notas){const tn=document.createElement('tr');const td=document.createElement('td');td.colSpan=8;td.className='note';td.textContent=l.notas;tn.appendChild(td);tb.appendChild(tn);}
+    const nt=[l.fonte==='garmin'?`Dados de Garmin${l.device?' '+l.device.replace(/^Garmin\s+/i,''):''}`:'',l.notas||''].filter(Boolean).join(' · ');
+    if(nt){const tn=document.createElement('tr');const td=document.createElement('td');td.colSpan=8;td.className='note';td.textContent=nt;tn.appendChild(td);tb.appendChild(tn);}
   });
 }
 
@@ -1520,11 +1554,11 @@ async function lgSave(){
   const l=lgVal();const m=$('lgMsg');
   if(!l.data||!(l.durMin>0)||!(l.pesoPre>0)||!(l.pesoPos>0)){m.textContent='Preencha data, duração e os dois pesos.';return;}
   if(Math.abs(l.pesoPre-l.pesoPos)>l.pesoPre*0.08){m.textContent='A diferença de peso passa de 8%. Confira os valores.';return;}
-  const log={...l,id:'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now()};
+  const log={...l,...gLogExtra(),id:'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now()};
   $('lgSave').disabled=true;
   const ok=await storeSave(log);
   $('lgSave').disabled=false;
-  if(ok){track('registro_salvo',{modalidade:l.sport});m.textContent='Registro salvo. Calibração atualizada.';['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa','lgNotas'].forEach(id=>$(id).value='');$('lgGi').value=0;lgPreview();}
+  if(ok){gAfterSave();track('registro_salvo',{modalidade:l.sport,fonte:log.fonte||'manual'});m.textContent='Registro salvo. Calibração atualizada.';['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa','lgNotas'].forEach(id=>$(id).value='');$('lgGi').value=0;lgPreview();}
 }
 
 /* Pré-preenche o diário a partir do plano calculado */
@@ -1701,7 +1735,9 @@ function toBlocks(w,prof){
   const thr=prof.thrSpd||3.33;
   let t=0;const blocks=w.items.map(i=>{const f=itemIF(i,prof,w);
     let sec=i.sec;if(sec==null&&i.m!=null){const v=i.spd||thr*clamp(f,.6,1.05);sec=i.m/Math.max(v,.5);}
-    const b={start:t,sec:sec||0,if:f,int:i.int};t+=b.sec;return b;}).filter(b=>b.sec>0);
+    const ftp=w.ftpFile||prof.ftp;
+    const tgt={pwrPct:i.pwr?(i.pwr.pct!=null?i.pwr.pct:(ftp?i.pwr.w/ftp:null)):null,pz:i.pzone||null,hrPct:i.hr?(i.hr.pct!=null?i.hr.pct:(prof.hrmax?i.hr.bpm/prof.hrmax:null)):null,hz:i.hzone||null,spd:i.spd||null};
+    const b={start:t,sec:sec||0,if:f,int:i.int,tgt,m:i.sec==null&&i.m!=null?i.m:null};t+=b.sec;return b;}).filter(b=>b.sec>0);
   const T=blocks.reduce((a,b)=>a+b.sec,0);
   const IF=T?Math.pow(blocks.reduce((a,b)=>a+Math.pow(b.if,4)*b.sec,0)/T,.25):0;
   return {blocks,T,IF,tss:Math.round(T/3600*IF*IF*100)};
@@ -1796,6 +1832,199 @@ function initWorkout(){
       $('lgPre').focus();
     }catch(e){fm(e&&e.message==='zipold'?'Este navegador não abre .zip. Descompacte o arquivo e envie o .fit.':e&&e.message==='zipsemfit'?'Esse .zip não tem um arquivo .fit dentro.':'Não consegui ler esse arquivo. No Garmin Connect (site), abra a atividade, toque na engrenagem e escolha Exportar original.',false);}
   });
+}
+
+/* ===== GARMIN CONNECT ===== */
+const G={connected:false,perms:[],acts:[],pend:null,busy:false};
+const G_RUN={RUNNING:0,TRAIL_RUNNING:0,STREET_RUNNING:0,TRACK_RUNNING:0,TREADMILL_RUNNING:1,INDOOR_RUNNING:1,VIRTUAL_RUN:1,ULTRA_RUN:0,OBSTACLE_RUN:0};
+const G_BIKE={CYCLING:0,ROAD_BIKING:0,MOUNTAIN_BIKING:0,GRAVEL_CYCLING:0,CYCLOCROSS:0,TRACK_CYCLING:0,RECUMBENT_CYCLING:0,INDOOR_CYCLING:1,VIRTUAL_RIDE:1,E_BIKE_FITNESS:0,BMX:0};
+function gSportOf(t){if(t in G_RUN)return {sport:'corrida',indoor:!!G_RUN[t]};if(t in G_BIKE)return {sport:'ciclismo',indoor:!!G_BIKE[t]};return null;}
+
+async function gCall(body){
+  const {data,error}=await SB.functions.invoke('garmin',{body});
+  if(error){let d=null;try{d=await error.context.json();}catch(e){}return {error:(d&&d.error)||'rede',detail:d&&d.detail,status:d&&d.status};}
+  return data||{};
+}
+function b64url(bytes){let s='';bytes.forEach(b=>s+=String.fromCharCode(b));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function gRedirect(){return location.origin+location.pathname;}
+
+async function gConnect(){
+  if(!SB||!ACC.user)return;
+  const ver=b64url(crypto.getRandomValues(new Uint8Array(48)));
+  const ch=b64url(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ver))));
+  const state=b64url(crypto.getRandomValues(new Uint8Array(16)));
+  try{localStorage.setItem('gaGarminPkce',JSON.stringify({ver,state,t:Date.now()}));}catch(e){}
+  gMsg('Abrindo o Garmin Connect...',true);
+  const r=await gCall({action:'auth_url',code_challenge:ch,redirect_uri:gRedirect(),state});
+  if(!r.url){gMsg(r.error==='config'?'A integração ainda não foi configurada no servidor.':'Não foi possível abrir o Garmin Connect. Tente de novo.',false);return;}
+  track('garmin_conectar');
+  location.href=r.url;
+}
+/* volta do Garmin: ?code=...&state=... */
+function gCallbackParams(){
+  const q=new URLSearchParams(location.search);const code=q.get('code'),state=q.get('state'),err=q.get('error');
+  if(!code&&!err)return null;return {code,state,err};
+}
+async function gFinish(){
+  const cb=gCallbackParams();if(!cb)return;
+  try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}
+  openAcct(false);
+  if(cb.err){gMsg('A conexão com o Garmin Connect foi cancelada.',false);return;}
+  let saved=null;try{saved=JSON.parse(localStorage.getItem('gaGarminPkce')||'null');localStorage.removeItem('gaGarminPkce');}catch(e){}
+  if(!saved||saved.state!==cb.state){gMsg('Não foi possível confirmar a conexão. Toque em Conectar de novo.',false);return;}
+  gMsg('Conectando ao Garmin Connect...',true);
+  const r=await gCall({action:'token',code:cb.code,code_verifier:saved.ver,redirect_uri:gRedirect()});
+  if(!r.connected){gMsg('O Garmin Connect não confirmou a conexão. Tente de novo em instantes.',false);return;}
+  G.connected=true;G.perms=r.permissions||[];track('garmin_conectado');
+  const faltam=[];if(!G.perms.includes('WORKOUT_IMPORT'))faltam.push('enviar treinos');if(!G.perms.includes('ACTIVITY_EXPORT'))faltam.push('compartilhar atividades');
+  gMsg(faltam.length?`Conectado, mas sem permissão para ${faltam.join(' e ')}. Você pode liberar nas configurações do Garmin Connect.`:'Garmin Connect conectado. Seus próximos treinos já podem ir para o relógio.',!faltam.length);
+  gRender();gLoadActs();
+}
+async function gStatus(){
+  if(!SB||!ACC.user)return;
+  const r=await gCall({action:'status'});
+  G.connected=!!r.connected;G.perms=r.permissions||[];gRender();
+  if(G.connected)gLoadActs();
+}
+async function gDisconnect(){
+  const b=$('gDisc');
+  if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='Confirmar desconexão';setTimeout(()=>{b.classList.remove('armed');b.textContent='Desconectar';},4000);return;}
+  const r=await gCall({action:'disconnect'});
+  if(r.connected===false){G.connected=false;G.perms=[];G.acts=[];gMsg('Garmin Connect desconectado.',true);track('garmin_desconectado');}
+  else gMsg('Não foi possível desconectar agora. Tente de novo.',false);
+  gRender();gRenderActs();
+}
+function gMsg(t,ok){const el=$('gMsg');if(!el)return;el.className='status '+(ok?'ok':'bad');el.textContent=t;}
+function gRender(){
+  const on=!!(SB&&ACC.user&&ACC.consent);
+  $('gSec').hidden=!on;
+  $('gStatus').textContent=G.connected?'Conectado':'Não conectado';
+  $('gStatus').className='gst'+(G.connected?' on':'');
+  $('gConnect').hidden=G.connected;$('gDisc').hidden=!G.connected;
+  const canSend=on&&G.connected&&G.perms.includes('WORKOUT_IMPORT');
+  $('gSend').hidden=!canSend;
+}
+
+/* ===== Treino para o relógio ===== */
+const G_INT={warmup:'WARMUP',cooldown:'COOLDOWN',rest:'RECOVERY',recovery:'RECOVERY',interval:'INTERVAL',active:'ACTIVE'};
+function gTarget(t,sport){
+  const n={targetValue:null,targetValueLow:null,targetValueHigh:null,targetValueType:null};
+  if(t&&sport==='ciclismo'&&t.pwrPct)return {...n,targetType:'POWER',targetValueLow:Math.round(t.pwrPct*100-3),targetValueHigh:Math.round(t.pwrPct*100+3),targetValueType:'PERCENT'};
+  if(t&&sport==='ciclismo'&&t.pz)return {...n,targetType:'POWER',targetValue:t.pz};
+  if(t&&t.spd)return {...n,targetType:'PACE',targetValueLow:+(t.spd*0.97).toFixed(3),targetValueHigh:+(t.spd*1.03).toFixed(3)};
+  if(t&&t.hrPct)return {...n,targetType:'HEART_RATE',targetValueLow:Math.round(t.hrPct*100-3),targetValueHigh:Math.round(t.hrPct*100+3),targetValueType:'PERCENT'};
+  if(t&&t.hz)return {...n,targetType:'HEART_RATE',targetValue:t.hz};
+  return {...n,targetType:'OPEN'};
+}
+function gSteps(seg,k){
+  const P=LAST.P;const sec=seg.h*3600;
+  const bl=(segList().filter(q=>q.h>0)[k]||{}).blocks;
+  let base;
+  if(bl&&bl.length)base=bl.map(b=>({start:b.start,sec:b.sec,int:b.int,tgt:b.tgt,m:b.m}));
+  else{ // treino contínuo: blocos de 15 min para lembrar de beber
+    const n=Math.max(1,Math.round(sec/900));const d=sec/n;base=[];
+    for(let i=0;i<n;i++)base.push({start:i*d,sec:d,int:'active',tgt:null});}
+  const gels=((LAST.gt||{})[k]||[]).map(t=>t*60);
+  const els=((LAST.et||{})[k]||[]);
+  // corta o passo no momento do gel, para o relógio avisar na troca de passo
+  gels.forEach(t=>{
+    const i=base.findIndex(b=>t>b.start+20&&t<b.start+b.sec-20);if(i<0)return;
+    const b=base[i];const a={...b,sec:t-b.start,m:null};const c={...b,start:t,sec:b.start+b.sec-t,m:null};
+    base.splice(i,1,a,c);});
+  if(base.length>100)throw new Error('passos');
+  const mlH=seg.fl*1000;
+  return base.map((b,i)=>{
+    const notes=[];
+    if(gels.some(t=>Math.abs(t-b.start)<=20)&&P.gel)notes.push(`GEL AGORA: 1 ${P.gel.nome.split(' (')[0]} (${fmt(P.gel.cho)} g)`);
+    els.forEach(e=>{if(e.t*60>=b.start&&e.t*60<b.start+b.sec)notes.push(`ELETRÓLITO: ${e.q} ${P.el?P.el.un:''}`.trim());});
+    const ml=Math.round(mlH*b.sec/3600/10)*10;if(ml>=80)notes.push(`BEBA ~${ml} ml`);
+    const step={type:'WorkoutStep',stepOrder:i+1,intensity:G_INT[b.int]||'ACTIVE',description:notes.join(' · ').slice(0,512),
+      durationType:b.m?'DISTANCE':'TIME',durationValue:b.m?Math.round(b.m):Math.round(b.sec),durationValueType:b.m?'METER':null,
+      ...gTarget(b.tgt,seg.sport),secondaryTargetType:null,secondaryTargetValue:null,secondaryTargetValueLow:null,secondaryTargetValueHigh:null,secondaryTargetValueType:null,
+      strokeType:null,drillType:null,equipmentType:null,exerciseCategory:null,exerciseName:null,weightValue:null,weightDisplayUnit:null};
+    return step;});
+}
+function gWorkout(){
+  const r=LAST.r,P=LAST.P;if(!r)throw new Error('vazio');
+  if(r.segs.some(s=>s.sport==='natacao'))throw new Error('tri');
+  const SG={corrida:'RUNNING',ciclismo:'CYCLING'};
+  const segs=r.segs.map((s,k)=>({s,k})).filter(x=>x.s.h>0);
+  const wkName=(segList().find(q=>q.wkName)||{}).wkName;
+  const name=('Combustível · '+(wkName||sessionTitle())).slice(0,60);
+  const leva=[...document.querySelectorAll('#carry li')].map(li=>[...li.children].map(c=>c.textContent.trim()).join(' ').replace(/\s+/g,' ')).join('; ');
+  const desc=`Plano da Calculadora Combustível (@gabreutri): carbo ${fmt(r.carbH)} g/h, líquido ${fmt(r.flH)} ml/h, sódio ${fmt(r.naH)} mg/h. Leve: ${leva}.`.slice(0,1024);
+  const segments=segs.map((x,i)=>({segmentOrder:i+1,sport:SG[x.s.sport],poolLength:null,poolLengthUnit:null,steps:gSteps(x.s,x.k)}));
+  const total=segments.reduce((a,s)=>a+s.steps.length,0);if(total>(segments.length>1?250:100))throw new Error('passos');
+  const base={workoutName:name,description:desc,workoutProvider:'Combustivel',workoutSourceId:'Combustivel',poolLength:null,poolLengthUnit:null};
+  if(segments.length===1)return {...base,sport:segments[0].sport,segments};
+  return {...base,sport:'MULTI_SPORT',isSessionTransitionEnabled:true,segments};
+}
+async function gSend(){
+  const btn=$('gSend');const m=$('gSendMsg');
+  let w;try{w=gWorkout();}catch(e){m.className='status bad';m.textContent=e.message==='tri'?'Treinos com natação ainda não vão para o relógio. Envie bike e corrida separados.':e.message==='passos'?'Esse treino tem passos demais para o relógio. Simplifique a estrutura.':'Calcule um plano antes de enviar.';return;}
+  const date=$('data').value||new Date().toLocaleDateString('sv-SE');
+  btn.disabled=true;m.className='status ok';m.textContent='Enviando para o Garmin Connect...';
+  const r=await gCall({action:'workout',workout:w,date});
+  btn.disabled=false;
+  if(r.workoutId){
+    const dt=date.split('-').reverse().join('/');
+    m.className='status ok';
+    m.textContent=r.schedule&&!r.schedule.error?`Treino enviado e agendado para ${dt}. Sincronize o relógio pelo app Garmin Connect. Os géis e a hidratação aparecem nas observações de cada passo.`:'Treino enviado para a sua biblioteca no Garmin Connect, mas sem data. Agende pelo app.';
+    track('garmin_treino_enviado',{formato:S.formato});
+  }else{
+    m.className='status bad';
+    m.textContent=r.error==='not_connected'?'Conecte o Garmin Connect na sua conta primeiro.':r.status===403?'O Garmin Connect não deu permissão para importar treinos. Libere nas configurações de dados do Garmin Connect.':r.status===429?'Limite de envios atingido por agora. Tente daqui a alguns minutos.':'O Garmin Connect recusou o treino. Tente de novo; se continuar, me avise.';
+  }
+}
+
+/* ===== Atividades recebidas, no diário ===== */
+async function gLoadActs(){
+  if(!SB||!ACC.user)return;
+  const {data,error}=await SB.from('garmin_atividades').select('summary_id,dados,recebido_em').eq('registrado',false).order('recebido_em',{ascending:false}).limit(15);
+  if(error)return;
+  G.acts=(data||[]).filter(a=>gSportOf(a.dados.activityType));gRenderActs();
+}
+function gActDate(d){return new Date(((d.startTimeInSeconds||0)+(d.startTimeOffsetInSeconds||0))*1000);}
+function gRenderActs(){
+  const box=$('gActs');const list=$('gActList');
+  box.hidden=!G.acts.length;list.innerHTML='';
+  G.acts.forEach(a=>{const d=a.dados;const sp=gSportOf(d.activityType);
+    const dt=gActDate(d);const li=document.createElement('div');li.className='gact';
+    const t=hm((d.durationInSeconds||0)/3600);
+    const info=document.createElement('div');info.className='gact-i';
+    const tt=document.createElement('b');tt.textContent=`${SPORT_NOME[sp.sport]}${sp.indoor?' indoor':''} · ${t.h}h${String(t.m).padStart(2,'0')}${d.distanceInMeters?` · ${fmt(d.distanceInMeters/1000,1)} km`:''}`;
+    const sub=document.createElement('span');sub.className='hint';
+    sub.textContent=`${dt.toLocaleDateString('pt-BR',{timeZone:'UTC'})}${d.averageHeartRateInBeatsPerMinute?` · FC média ${Math.round(d.averageHeartRateInBeatsPerMinute)}`:''}`;
+    const src=document.createElement('span');src.className='gsrc';src.textContent=`Garmin ${d.deviceName?d.deviceName.replace(/^Garmin\s+/i,''):''}`.trim();
+    info.append(tt,src,sub);
+    const bt=document.createElement('div');bt.className='gact-b';
+    const reg=document.createElement('button');reg.type='button';reg.className='btn primary';reg.textContent='Registrar';reg.addEventListener('click',()=>gUseAct(a));
+    const ign=document.createElement('button');ign.type='button';ign.className='btn';ign.textContent='Ignorar';ign.addEventListener('click',()=>gMarkDone(a.summary_id));
+    bt.append(reg,ign);li.append(info,bt);list.appendChild(li);});
+}
+function gUseAct(a){
+  const d=a.dados;const sp=gSportOf(d.activityType);
+  $('lgSport').value=sp.sport;$('lgCond').value=sp.indoor?'indoor':$('lgCond').value==='indoor'?'sol':$('lgCond').value;
+  $('lgDur').value=Math.round((d.durationInSeconds||0)/60);
+  $('lgData').value=gActDate(d).toISOString().slice(0,10);
+  if(d.averageHeartRateInBeatsPerMinute){const hrmax=+$('wkHr').value||190;const p=d.averageHeartRateInBeatsPerMinute/hrmax;$('lgInt').value=String(p<.75?1:p<.83?2:p<.9?3:4);}
+  G.pend={id:a.summary_id,device:d.deviceName||''};
+  lgPreview();
+  const fmEl=$('lgFitMsg');fmEl.className='status ok';
+  fmEl.textContent=`Atividade de Garmin ${(d.deviceName||'').replace(/^Garmin\s+/i,'')} carregada. Preencha pesos, líquido e carbo e salve.`.replace('Garmin  ','Garmin ');
+  try{$('logForm').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}$('lgPre').focus({preventScroll:true});
+}
+async function gMarkDone(id){
+  G.acts=G.acts.filter(a=>a.summary_id!==id);gRenderActs();
+  if(SB&&ACC.user)await SB.from('garmin_atividades').update({registrado:true}).eq('summary_id',id);
+}
+function gLogExtra(){return G.pend?{fonte:'garmin',device:G.pend.device}:{};}
+function gAfterSave(){if(G.pend){const id=G.pend.id;G.pend=null;gMarkDone(id);}}
+
+function initGarmin(){
+  $('gConnect').addEventListener('click',gConnect);
+  $('gDisc').addEventListener('click',gDisconnect);
+  $('gSend').addEventListener('click',gSend);
 }
 
 /* ===== COMPARTILHAR ===== */
@@ -2019,6 +2248,7 @@ function initMobile(){
     const sel=t==='gel'?'pGel':t==='bebida'?'pDrink':'pElec';$(sel).value=p.id;renderProdEdit(sel,sel+'V');$('cNome').value='';run();});
   renderSegs();run();
   initWorkout();
+  initGarmin();
   initShare();
   initMobile();
   initConta();
