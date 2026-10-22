@@ -177,6 +177,10 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
 .dangerbtn{background:var(--crit-bg);color:var(--crit);border-color:transparent}
 .priv{font-size:12px;color:var(--muted)} .priv p{margin:6px 0 0}
 .status:empty{display:none}
+.acintro{background:var(--orange-soft);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.acintro-t{font-family:var(--display);font-weight:900;font-size:26px;line-height:1;text-transform:uppercase;color:var(--accent-ink);margin:0}
+.acintro ul{margin:0;padding-left:18px;font-size:13px;display:flex;flex-direction:column;gap:3px}
+.skip{align-self:center;color:var(--muted)}
 .acform{display:flex;flex-direction:column;gap:10px}
 .acmode{align-self:flex-start}
 .linkbtn{font:inherit;font-size:13px;font-weight:700;background:none;border:0;color:var(--accent-ink);cursor:pointer;align-self:flex-start;padding:2px 0}
@@ -461,6 +465,14 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
 <div class="acctwrap" id="acctPanel" hidden>
   <div class="acct" role="dialog" aria-modal="true" aria-labelledby="acctTitle">
     <div class="acct-h"><h3 id="acctTitle">Sua conta</h3><button class="xbtn" id="acctClose" type="button" aria-label="Fechar">Fechar</button></div>
+    <div class="acintro" id="acIntro" hidden>
+      <p class="acintro-t" id="acIntroT">Crie sua conta grátis</p>
+      <ul>
+        <li>Seu diário de treinos salvo e disponível em qualquer aparelho</li>
+        <li>Taxa de suor e tolerância a carbo calibradas a cada registro</li>
+        <li>Seu perfil de atleta preenchido automaticamente</li>
+      </ul>
+    </div>
 
     <div id="acctOut">
       <p class="hint">Com a conta, seu diário, sua calibração e seu perfil ficam guardados e aparecem em qualquer aparelho.</p>
@@ -507,6 +519,7 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
     </div>
 
     <p class="status" id="acctMsg" aria-live="polite"></p>
+    <button class="linkbtn skip" id="acSkip" type="button" hidden>Agora não, usar sem conta</button>
     <details class="priv">
       <summary>Como seus dados são usados</summary>
       <p>Os dados servem só para calcular e calibrar o seu plano. Ficam guardados em servidor com acesso restrito: cada conta só lê os próprios registros. Não são vendidos nem compartilhados. Você pode excluir a conta e todos os dados quando quiser, aqui mesmo.</p>
@@ -1024,7 +1037,8 @@ async function storeInit(){
     const hp=new URLSearchParams(location.hash.slice(1));
     if(hp.get('error')){openAcct();$('acctMsg').textContent=hp.get('error_code')==='otp_expired'?'Esse link expirou ou já foi usado. Peça um novo em "Esqueci a senha".':'Não foi possível concluir pelo link. Tente de novo.';try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}}
     const {data}=await SB.auth.getSession();
-    if(!data||!data.session)toLocal();
+    if(!data||!data.session){toLocal();
+      if(promptDue()&&$('acctPanel').hidden)setTimeout(()=>{if(!ACC.user&&$('acctPanel').hidden)openAcct(true);},1200);}
     return;
   }
   let db=null,uid=null;
@@ -1082,7 +1096,7 @@ async function onSession(session){
   const u=session&&session.user;
   if(!u){ACC.user=null;ACC.perfil=null;ACC.consent=false;if(ST.mode==='conta')toLocal();renderAcct();return;}
   if(ACC.user&&ACC.user.id===u.id&&ST.mode==='conta')return;
-  ACC.user=u;
+  ACC.user=u;try{localStorage.setItem('gaHadAccount','1');}catch(e){}
   const {data:perfil}=await SB.from('perfis').select('nome,config,consentimento_em').eq('id',u.id).maybeSingle();
   ACC.perfil=perfil||null;
   let pend=null;try{pend=localStorage.getItem('gaConsent');}catch(e){}
@@ -1092,7 +1106,7 @@ async function onSession(session){
     if(!error){ACC.perfil={...(perfil||{}),consentimento_em:new Date().toISOString()};try{localStorage.removeItem('gaConsent');}catch(e){}}
   }
   ACC.consent=!!(ACC.perfil&&ACC.perfil.consentimento_em);
-  if(ACC.consent)await enterAccount();
+  if(ACC.consent){await enterAccount();if(ACC.auto)closeAcct();}
   else{toLocal();openAcct();}
   renderAcct();
 }
@@ -1127,8 +1141,22 @@ function queueConfigSave(){
   },1500);
 }
 
-function openAcct(){$('acctPanel').hidden=false;renderAcct();}
-function closeAcct(){$('acctPanel').hidden=true;}
+/* pop-up de boas-vindas: aparece para quem está sem conta, no máximo uma vez a cada 7 dias */
+const PROMPT_DAYS=7;
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function promptDue(){const t=+lsGet('gaAcctPrompt')||0;return Date.now()-t>PROMPT_DAYS*864e5;}
+function openAcct(auto){
+  ACC.auto=!!auto;
+  $('acIntro').hidden=!auto;$('acSkip').hidden=!auto;
+  if(auto){const voltou=lsGet('gaHadAccount')==='1';
+    $('acIntroT').textContent=voltou?'Bem-vindo de volta':'Crie sua conta grátis';
+    $('acctTitle').textContent=voltou?'Entrar':'Calculadora Combustível';
+    if(ACC.setMode)ACC.setMode(voltou?'entrar':'criar');
+    try{localStorage.setItem('gaAcctPrompt',String(Date.now()));}catch(e){}}
+  else $('acctTitle').textContent='Sua conta';
+  $('acctPanel').hidden=false;renderAcct();
+}
+function closeAcct(){$('acctPanel').hidden=true;$('acIntro').hidden=true;$('acSkip').hidden=true;ACC.auto=false;}
 function renderAcct(){
   const u=ACC.user;
   $('acctBtn').textContent=u?(u.email||'Minha conta'):'Entrar';
@@ -1143,7 +1171,7 @@ function wantConsent(){
   return true;
 }
 function initConta(){
-  $('acctBtn').addEventListener('click',()=>{$('acctPanel').hidden?openAcct():closeAcct();});
+  $('acctBtn').addEventListener('click',()=>{$('acctPanel').hidden?openAcct(false):closeAcct();});
   $('acctClose').addEventListener('click',closeAcct);
   $('acctPanel').addEventListener('click',e=>{if(e.target===$('acctPanel'))closeAcct();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('acctPanel').hidden)closeAcct();});
@@ -1152,7 +1180,8 @@ function initConta(){
     const criar=m==='criar';$('acConsentWrap').hidden=!criar;$('acNomeWrap').hidden=!criar;$('acForgot').hidden=criar;
     $('acSend').textContent=criar?'Criar conta':'Entrar';$('acGoogleTxt').textContent=criar?'Criar conta com Google':'Entrar com Google';
     $('acPass').setAttribute('autocomplete',criar?'new-password':'current-password');$('acctMsg').textContent='';};
-  ACC.mode='entrar';
+  ACC.mode='entrar';ACC.setMode=setMode;
+  $('acSkip').addEventListener('click',closeAcct);
   $('acMode').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.v);});
   const authErr=m=>/invalid login/i.test(m)?'E-mail ou senha incorretos.':/not confirmed/i.test(m)?'Confirme seu e-mail pelo link que enviamos antes de entrar.':/already registered|already exists/i.test(m)?'Já existe uma conta com esse e-mail. Use Entrar.':/rate|limit|too many/i.test(m)?'Muitas tentativas em pouco tempo. Espere alguns minutos.':/password/i.test(m)?'A senha precisa ter pelo menos 8 caracteres.':'Não foi possível concluir agora. Tente de novo.';
   $('acGoogle').addEventListener('click',async()=>{
