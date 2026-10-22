@@ -1293,12 +1293,13 @@ function initConta(){
     $('acSend').textContent=criar?'Criar conta':'Entrar';$('acGoogleTxt').textContent=criar?'Criar conta com Google':'Entrar com Google';
     $('acPass').setAttribute('autocomplete',criar?'new-password':'current-password');$('acctMsg').textContent='';};
   ACC.mode='entrar';ACC.setMode=setMode;
-  $('acSkip').addEventListener('click',closeAcct);
+  $('acSkip').addEventListener('click',()=>{track('popup_dispensado');closeAcct();});
   $('acMode').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.v);});
   const authErr=m=>/invalid login/i.test(m)?'E-mail ou senha incorretos.':/not confirmed/i.test(m)?'Confirme seu e-mail pelo link que enviamos antes de entrar.':/already registered|already exists/i.test(m)?'Já existe uma conta com esse e-mail. Use Entrar.':/rate|limit|too many/i.test(m)?'Muitas tentativas em pouco tempo. Espere alguns minutos.':/password/i.test(m)?'A senha precisa ter pelo menos 8 caracteres.':'Não foi possível concluir agora. Tente de novo.';
   $('acGoogle').addEventListener('click',async()=>{
     if(!SB)return;
     if(ACC.mode==='criar'&&!wantConsent())return;
+    track('google_clicado',{modo:ACC.mode});
     const {error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirectUrl()}});
     if(error)$('acctMsg').textContent=/provider is not enabled|unsupported provider/i.test(error.message)?'O login com Google ainda não está ativo. Use e-mail e senha.':authErr(error.message);
   });
@@ -1315,7 +1316,7 @@ function initConta(){
     $('acSend').disabled=false;
     if(res.error){$('acctMsg').textContent=authErr(res.error.message);return;}
     if(ACC.mode==='criar'&&!res.data.session){$('acctMsg').textContent=`Conta criada. Enviamos um link de confirmação para ${email}; depois de confirmar, entre com a sua senha.`;setMode('entrar');return;}
-    $('acPass').value='';$('acctMsg').textContent='';
+    track(ACC.mode==='criar'?'conta_criada':'login',{via:'email'});$('acPass').value='';$('acctMsg').textContent='';
   });
   $('acForgot').addEventListener('click',async()=>{
     const email=$('acEmail').value.trim();
@@ -1473,7 +1474,7 @@ async function lgSave(){
   $('lgSave').disabled=true;
   const ok=await storeSave(log);
   $('lgSave').disabled=false;
-  if(ok){m.textContent='Registro salvo. Calibração atualizada.';['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa','lgNotas'].forEach(id=>$(id).value='');$('lgGi').value=0;lgPreview();}
+  if(ok){track('registro_salvo',{modalidade:l.sport});m.textContent='Registro salvo. Calibração atualizada.';['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa','lgNotas'].forEach(id=>$(id).value='');$('lgGi').value=0;lgPreview();}
 }
 
 /* Pré-preenche o diário a partir do plano calculado */
