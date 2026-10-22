@@ -19,6 +19,7 @@
   --accent:#F26419; --accent-ink:#B04A10; --blue:#1F5FBF; --blue-soft:#E3ECFA; --orange-soft:#FDE9DD;
   --warn:#9A5A00; --warn-bg:#FFF3D6; --crit:#A32A1F; --crit-bg:#FBE4E1; --ok:#2E7149;
   --band:#14100C; --band-ink:#F7F4F1; --sand:#B7ACA0;
+  --bar-hi:#F26419; --bar-mid:#F5A26F; --bar-lo:#D3C8BC;
   --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
   --body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --grad:linear-gradient(120deg,#A8440F 0%,#F26419 55%,#F5874A 100%);
@@ -27,12 +28,12 @@
   --bg:#14100C; --surface:#1D1813; --sunk:#26201A; --ink:#F3EEE8; --muted:#B7ACA0; --line:#352D25;
   --accent:#F5874A; --accent-ink:#F7A06F; --blue:#7AABF2; --blue-soft:#1A2638; --orange-soft:#33200F;
   --warn:#F2C26B; --warn-bg:#2E2412; --crit:#F2938A; --crit-bg:#3A1A16; --ok:#7CC79A;
-  --band:#0C0906; color-scheme:dark}}
+  --band:#0C0906; --bar-hi:#F5874A; --bar-mid:#A45A2E; --bar-lo:#4A4038; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#14100C; --surface:#1D1813; --sunk:#26201A; --ink:#F3EEE8; --muted:#B7ACA0; --line:#352D25;
   --accent:#F5874A; --accent-ink:#F7A06F; --blue:#7AABF2; --blue-soft:#1A2638; --orange-soft:#33200F;
   --warn:#F2C26B; --warn-bg:#2E2412; --crit:#F2938A; --crit-bg:#3A1A16; --ok:#7CC79A;
-  --band:#0C0906; color-scheme:dark}
+  --band:#0C0906; --bar-hi:#F5874A; --bar-mid:#A45A2E; --bar-lo:#4A4038; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
 .wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -270,6 +271,22 @@ body.has-mbar{padding-bottom:96px}
 .shbtns .btn{display:flex;align-items:center;justify-content:center;text-decoration:none;text-align:center;min-height:44px}
 .shbtns .btn[hidden]{display:none}
 #shNative:not([hidden])+#shDl{grid-column:auto}
+
+/* Importar treino */
+.wkbox{border:1.5px dashed var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s,background .15s}
+.wkbox.over{border-color:var(--accent);background:var(--orange-soft)}
+.wkhead{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.wkht{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.wkht b{font-size:14px}
+.wkres{display:flex;flex-direction:column;gap:10px;background:var(--sunk);border-radius:10px;padding:12px}
+.wprof{display:block;width:100%;height:64px}
+.wkleg{display:flex;gap:14px;font-size:11px;color:var(--muted);font-weight:600}
+.wkleg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.wkleg .lo{background:var(--bar-lo)} .wkleg .mid{background:var(--bar-mid)} .wkleg .hi{background:var(--bar-hi)}
+.wkhow{font-size:13px;color:var(--muted)} .wkhow p{margin:6px 0 0;max-width:70ch}
+.wkseg{display:flex;flex-direction:column;gap:6px}
+.wkseg .wkn{font-size:12px;font-weight:700;color:var(--muted);display:flex;justify-content:space-between;gap:4px 10px;flex-wrap:wrap}
+.wkseg .wkn button{font:inherit;font-size:12px;background:none;border:0;color:var(--accent-ink);cursor:pointer;padding:0}
 </style>
 
 <header class="band">
@@ -323,6 +340,31 @@ body.has-mbar{padding-bottom:96px}
 
     <section class="step">
       <div class="sh"><b>2</b><h2>Duração e intensidade</h2></div>
+      <div class="wkbox" id="wkDrop">
+        <div class="wkhead">
+          <div class="wkht"><b>Importar treino do TrainingPeaks ou Garmin</b><span class="hint">Arquivo do treino estruturado: .fit, .zwo, .erg ou .mrc. A calculadora lê cada trecho, calcula o IF e encaixa os géis fora dos tiros.</span></div>
+          <button class="btn" id="wkPick" type="button">Escolher arquivo</button>
+        </div>
+        <input type="file" id="wkInput" accept=".fit,.zwo,.erg,.mrc,.zip" hidden>
+        <p class="status bad" id="wkMsg"></p>
+        <div id="wkRes" class="wkres" hidden>
+          <div><b id="wkTitle"></b><div class="hint" id="wkStats"></div></div>
+          <div id="wkChart"></div>
+          <div class="wkleg"><span><i class="lo"></i>leve</span><span><i class="mid"></i>moderado</span><span><i class="hi"></i>forte</span></div>
+          <p class="hint" id="wkNeeds" hidden>O treino usa alvos absolutos. Informe seus números para a intensidade sair certa:</p>
+          <div class="row">
+            <label class="f" id="wkFtpW" hidden>FTP (W)<input id="wkFtp" type="number" inputmode="numeric" min="80" max="600" placeholder="ex.: 250"></label>
+            <label class="f" id="wkHrW" hidden>FC máxima<input id="wkHr" type="number" inputmode="numeric" min="120" max="230" placeholder="ex.: 190"></label>
+            <label class="f" id="wkPaceW" hidden>Ritmo de limiar (min/km)<input id="wkPace" type="text" inputmode="decimal" placeholder="ex.: 4:30"></label>
+          </div>
+          <div class="row"><button class="btn primary" id="wkApply" type="button">Usar este treino</button><button class="btn" id="wkClear" type="button">Descartar</button></div>
+        </div>
+        <details class="wkhow">
+          <summary>Como exportar o treino</summary>
+          <p><b>TrainingPeaks:</b> no calendário, abra o treino planejado, toque no menu de opções e escolha exportar ou baixar. Prefira .fit; para bike, .zwo, .erg e .mrc também funcionam. Só treinos estruturados (com passos) têm essa opção.</p>
+          <p><b>Garmin Connect:</b> no site, em Treinamento, Treinos, abra o treino e procure exportar no menu do treino. Se a sua versão não tiver essa opção, exporte pelo TrainingPeaks.</p>
+        </details>
+      </div>
       <label class="f" id="distWrap">Prova ou distância<select id="dist"></select></label>
       <div id="segs" style="display:flex;flex-direction:column;gap:10px"></div>
       <div class="status" id="totDur" hidden></div>
@@ -477,6 +519,8 @@ body.has-mbar{padding-bottom:96px}
     <section class="step" id="logForm">
       <div class="sh"><b>+</b><h2>Registrar treino</h2></div>
       <p class="hint">Pese-se sem roupa e seco, antes e depois. Em brick, pese-se também na T2 e registre bike e corrida separadamente.</p>
+      <div class="row" style="align-items:center"><button class="btn" id="lgFitPick" type="button">Importar atividade do Garmin (.fit)</button><span class="hint" style="flex:1 1 180px">Preenche data, duração, modalidade e intensidade.</span></div>
+      <input type="file" id="lgFitInput" accept=".fit,.zip" hidden>
       <div class="row">
         <label class="f">Data<input id="lgData" type="date"></label>
         <label class="f">Modalidade<select id="lgSport"><option value="ciclismo">Ciclismo</option><option value="corrida">Corrida</option></select></label>
@@ -891,10 +935,11 @@ function renderSegs(){
         ${S.modo==='tss'
           ?`<label class="f">TSS<input type="number" min="0" step="5" inputmode="numeric" id="st${k}" value="${s.tss||''}" placeholder="ex.: 120"></label>`
           :`<label class="f">Intensidade<select id="si${k}">${INT_NOME.map((n,j)=>`<option value="${j+1}" ${s.int===j+1?'selected':''}>${n}</option>`).join('')}</select></label>`}
-      </div>`;
+      </div>${s.blocks?`<div class="wkseg"><div class="wkn"><span>${s.wkName||'Treino importado'} · géis marcados com ▼</span><button type="button" data-k="${k}" class="wkdrop">Remover estrutura</button></div><div id="wkseg${k}"></div></div>`:''}`;
     box.appendChild(d);
+    const wd=d.querySelector('.wkdrop');if(wd)wd.addEventListener('click',()=>{delete s.blocks;delete s.wkName;renderSegs();run();});
     if(isRunRace()){d.querySelector('label.f').firstChild.textContent='Tempo alvo (h)';}
-    const upd=()=>{s.h=(+$('sh'+k).value||0)+(+$('sm'+k).value||0)/60;
+    const upd=()=>{const nh=(+$('sh'+k).value||0)+(+$('sm'+k).value||0)/60;if(s.blocks&&Math.abs(nh-s.h)>1/60){delete s.blocks;delete s.wkName;s.h=nh;renderSegs();run();return;}s.h=nh;
       if(S.modo==='tss')s.tss=+$('st'+k).value||0;else s.int=+$('si'+k).value;
       if(S.formato==='tri'&&S.dist.tri!=='custom'&&PRESETS[S.dist.tri]&&Math.abs(PRESETS[S.dist.tri][k][0]-s.h)>0.01){S.dist.tri='custom';$('dist').value='custom';}
       run();};
@@ -1055,7 +1100,10 @@ function run(){
     if(s.sport!=='natacao'){
       if(x.gels>0){const first=Math.min(20,len/(x.gels+1));const step=(len-first)/x.gels;
         const brickEnd=S.formato!=='single'&&s.sport==='ciclismo';
-        for(let j=0;j<x.gels;j++){let t=first+j*step;if(brickEnd&&j===x.gels-1)t=Math.max(t,len-20);ev.push({t:off+t,cls:'',txt:`1 ${P.gel.nome}`});}}
+        const bl=(segList().filter(q=>q.h>0)[k]||{}).blocks;const gt=[];
+        for(let j=0;j<x.gels;j++){let t=first+j*step;if(brickEnd&&j===x.gels-1)t=Math.max(t,len-20);t=placeGel(t,bl);gt.push(t);ev.push({t:off+t,cls:'',txt:`1 ${P.gel.nome}`});}
+        if(bl&&$('wkseg'+k))$('wkseg'+k).innerHTML=profileSvg(bl,gt);}
+      else{const bl=(segList().filter(q=>q.h>0)[k]||{}).blocks;if(bl&&$('wkseg'+k))$('wkseg'+k).innerHTML=profileSvg(bl,[]);}
       if(x.elec>0&&P.el&&!P.el.gram){const n=Math.ceil(x.elec);const step=len/n;
         for(let j=0;j<n;j++)ev.push({t:off+step*j+step/2,cls:'e',txt:`${j===n-1&&x.elec%1?'½':'1'} ${P.el.un} de eletrólito`});}
       if(x.s.fl>0){const every=15;const ml=Math.round(x.s.fl*1000*every/60/10)*10;
@@ -1141,7 +1189,7 @@ const SB_KEY='sb_publishable_x29ctnGxafVWM6ZTjy9ukA_930OE0Gr';
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const SB=(!IN_CLAUDE&&window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
 const ACC={user:null,perfil:null,consent:false,syncing:false};
-const CFG_IDS=['peso','sal','aclim','srBike','srRun','naMedido','gutBike','gutRun','cidade'];
+const CFG_IDS=['peso','sal','aclim','srBike','srRun','naMedido','gutBike','gutRun','cidade','wkFtp','wkHr','wkPace'];
 
 async function storeInit(){
   if(SB){
@@ -1522,6 +1570,226 @@ function initDiario(){
   storeInit();
 }
 
+/* ===== ARQUIVOS DE TREINO: .fit (Garmin/TrainingPeaks), .zwo, .erg, .mrc ===== */
+const FIT_EPOCH=631065600;
+function parseFitBytes(buf){
+  const dv=new DataView(buf);const u8=new Uint8Array(buf);
+  const hs=u8[0];if(buf.byteLength<12||String.fromCharCode(u8[8],u8[9],u8[10],u8[11])!=='.FIT')throw new Error('fit');
+  const dataSize=dv.getUint32(4,true);let p=hs;const end=Math.min(hs+dataSize,buf.byteLength);
+  const defs={};const msgs=[];
+  const BASE={0:1,1:1,2:1,3:2,4:2,5:4,6:4,7:1,8:4,9:8,10:1,11:2,12:4,13:1,14:8,15:8,16:8};
+  const INVALID={0:0xFF,1:0x7F,2:0xFF,3:0x7FFF,4:0xFFFF,5:0x7FFFFFFF,6:0xFFFFFFFF,10:0,11:0,12:0};
+  const rd=(bt,off,le)=>{switch(bt){case 0:case 2:case 10:case 13:return dv.getUint8(off);case 1:return dv.getInt8(off);
+    case 3:return dv.getInt16(off,le);case 4:case 11:return dv.getUint16(off,le);case 5:return dv.getInt32(off,le);case 6:case 12:return dv.getUint32(off,le);
+    case 8:return dv.getFloat32(off,le);case 9:return dv.getFloat64(off,le);default:return null;}};
+  while(p<end){
+    const h=u8[p++];
+    if(h&0x80){const lt=(h>>5)&3;const d=defs[lt];if(!d)throw new Error('fit');msgs.push(readData(d));continue;}
+    const lt=h&0x0F;
+    if(h&0x40){
+      p++;const arch=u8[p++];const le=arch===0;const gnum=le?dv.getUint16(p,true):dv.getUint16(p,false);p+=2;
+      const nf=u8[p++];const fields=[];for(let i=0;i<nf;i++){fields.push({num:u8[p],size:u8[p+1],bt:u8[p+2]&0x1F});p+=3;}
+      let dsz=0;if(h&0x20){const nd=u8[p++];for(let i=0;i<nd;i++){dsz+=u8[p+1];p+=3;}}
+      defs[lt]={gnum,le,fields,dsz};
+    }else{const d=defs[lt];if(!d)throw new Error('fit');msgs.push(readData(d));}
+  }
+  function readData(d){
+    const m={_n:d.gnum};
+    d.fields.forEach(f=>{
+      if(f.bt===7){let s='';for(let i=0;i<f.size;i++){const c=u8[p+i];if(!c)break;s+=String.fromCharCode(c);}try{s=decodeURIComponent(escape(s));}catch(e){}m[f.num]=s;}
+      else{const bs=BASE[f.bt]||1;if(f.size>=bs){const v=rd(f.bt,p,d.le);if(v!==null&&v!==INVALID[f.bt])m[f.num]=v;}}
+      p+=f.size;});
+    p+=d.dsz;return m;
+  }
+  return msgs;
+}
+const FIT_SPORT={1:'corrida',2:'ciclismo',5:'natacao',11:'corrida'};
+const FIT_INT={0:'active',1:'rest',2:'warmup',3:'cooldown',4:'recovery',5:'interval',6:'other'};
+function readFitFile(buf){
+  const msgs=parseFitBytes(buf);
+  const fid=msgs.find(m=>m._n===0)||{};
+  const ses=msgs.find(m=>m._n===18);
+  if(ses||fid[0]===4){
+    if(!ses)throw new Error('semsessao');
+    return {kind:'atividade',sport:FIT_SPORT[ses[5]]||null,start:ses[2]!=null?new Date((ses[2]+FIT_EPOCH)*1000):null,
+      timer:ses[8]!=null?ses[8]/1000:(ses[7]!=null?ses[7]/1000:null),dist:ses[9]!=null?ses[9]/100:null,
+      hr:ses[16]??null,np:ses[34]??null,tss:ses[35]!=null?ses[35]/10:null,ifac:ses[36]!=null?ses[36]/1000:null,temp:ses[57]??null};
+  }
+  const wk=msgs.find(m=>m._n===26)||{};
+  const steps=msgs.filter(m=>m._n===27).map(m=>({dType:m[1]??0,dVal:m[2]??null,tType:m[3]??2,tVal:m[4]??0,lo:m[5]??0,hi:m[6]??0,int:FIT_INT[m[7]]||'active',name:m[0]||''}));
+  if(!steps.length)throw new Error('vazio');
+  // expande repetições (duration_type 6 = repetir a partir do passo N, target_value = vezes)
+  const out=[];
+  const expand=(from,to)=>{for(let i=from;i<to;i++){const s=steps[i];
+    if(s.dType===6){const start=s.dVal||0;const times=Math.max(1,s.tVal||1);const block=steps.slice(start,i).filter(x=>x.dType!==6);for(let r=1;r<times;r++)block.forEach(b=>out.push(b));}
+    else out.push(s);}};
+  expand(0,steps.length);
+  const items=out.map(s=>{
+    const it={int:s.int,name:s.name};
+    if(s.dType===0)it.sec=(s.dVal||0)/1000;else if(s.dType===1)it.m=(s.dVal||0)/100;else it.sec=s.int==='rest'||s.int==='recovery'?120:300;
+    if(s.tType===4){if(s.lo||s.hi){const f=v=>v>=1000?{w:v-1000}:{pct:v/100};const a=f(s.lo),b=f(s.hi||s.lo);it.pwr=a.w!=null?{w:(a.w+(b.w??a.w))/2}:{pct:(a.pct+(b.pct??a.pct))/2};}else if(s.tVal)it.pzone=s.tVal;}
+    else if(s.tType===1){if(s.lo||s.hi){const f=v=>v>100?{bpm:v-100}:{pct:v/100};const a=f(s.lo),b=f(s.hi||s.lo);it.hr=a.bpm!=null?{bpm:(a.bpm+(b.bpm??a.bpm))/2}:{pct:(a.pct+(b.pct??a.pct))/2};}else if(s.tVal)it.hzone=s.tVal;}
+    else if(s.tType===0){if(s.lo||s.hi)it.spd=((s.lo||s.hi)+(s.hi||s.lo))/2/1000;}
+    return it;});
+  return {kind:'treino',sport:FIT_SPORT[wk[4]]||null,name:wk[8]||'',items};
+}
+function readZwo(txt){
+  const doc=new DOMParser().parseFromString(txt,'application/xml');
+  if(doc.querySelector('parsererror'))throw new Error('zwo');
+  const sp=(doc.querySelector('sportType')?.textContent||'bike').trim().toLowerCase();
+  const name=doc.querySelector('name')?.textContent?.trim()||'';
+  const w=doc.querySelector('workout');if(!w)throw new Error('zwo');
+  const n=(el,a,d)=>{const v=parseFloat(el.getAttribute(a));return isNaN(v)?d:v;};
+  const items=[];
+  [...w.children].forEach(el=>{const t=el.tagName.toLowerCase();
+    if(t==='intervalst'){const r=n(el,'Repeat',1);for(let i=0;i<r;i++){items.push({sec:n(el,'OnDuration',60),pwr:{pct:n(el,'OnPower',1)},int:'interval'});items.push({sec:n(el,'OffDuration',60),pwr:{pct:n(el,'OffPower',.5)},int:'rest'});}}
+    else if(t==='warmup'||t==='cooldown'||t==='ramp')items.push({sec:n(el,'Duration',300),pwr:{pct:(n(el,'PowerLow',.5)+n(el,'PowerHigh',.7))/2},int:t==='ramp'?'active':t});
+    else if(t==='steadystate'||t==='solidstate')items.push({sec:n(el,'Duration',300),pwr:{pct:n(el,'Power',.7)},int:'active'});
+    else if(t==='freeride'||t==='free')items.push({sec:n(el,'Duration',300),pwr:{pct:.6},int:'active'});
+    else if(t==='maxeffort')items.push({sec:n(el,'Duration',30),pwr:{pct:1.3},int:'interval'});
+  });
+  if(!items.length)throw new Error('vazio');
+  return {kind:'treino',sport:sp==='run'?'corrida':'ciclismo',name,items};
+}
+function readErgMrc(txt,ext){
+  const lines=txt.split(/\r?\n/);let ftp=null,mode=ext==='mrc'?'pct':'w',inData=false;const pts=[];let name='';
+  lines.forEach(l=>{const s=l.trim();
+    if(/^\[COURSE DATA\]/i.test(s)){inData=true;return;}if(/^\[END COURSE DATA\]/i.test(s)){inData=false;return;}
+    if(!inData){const m=s.match(/^FTP\s*=\s*(\d+)/i);if(m)ftp=+m[1];if(/MINUTES\s+PERCENT/i.test(s))mode='pct';if(/MINUTES\s+WATTS/i.test(s))mode='w';const d=s.match(/^DESCRIPTION\s*=\s*(.+)/i);if(d)name=d[1];return;}
+    const m=s.match(/^([\d.]+)\s+([\d.]+)/);if(m)pts.push([+m[1],+m[2]]);});
+  if(pts.length<2)throw new Error('vazio');
+  const items=[];
+  for(let i=0;i<pts.length-1;i++){const dt=(pts[i+1][0]-pts[i][0])*60;if(dt<=0)continue;const v=(pts[i][1]+pts[i+1][1])/2;
+    items.push({sec:dt,pwr:mode==='pct'?{pct:v/100}:{w:v},int:'active'});}
+  return {kind:'treino',sport:'ciclismo',name,items,ftpFile:ftp};
+}
+
+/* .zip do Garmin Connect (Exportar original): pega o primeiro .fit de dentro */
+async function unzipFirstFit(buf){
+  const dv=new DataView(buf);let p=0;
+  while(p+30<=buf.byteLength&&dv.getUint32(p,true)===0x04034b50){
+    const method=dv.getUint16(p+8,true),csize=dv.getUint32(p+18,true),nlen=dv.getUint16(p+26,true),xlen=dv.getUint16(p+28,true);
+    const name=new TextDecoder().decode(new Uint8Array(buf,p+30,nlen));const start=p+30+nlen+xlen;
+    if(/\.fit$/i.test(name)){const data=new Uint8Array(buf,start,csize);
+      if(method===0)return data.slice().buffer;
+      if(method===8&&'DecompressionStream' in window){const s=new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return await new Response(s).arrayBuffer();}
+      throw new Error('zip');}
+    p=start+csize;}
+  throw new Error('zip');
+}
+async function fitBuffer(f){const b=await f.arrayBuffer();const u=new Uint8Array(b,0,4);return (u[0]===0x50&&u[1]===0x4b)?unzipFirstFit(b):b;}
+/* intensidade de cada trecho como fração do limiar (IF) */
+const PZ=[.5,.65,.82,.97,1.1,1.3,1.5],HZ=[.6,.7,.8,.9,1.0];
+function needsOf(w){const n={ftp:false,hrmax:false,pace:false};w.items.forEach(i=>{if(i.pwr&&i.pwr.w!=null&&!w.ftpFile)n.ftp=true;if(i.hr&&i.hr.bpm!=null)n.hrmax=true;if(i.spd||i.m!=null&&w.sport==='corrida')n.pace=true;});return n;}
+function itemIF(i,prof,w){
+  if(i.pwr){if(i.pwr.pct!=null)return i.pwr.pct;const ftp=w.ftpFile||prof.ftp;return ftp?i.pwr.w/ftp:.75;}
+  if(i.pzone)return PZ[clamp(i.pzone,1,7)-1];
+  if(i.hr){const p=i.hr.pct!=null?i.hr.pct:i.hr.bpm/(prof.hrmax||190);return clamp(.55+(p-.6)*1.33,.45,1.1);}
+  if(i.hzone)return HZ[clamp(i.hzone,1,5)-1];
+  if(i.spd&&prof.thrSpd)return clamp(i.spd/prof.thrSpd,.4,1.3);
+  if(i.spd)return .85;
+  return {warmup:.6,cooldown:.55,rest:.5,recovery:.5,interval:.95}[i.int]||.72;
+}
+function toBlocks(w,prof){
+  const thr=prof.thrSpd||3.33;
+  let t=0;const blocks=w.items.map(i=>{const f=itemIF(i,prof,w);
+    let sec=i.sec;if(sec==null&&i.m!=null){const v=i.spd||thr*clamp(f,.6,1.05);sec=i.m/Math.max(v,.5);}
+    const b={start:t,sec:sec||0,if:f,int:i.int};t+=b.sec;return b;}).filter(b=>b.sec>0);
+  const T=blocks.reduce((a,b)=>a+b.sec,0);
+  const IF=T?Math.pow(blocks.reduce((a,b)=>a+Math.pow(b.if,4)*b.sec,0)/T,.25):0;
+  return {blocks,T,IF,tss:Math.round(T/3600*IF*IF*100)};
+}
+
+/* géis caem nos trechos leves mais próximos (fora dos tiros) */
+function placeGel(tMin,blocks){
+  if(!blocks||!blocks.length)return tMin;
+  const t=tMin*60;const cur=blocks.find(b=>t>=b.start&&t<b.start+b.sec);
+  if(!cur||cur.if<.85)return tMin;
+  let best=null,bd=1e9;
+  blocks.forEach(b=>{if(b.if>=.78||b.sec<90)return;const a=b.start+45,z=b.start+b.sec-30;if(z<a)return;const c=clamp(t,a,z);const d=Math.abs(c-t);if(d<bd){bd=d;best=c;}});
+  return best!==null&&bd<=15*60?best/60:tMin;
+}
+function profileSvg(blocks,gels){
+  const T=blocks.reduce((a,b)=>a+b.sec,0)||1;const W=600,H=64;
+  const col=f=>f>=.9?'var(--bar-hi)':f>=.75?'var(--bar-mid)':'var(--bar-lo)';
+  let x=0;const rects=blocks.map(b=>{const w=b.sec/T*W,h=clamp((b.if-.3)/1.1,0.08,1)*(H-14);const r=`<rect x="${x.toFixed(1)}" y="${(H-h).toFixed(1)}" width="${Math.max(w-.6,.6).toFixed(1)}" height="${h.toFixed(1)}" fill="${col(b.if)}"/>`;x+=w;return r;}).join('');
+  const marks=(gels||[]).map(g=>{const gx=clamp(g*60/T*W,4,W-4);return `<path d="M${(gx-5).toFixed(1)} 1 L${(gx+5).toFixed(1)} 1 L${gx.toFixed(1)} 10 Z" fill="var(--ink)"/>`;}).join('');
+  return `<svg class="wprof" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Perfil do treino com os momentos dos géis">${rects}${marks}</svg>`;
+}
+
+/* interface de importação */
+let WK=null;
+function wkProfile(){const pace=($('wkPace')?.value||'').match(/^(\d{1,2})[:.,](\d{2})$/);
+  return {ftp:+$('wkFtp').value||null,hrmax:+$('wkHr').value||null,thrSpd:pace?1000/((+pace[1])*60+(+pace[2])):null};}
+function renderWk(){
+  const box=$('wkRes');if(!WK){box.hidden=true;return;}
+  const need=needsOf(WK);$('wkFtpW').hidden=!need.ftp;$('wkHrW').hidden=!need.hrmax;$('wkPaceW').hidden=!need.pace;$('wkNeeds').hidden=!(need.ftp||need.hrmax||need.pace);
+  const r=toBlocks(WK,wkProfile());WK.res=r;
+  const t=hm(r.T/3600);
+  $('wkTitle').textContent=(WK.name||'Treino importado')+(WK.sport?` · ${SPORT_NOME[WK.sport]}`:'');
+  $('wkStats').textContent=`${t.h}h${String(t.m).padStart(2,'0')} · IF ${fmt(r.IF,2)} · TSS ${r.tss} · ${r.blocks.length} trechos`;
+  $('wkChart').innerHTML=profileSvg(r.blocks,[]);
+  box.hidden=false;
+}
+async function wkFile(f){
+  const msg=$('wkMsg');msg.className='status bad';msg.textContent='';WK=null;
+  const ext=(f.name.split('.').pop()||'').toLowerCase();
+  try{
+    if(ext==='fit'||ext==='zip'){const res=readFitFile(await fitBuffer(f));
+      if(res.kind==='atividade'){msg.textContent='Esse arquivo é de um treino já feito. Para planejar, exporte o treino planejado. Para registrar o que você fez, use Importar atividade na aba Diário.';renderWk();return;}
+      WK=res;}
+    else if(ext==='zwo')WK=readZwo(await f.text());
+    else if(ext==='erg'||ext==='mrc')WK=readErgMrc(await f.text(),ext);
+    else{msg.textContent='Formato não reconhecido. Use .fit, .zwo, .erg, .mrc ou .zip.';renderWk();return;}
+    if(!WK.sport)WK.sport='ciclismo';
+    renderWk();track('treino_importado',{formato:ext,modalidade:WK.sport});
+  }catch(e){WK=null;renderWk();msg.textContent=e&&e.message==='vazio'?'O arquivo não tem passos de treino. Confira se exportou um treino estruturado.':'Não consegui ler esse arquivo. Confira se é um treino estruturado exportado do TrainingPeaks ou do Garmin.';}
+}
+function wkApply(){
+  if(!WK||!WK.res)return;const r=WK.res;const sp=WK.sport;
+  S.tipo='treino';pressSeg('tipo','treino');
+  let seg=null;
+  if(S.formato!=='single'){seg=S.segs[S.formato].find(s=>s.sport===sp);}
+  if(!seg){S.formato='single';pressSeg('formato','single');$('sport').value=sp;S.dist.single='livre';seg=S.segs.single[0];seg.sport=sp;}
+  S.modo='tss';pressSeg('modo','tss');
+  seg.h=r.T/3600;seg.tss=r.tss;seg.blocks=r.blocks;seg.wkName=WK.name||'Treino importado';
+  renderSegs();run();
+  WK=null;renderWk();$('wkMsg').className='status ok';$('wkMsg').textContent=`Treino aplicado: ${seg.wkName}. Os géis caem nos trechos leves, fora dos tiros.`;
+  track('treino_aplicado',{modalidade:sp});
+}
+function initWorkout(){
+  const inp=$('wkInput');
+  $('wkPick').addEventListener('click',()=>inp.click());
+  inp.addEventListener('change',()=>{if(inp.files[0])wkFile(inp.files[0]);inp.value='';});
+  const dz=$('wkDrop');
+  ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over');}));
+  dz.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)wkFile(f);});
+  ['wkFtp','wkHr','wkPace'].forEach(id=>$(id).addEventListener('input',renderWk));
+  $('wkApply').addEventListener('click',wkApply);
+  $('wkClear').addEventListener('click',()=>{WK=null;renderWk();$('wkMsg').textContent='';});
+  // importar atividade concluída no diário
+  const ai=$('lgFitInput');
+  $('lgFitPick').addEventListener('click',()=>ai.click());
+  ai.addEventListener('change',async()=>{const f=ai.files[0];ai.value='';if(!f)return;const m=$('lgMsg');
+    try{const r=readFitFile(await fitBuffer(f));
+      if(r.kind!=='atividade'){m.textContent='Esse arquivo é de um treino planejado. Aqui vai a atividade já feita, exportada do Garmin Connect.';return;}
+      if(r.sport==='ciclismo'||r.sport==='corrida')$('lgSport').value=r.sport;
+      if(r.timer)$('lgDur').value=Math.round(r.timer/60);
+      if(r.start)$('lgData').value=r.start.toLocaleDateString('sv-SE');
+      let lvl=null;
+      if(r.ifac)lvl=r.ifac<.72?1:r.ifac<.85?2:r.ifac<.95?3:4;
+      else if(r.hr){const hrmax=+$('wkHr').value||190;const p=r.hr/hrmax;lvl=p<.75?1:p<.83?2:p<.9?3:4;}
+      if(lvl)$('lgInt').value=String(lvl);
+      lgPreview();
+      const bits=[r.timer?`${Math.round(r.timer/60)} min`:'',r.dist?`${fmt(r.dist/1000,1)} km`:'',r.ifac?`IF ${fmt(r.ifac,2)}`:'',r.hr?`FC média ${r.hr}`:''].filter(Boolean).join(' · ');
+      m.textContent=`Atividade importada (${bits}). Agora preencha pesos, líquido e carbo.`;
+      track('atividade_importada',{modalidade:r.sport||'outra'});
+      $('lgPre').focus();
+    }catch(e){m.textContent='Não consegui ler esse arquivo. Exporte a atividade como .fit original no Garmin Connect.';}
+  });
+}
+
 /* ===== COMPARTILHAR ===== */
 const LAST={};
 const SITE='gabreutri.netlify.app';
@@ -1742,6 +2010,7 @@ function initMobile(){
     fillSelect('pGel',['gel'],'Nenhum');fillSelect('pDrink',['bebida','po'],'Só água');fillSelect('pElec',['eletrolito'],'Nenhum');
     const sel=t==='gel'?'pGel':t==='bebida'?'pDrink':'pElec';$(sel).value=p.id;renderProdEdit(sel,sel+'V');$('cNome').value='';run();});
   renderSegs();run();
+  initWorkout();
   initShare();
   initMobile();
   initConta();
