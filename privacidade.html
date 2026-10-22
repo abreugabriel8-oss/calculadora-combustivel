@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Política de Privacidade · Calculadora Combustível</title>
+<meta name="description" content="Como a Calculadora Combustível coleta, usa e protege os seus dados.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#F7F4F1;--surface:#FFFFFF;--ink:#1E1914;--muted:#6B6158;--line:#E2DAD1;--accent:#F26419;--accent-ink:#B04A10;--band:#14100C;
+  --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;--body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#14100C;--surface:#1D1813;--ink:#F3EEE8;--muted:#B7ACA0;--line:#352D25;--accent:#F5874A;--accent-ink:#F7A06F;--band:#0C0906;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--body)}
+header{background:var(--band);color:#F7F4F1}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header .wrap{padding-block:28px}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#B7ACA0;font-weight:700}
+h1{font-family:var(--display);font-weight:900;font-size:clamp(34px,7vw,52px);line-height:.95;margin:6px 0 4px;text-transform:uppercase}
+h1 span{color:#F26419}
+main.wrap{padding-block:28px 48px}
+h2{font-family:var(--display);font-weight:800;font-size:24px;text-transform:uppercase;letter-spacing:.03em;margin:32px 0 8px}
+p,li{max-width:68ch}
+ul{padding-left:20px}
+a{color:var(--accent-ink)}
+.en{margin-top:44px;border-top:1px solid var(--line);padding-top:8px}
+.meta{color:var(--muted);font-size:14px}
+footer{border-top:1px solid var(--line)}
+footer .wrap{padding-block:18px 28px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="eyebrow">@gabreutri · Nutrição esportiva</div>
+  <h1>Política de <span>Privacidade</span></h1>
+  <div style="color:#D9D0C6">Calculadora Combustível</div>
+</div></header>
+
+<main class="wrap">
+  <p>Esta política explica quais dados a Calculadora Combustível coleta, para que usa e como você controla esses dados, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, LGPD).</p>
+
+  <h2>Quem é o responsável</h2>
+  <p>Gabriel Abreu, nutricionista esportivo, CRN 23100384, Vila Velha, ES, Brasil. Contato pelo Instagram <b>@gabreutri</b>.</p>
+
+  <h2>O que coletamos</h2>
+  <ul>
+    <li><b>Sem conta:</b> a calculadora funciona sem login. Os dados que você digita ficam no seu navegador e não são enviados para nós.</li>
+    <li><b>Com conta:</b> e-mail, nome (opcional) e, se você usar o Google, o nome e o e-mail informados por ele.</li>
+    <li><b>Perfil de atleta:</b> peso, perfil de suor, tolerância a carboidrato, FTP, frequência cardíaca máxima e ritmo de limiar, se você informar.</li>
+    <li><b>Diário de treinos:</b> data, modalidade, duração, intensidade, clima, peso antes e depois, líquido, carboidrato e sódio consumidos e nota de desconforto gastrointestinal.</li>
+    <li><b>Arquivos de treino e de atividade</b> (.fit, .zwo, .erg, .mrc): lidos no seu próprio aparelho. Guardamos só os números extraídos que você salvar no diário.</li>
+    <li><b>Integrações</b> (Garmin Connect, TrainingPeaks e similares), quando disponíveis: só com a sua autorização expressa, e só os dados de treinos e atividades necessários para o cálculo.</li>
+    <li><b>Uso do site:</b> estatísticas de visitas anônimas, sem cookies e sem identificar você (Umami).</li>
+  </ul>
+
+  <h2>Para que usamos</h2>
+  <p>Para calcular o seu plano de carboidrato, líquido e sódio e para calibrar a sua taxa de suor e a sua tolerância a carboidrato a partir dos treinos registrados. Os dados de peso, suor e desconforto gastrointestinal são dados de saúde: só são guardados com o seu consentimento específico, pedido no cadastro.</p>
+
+  <h2>O que não fazemos</h2>
+  <ul>
+    <li>Não vendemos nem compartilhamos seus dados com anunciantes ou terceiros.</li>
+    <li>Não usamos seus dados para publicidade.</li>
+    <li>Não acessamos dados de integrações além do necessário para o cálculo.</li>
+  </ul>
+
+  <h2>Onde ficam e como protegemos</h2>
+  <p>Os dados da conta ficam no Supabase, um serviço de banco de dados em nuvem, com regras de acesso por linha: cada conta só consegue ler e alterar os próprios registros. A comunicação é criptografada (HTTPS).</p>
+
+  <h2>Seus direitos</h2>
+  <ul>
+    <li><b>Acessar e corrigir</b> seus dados a qualquer momento, na própria calculadora.</li>
+    <li><b>Excluir</b> a conta e todos os dados, de forma definitiva, em Conta, Excluir minha conta.</li>
+    <li><b>Revogar integrações</b> pelo próprio serviço (Garmin Connect ou TrainingPeaks) ou pedindo para nós.</li>
+    <li><b>Retirar o consentimento:</b> basta excluir a conta.</li>
+  </ul>
+
+  <h2>Retenção</h2>
+  <p>Mantemos os dados enquanto a conta existir. Ao excluir a conta, apagamos os registros na hora.</p>
+
+  <section class="en" lang="en">
+    <h2>Privacy summary (English)</h2>
+    <p>Calculadora Combustível is operated by Gabriel Abreu, registered sports dietitian (CRN 23100384), Brazil. The calculator works without an account and keeps typed data in the user's browser. With an account, we store email, optional name, athlete profile and a post-training log (body weight, fluid and carbohydrate intake, GI comfort). Health data is stored only with explicit consent under Brazil's LGPD. Workout and activity files are parsed on the user's device. Third-party integrations (such as Garmin Connect or TrainingPeaks) are used only with the user's explicit authorization and only for the data required to compute fueling plans. We never sell or share user data with third parties or use it for advertising. Data is protected with row-level security and HTTPS. Users can delete their account and all data at any time from within the app, which removes it immediately. Contact: Instagram @gabreutri.</p>
+  </section>
+</main>
+
+<footer><div class="wrap"><span><b>Gabriel Abreu</b> · Nutricionista esportivo · CRN 23100384</span><a href="/">Voltar para a calculadora</a></div></footer>
+</body>
+</html>
