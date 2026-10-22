@@ -465,7 +465,11 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
       <div class="orline"><span>ou</span></div>
       <form id="acForm" class="row" style="align-items:flex-end" novalidate>
         <label class="f">E-mail<input id="acEmail" type="email" autocomplete="email" inputmode="email" placeholder="voce@email.com"></label>
-        <button class="btn primary" id="acSend" type="submit" style="flex:0 0 auto">Receber link de acesso</button>
+        <button class="btn primary" id="acSend" type="submit" style="flex:0 0 auto">Receber acesso por e-mail</button>
+      </form>
+      <form id="acCodeForm" class="row" style="align-items:flex-end" hidden novalidate>
+        <label class="f">Código do e-mail<input id="acCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="ex.: 123456"></label>
+        <button class="btn primary" id="acCodeGo" type="submit" style="flex:0 0 auto">Entrar com o código</button>
       </form>
     </div>
 
@@ -1005,6 +1009,8 @@ async function storeInit(){
   if(SB){
     $('acctBtn').hidden=false;
     SB.auth.onAuthStateChange((ev,session)=>{setTimeout(()=>onSession(session),0);});
+    const hp=new URLSearchParams(location.hash.slice(1));
+    if(hp.get('error')){openAcct();$('acctMsg').textContent=hp.get('error_code')==='otp_expired'?'Esse link expirou ou já foi usado. Peça um novo acesso e use o código do e-mail.':'Não foi possível entrar por esse link. Peça um novo acesso.';try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}}
     const {data}=await SB.auth.getSession();
     if(!data||!data.session)toLocal();
     return;
@@ -1141,7 +1147,16 @@ function initConta(){
     const {error}=await SB.auth.signInWithOtp({email,options:{emailRedirectTo:redirectUrl()}});
     $('acSend').disabled=false;
     $('acctMsg').textContent=error?(/rate|limit/i.test(error.message)?'Muitos pedidos de link em pouco tempo. Espere alguns minutos e tente de novo.':'Não foi possível enviar o link. Confira o e-mail e tente de novo.')
-      :`Link enviado para ${email}. Abra o e-mail neste aparelho e toque no link para entrar.`;
+      :`Enviado para ${email}. Digite o código do e-mail aqui, ou toque no link do e-mail neste aparelho.`;
+    if(!error){$('acCodeForm').hidden=false;$('acCode').focus();}
+  });
+  $('acCodeForm').addEventListener('submit',async e=>{
+    e.preventDefault();const token=$('acCode').value.replace(/\D/g,'');const email=$('acEmail').value.trim();
+    if(token.length<6){$('acctMsg').textContent='Digite o código completo enviado por e-mail.';return;}
+    $('acCodeGo').disabled=true;
+    const {error}=await SB.auth.verifyOtp({email,token,type:'email'});
+    $('acCodeGo').disabled=false;
+    $('acctMsg').textContent=error?'Código inválido ou expirado. Use o código do e-mail mais recente.':'';
   });
   $('acGateOk').addEventListener('click',async()=>{
     if(!$('acConsent2').checked){$('acctMsg').textContent='Marque o consentimento para guardar seus dados na conta.';return;}
