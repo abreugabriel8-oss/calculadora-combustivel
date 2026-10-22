@@ -258,6 +258,17 @@ body.has-mbar{padding-bottom:96px}
   .carry li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px}
   .carry .q{font-size:22px;min-width:0}
 }
+
+/* Compartilhar */
+.sharerow{display:flex;gap:10px;flex-wrap:wrap}
+.sharerow .btn{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:8px}
+.shbox{width:min(460px,100%)}
+.shprev{display:flex;justify-content:center;background:var(--sunk);border-radius:12px;padding:10px}
+.shprev img{height:min(56vh,520px);width:auto;max-width:100%;aspect-ratio:9/16;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.25);background:#14100C}
+.shbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.shbtns .btn{display:flex;align-items:center;justify-content:center;text-decoration:none;text-align:center;min-height:44px}
+.shbtns .btn[hidden]{display:none}
+#shNative:not([hidden])+#shDl{grid-column:auto}
 </style>
 
 <header class="band">
@@ -419,6 +430,7 @@ body.has-mbar{padding-bottom:96px}
       <div class="m flu"><span class="lbl">Líquido</span><span class="val" id="vFl">0<small>ml/h</small></span><span class="tot" id="tFl"></span></div>
       <div class="m na"><span class="lbl">Sódio</span><span class="val" id="vNa">0<small>mg/h</small></span><span class="tot" id="tNa"></span></div>
     </div>
+    <div class="sharerow"><button class="btn primary" id="shOpen" type="button">Compartilhar plano nos Stories</button></div>
     <div class="alerts" id="alerts"></div>
     <div class="card">
       <h3>Plano por segmento</h3>
@@ -543,6 +555,21 @@ body.has-mbar{padding-bottom:96px}
     <div class="mb-tot" id="mbTot"></div>
   </div>
   <button class="mb-go" id="mbGo" type="button">Ver plano</button>
+</div>
+
+<div class="acctwrap" id="shPanel" hidden>
+  <div class="acct shbox" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+    <div class="acct-h"><h3 id="shTitle">Compartilhar plano</h3><button class="xbtn" id="shClose" type="button">Fechar</button></div>
+    <div class="shprev"><img id="shImg" alt="Imagem do plano para os Stories" width="1080" height="1920"></div>
+    <p class="status ok" id="shMsg"></p>
+    <div class="shbtns">
+      <button class="btn primary" id="shNative" type="button" hidden>Compartilhar imagem</button>
+      <a class="btn primary" id="shDl" href="#" download="plano-combustivel.png">Salvar imagem</a>
+      <a class="btn" id="shWa" href="https://wa.me/" target="_blank" rel="noopener">Enviar no WhatsApp</a>
+      <button class="btn" id="shCopy" type="button">Copiar plano em texto</button>
+    </div>
+    <textarea id="shTxt" rows="6" hidden readonly></textarea>
+  </div>
 </div>
 
 <div class="acctwrap" id="acctPanel" hidden>
@@ -937,8 +964,9 @@ function plano(r,inp){
     const x={s,dCho:0,dNa:0,dServ:0,poG:0,gels:0,gelCho:0,gelNa:0,elec:0,elecNa:0};
     if(s.sport!=='natacao'&&s.h>0){
       const F=s.fl*1000;
-      if(dr&&dr.t==='bebida'&&F>0){x.dServ=Math.min(F/dr.ml,s.carb/(dr.cho||1));x.dCho=x.dServ*dr.cho;x.dNa=x.dServ*(dr.na||0);}
-      if(dr&&dr.t==='po'&&F>0){const c=Math.min(s.carb,F/1000*90);x.poG=c/dr.choG;x.dCho=c;}
+      const bk=s.sport==='ciclismo';
+      if(bk&&dr&&dr.t==='bebida'&&F>0){x.dServ=Math.min(F/dr.ml,s.carb/(dr.cho||1));x.dCho=x.dServ*dr.cho;x.dNa=x.dServ*(dr.na||0);}
+      if(bk&&dr&&dr.t==='po'&&F>0){const c=Math.min(s.carb,F/1000*90);x.poG=c/dr.choG;x.dCho=c;}
       const rem=Math.max(0,s.carb-x.dCho);
       if(gel&&gel.cho>0){x.gels=Math.round(rem*s.h/gel.cho);x.gelCho=x.gels*gel.cho/s.h;x.gelNa=x.gels*(gel.na||0)/s.h;tot.caf+=x.gels*(gel.caf||0);}
       const naRem=Math.max(0,s.na-x.dNa-x.gelNa);
@@ -959,7 +987,7 @@ function plano(r,inp){
 function run(){
   const inp=readInputs();
   const r=calcular(inp);
-  const P=plano(r,inp);
+  const P=plano(r,inp);LAST.r=r;LAST.P=P;LAST.inp=inp;
   const feeding=r.segs.some(s=>s.sport!=='natacao');
   $('vCho').innerHTML=fmt(feeding?r.carbH:0)+'<small>g/h</small>';
   $('vFl').innerHTML=fmt(feeding?r.flH:0)+'<small>ml/h</small>';
@@ -1030,11 +1058,11 @@ function run(){
       if(x.elec>0&&P.el&&!P.el.gram){const n=Math.ceil(x.elec);const step=len/n;
         for(let j=0;j<n;j++)ev.push({t:off+step*j+step/2,cls:'e',txt:`${j===n-1&&x.elec%1?'½':'1'} ${P.el.un} de eletrólito`});}
       if(x.s.fl>0){const every=15;const ml=Math.round(x.s.fl*1000*every/60/10)*10;
-        ev.push({t:off+5,cls:'w',txt:`Beber ~${ml} ml a cada ${every} min${P.dr?' ('+P.dr.nome.split(' (')[0]+')':''}${P.el&&P.el.gram?', com sal dissolvido':''}`});}
+        ev.push({t:off+5,cls:'w',txt:`Beber ~${ml} ml a cada ${every} min${P.dr&&s.sport==='ciclismo'?' ('+P.dr.nome.split(' (')[0]+')':''}${P.el&&P.el.gram?', com sal dissolvido':''}`});}
     }
     off+=len;});
   ev.push({t:off,cls:'s',txt:'Fim da sessão'});
-  ev.sort((a,b)=>a.t-b.t).forEach(e=>{const li=document.createElement('li');li.className=e.cls;
+  ev.sort((a,b)=>a.t-b.t);LAST.ev=ev;ev.forEach(e=>{const li=document.createElement('li');li.className=e.cls;
     li.innerHTML=`<time>${e.t<0?'-0:12':rel(e.t)} <span class="hint">${clock(e.t)}</span></time><span>${e.txt}</span>`;tl.appendChild(li);});
 
   // alertas
@@ -1492,6 +1520,119 @@ function initDiario(){
   storeInit();
 }
 
+/* ===== COMPARTILHAR ===== */
+const LAST={};
+const SITE='gabreutri.netlify.app';
+/* medição de uso: ativa quando o script do Umami estiver na página */
+function track(ev,data){try{if(window.umami&&window.umami.track)window.umami.track(ev,data);}catch(e){}}
+
+function durTxt(h){const t=hm(h);return t.h?`${t.h}h${t.m?String(t.m).padStart(2,'0'):''}`:`${t.m} min`;}
+function sessionTitle(){
+  const r=LAST.r;if(!r)return '';
+  const prova=S.tipo==='prova';
+  if(S.formato==='tri'){const n=S.dist.tri!=='custom'&&TRI_NOME[S.dist.tri]?TRI_NOME[S.dist.tri].split(' (')[0]:'Triathlon';return `${n.startsWith('Ironman')||n.startsWith('70.3')?n:'Triathlon '+n} · ${durTxt(r.T)}`;}
+  if(S.formato==='brick'){const b=r.segs.find(s=>s.sport==='ciclismo'),c=r.segs.find(s=>s.sport==='corrida');return `Brick · ${durTxt(b?b.h:0)} bike + ${durTxt(c?c.h:0)} corrida`;}
+  const s=r.segs[0];if(!s)return '';
+  if(s.sport==='corrida'&&RUN_DIST[S.dist.single])return `${RUN_DIST[S.dist.single][0].split(' (')[0]} · ${durTxt(s.h)}${prova?' · prova':''}`;
+  return `${SPORT_NOME[s.sport]} · ${durTxt(s.h)} · ${prova?'prova':'treino'}`;
+}
+function shareLines(){
+  const r=LAST.r,P=LAST.P,inp=LAST.inp;const out=[];
+  out.push(`Meu plano de combustível: ${sessionTitle()}`);
+  out.push(`Carbo ${fmt(r.carbH)} g/h · Líquido ${fmt(r.flH)} ml/h · Sódio ${fmt(r.naH)} mg/h`);
+  out.push(`Clima ${fmt(inp.temp)} °C, ${fmt(inp.rh)}% de umidade`);
+  const ev=(LAST.ev||[]).filter(e=>!/^(Fim|Início (corrida|ciclismo|natação)$)/.test(e.txt)).slice(0,10);
+  if(ev.length){out.push('');ev.forEach(e=>out.push(`${e.t<0?'antes':relT(e.t)}  ${e.txt}`));}
+  out.push('');out.push(`Calcule o seu: https://${SITE}`);
+  return out.join('\n');
+}
+function relT(min){const h=Math.floor(min/60),m=Math.round(min%60);return `${h}:${String(m).padStart(2,'0')}`;}
+
+/* imagem 1080x1920 para Stories, na identidade @gabreutri */
+async function drawStory(){
+  try{await Promise.all(['900 120px "Barlow Condensed"','800 40px "Barlow Condensed"','700 34px "Plus Jakarta Sans"','500 30px "Plus Jakarta Sans"'].map(f=>document.fonts.load(f)));}catch(e){}
+  const W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  const D='"Barlow Condensed","Arial Narrow",Impact,sans-serif',B='"Plus Jakarta Sans",system-ui,sans-serif';
+  const r=LAST.r,inp=LAST.inp;
+  // fundo e corte diagonal de combustão
+  g.fillStyle='#14100C';g.fillRect(0,0,W,H);
+  const gr=g.createLinearGradient(560,0,1080,700);gr.addColorStop(0,'#A8440F');gr.addColorStop(.55,'#F26419');gr.addColorStop(1,'#F5874A');
+  g.save();g.beginPath();g.moveTo(760,0);g.lineTo(W,0);g.lineTo(W,820);g.lineTo(1000,820);g.closePath();g.fillStyle=gr;g.fill();
+  g.clip();g.strokeStyle='rgba(20,16,12,.22)';g.lineWidth=3;for(let x=-900;x<W+900;x+=34){g.beginPath();g.moveTo(x,0);g.lineTo(x+480,820);g.stroke();}g.restore();
+  const L=84;
+  // marca
+  g.font=`900 96px ${D}`;const mg=g.createLinearGradient(L,260,L+140,340);mg.addColorStop(0,'#A8440F');mg.addColorStop(.55,'#F26419');mg.addColorStop(1,'#F5874A');
+  g.fillStyle=mg;g.textBaseline='alphabetic';g.fillText('GA',L,350);
+  g.fillStyle='#B7ACA0';g.font=`700 28px ${B}`;g.fillText('@GABREUTRI · NUTRIÇÃO ESPORTIVA',L+150,318);
+  // título
+  g.fillStyle='#F7F4F1';g.font=`900 118px ${D}`;g.fillText('PLANO DE',L,500);
+  g.fillStyle='#F26419';g.fillText('COMBUSTÍVEL',L,612);
+  g.fillStyle='#F7F4F1';g.font=`700 40px ${B}`;wrapText(g,sessionTitle(),L,690,W-L*2-120,52);
+  g.fillStyle='#B7ACA0';g.font=`500 32px ${B}`;g.fillText(`${fmt(inp.temp)} °C · ${fmt(inp.rh)}% de umidade · ${durTxt(r.T)} no total`,L,800);
+  // três números
+  const cols=[['CARBO',fmt(r.carbH),'g/h',`${fmt(r.carbTot)} g no total`,'#F5874A'],['LÍQUIDO',fmt(r.flH),'ml/h',`${fmt(r.flTot/1000,1)} L no total`,'#7AABF2'],['SÓDIO',fmt(r.naH),'mg/h',`${fmt(r.naTot)} mg no total`,'#F7F4F1']];
+  const cw=(W-L*2-40)/3;
+  cols.forEach((c,k)=>{const x=L+k*(cw+20),y=880;
+    g.fillStyle='rgba(247,244,241,.06)';roundRect(g,x,y,cw,300,24);g.fill();
+    g.fillStyle='#B7ACA0';g.font=`800 26px ${B}`;g.fillText(c[0],x+28,y+56);
+    g.fillStyle=c[4];g.font=`900 ${c[1].length>4?100:118}px ${D}`;g.fillText(c[1],x+24,y+180);
+    g.fillStyle='#F7F4F1';g.font=`800 34px ${D}`;g.fillText(c[2],x+28,y+228);
+    g.fillStyle='#B7ACA0';g.font=`500 22px ${B}`;g.fillText(c[3],x+28,y+268);});
+  // cronograma
+  const ev=(LAST.ev||[]).filter(e=>!/^(Fim|Início (corrida|ciclismo|natação)$)/.test(e.txt));
+  let y=1270;g.fillStyle='#F7F4F1';g.font=`800 44px ${D}`;g.fillText('CRONOGRAMA',L,y);y+=24;
+  g.fillStyle='#F26419';g.fillRect(L,y,90,6);y+=60;
+  const maxN=7;
+  ev.slice(0,maxN).forEach(e=>{
+    g.fillStyle=e.cls==='e'?'#B7ACA0':'#F26419';g.beginPath();g.arc(L+10,y-11,10,0,Math.PI*2);g.fill();
+    g.fillStyle='#F7F4F1';g.font=`800 34px ${D}`;g.fillText(e.t<0?'ANTES':relT(e.t),L+40,y);
+    g.fillStyle='#E6DED5';g.font=`500 30px ${B}`;fitText(g,e.txt,L+170,y,W-L*2-170);y+=56;});
+  if(ev.length>maxN){g.fillStyle='#B7ACA0';g.font=`500 28px ${B}`;g.fillText(`+ ${ev.length-maxN} itens no plano completo`,L+40,y);y+=50;}
+  if(!ev.length){g.fillStyle='#B7ACA0';g.font=`500 30px ${B}`;g.fillText('Sessão curta: água e sódio pela sede.',L,y);}
+  // rodapé
+  g.fillStyle='rgba(247,244,241,.12)';g.fillRect(L,1700,W-L*2,2);
+  g.fillStyle='#F7F4F1';g.font=`800 40px ${D}`;g.fillText('CALCULE O SEU',L,1768);
+  g.fillStyle='#F26419';g.font=`700 36px ${B}`;g.fillText(SITE,L,1818);
+  g.fillStyle='#B7ACA0';g.font=`500 24px ${B}`;g.textAlign='right';g.fillText('Gabriel Abreu · CRN 23100384',W-L,1818);g.textAlign='left';
+  return c;
+}
+function roundRect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
+function fitText(g,t,x,y,max){let s=t;while(g.measureText(s).width>max&&s.length>4)s=s.slice(0,-2);if(s!==t)s=s.trimEnd()+'…';g.fillText(s,x,y);}
+function wrapText(g,t,x,y,max,lh){const w=t.split(' ');let line='';let n=0;for(const p of w){const tst=line?line+' '+p:p;if(g.measureText(tst).width>max&&line){g.fillText(line,x,y+n*lh);n++;line=p;}else line=tst;}g.fillText(line,x,y+n*lh);}
+
+let shareBlob=null,shareUrl=null;
+async function openShare(){
+  $('shPanel').hidden=false;$('shMsg').textContent='Gerando imagem...';$('shImg').removeAttribute('src');
+  const c=await drawStory();
+  shareBlob=await new Promise(res=>c.toBlob(res,'image/png'));
+  if(shareUrl)URL.revokeObjectURL(shareUrl);
+  shareUrl=shareBlob?URL.createObjectURL(shareBlob):c.toDataURL('image/png');
+  $('shImg').src=shareUrl;
+  const file=shareBlob?new File([shareBlob],'plano-combustivel.png',{type:'image/png'}):null;
+  const canFile=!!(file&&navigator.canShare&&navigator.canShare({files:[file]}));
+  $('shNative').hidden=!canFile;
+  $('shDl').href=shareUrl;
+  $('shMsg').textContent=canFile?'Toque em Compartilhar e escolha Instagram Stories.':'Salve a imagem e poste nos Stories. No celular, também dá para tocar e segurar a imagem.';
+  track('plano_imagem',{formato:S.formato,tipo:S.tipo});
+}
+function initShare(){
+  $('shOpen').addEventListener('click',openShare);
+  $('shClose').addEventListener('click',()=>{$('shPanel').hidden=true;});
+  $('shPanel').addEventListener('click',e=>{if(e.target===$('shPanel'))$('shPanel').hidden=true;});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('shPanel').hidden)$('shPanel').hidden=true;});
+  $('shNative').addEventListener('click',async()=>{
+    try{await navigator.share({files:[new File([shareBlob],'plano-combustivel.png',{type:'image/png'})],title:'Meu plano de combustível',text:`Calcule o seu: https://${SITE}`});track('plano_compartilhado',{via:'nativo'});}
+    catch(e){if(e&&e.name!=='AbortError')$('shMsg').textContent='Não foi possível abrir o compartilhamento. Salve a imagem e poste manualmente.';}
+  });
+  $('shDl').addEventListener('click',()=>track('plano_compartilhado',{via:'download'}));
+  $('shWa').addEventListener('click',()=>{track('plano_compartilhado',{via:'whatsapp'});});
+  $('shCopy').addEventListener('click',()=>{const t=shareLines();
+    const ok=()=>{$('shMsg').textContent='Plano copiado. Cole no WhatsApp, no grupo ou na mensagem para o treinador.';track('plano_compartilhado',{via:'copiar'});};
+    try{navigator.clipboard.writeText(t).then(ok,()=>{$('shTxt').hidden=false;$('shTxt').value=t;$('shTxt').select();});}catch(e){$('shTxt').hidden=false;$('shTxt').value=t;$('shTxt').select();}});
+  const upd=()=>{$('shWa').href='https://wa.me/?text='+encodeURIComponent(shareLines());};
+  $('shWa').addEventListener('mouseenter',upd);$('shWa').addEventListener('focus',upd);$('shWa').addEventListener('touchstart',upd,{passive:true});
+}
+
 /* ===== CELULAR ===== */
 const MQ=window.matchMedia('(max-width: 960px)');
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
@@ -1513,7 +1654,7 @@ function updateMbar(r,feeding){
 }
 let resultsVisible=false;
 function mbarVisibility(){
-  const show=MQ.matches&&!$('viewCalc').hidden&&!resultsVisible&&$('acctPanel').hidden;
+  const show=MQ.matches&&!$('viewCalc').hidden&&!resultsVisible&&$('acctPanel').hidden&&$('shPanel').hidden;
   $('mbar').hidden=!show;document.body.classList.toggle('has-mbar',show);
 }
 
@@ -1568,7 +1709,7 @@ function initMobile(){
     new IntersectionObserver(es=>{resultsVisible=es.some(e=>e.isIntersecting);mbarVisibility();},{rootMargin:'0px 0px -35% 0px'}).observe($('resultsCol'));
   }
   MQ.addEventListener?MQ.addEventListener('change',mbarVisibility):MQ.addListener(mbarVisibility);
-  new MutationObserver(mbarVisibility).observe($('acctPanel'),{attributes:true,attributeFilter:['hidden']});
+  [$('acctPanel'),$('shPanel')].forEach(el=>new MutationObserver(mbarVisibility).observe(el,{attributes:true,attributeFilter:['hidden']}));
   mbarVisibility();
 }
 
@@ -1599,6 +1740,7 @@ function initMobile(){
     fillSelect('pGel',['gel'],'Nenhum');fillSelect('pDrink',['bebida','po'],'Só água');fillSelect('pElec',['eletrolito'],'Nenhum');
     const sel=t==='gel'?'pGel':t==='bebida'?'pDrink':'pElec';$(sel).value=p.id;renderProdEdit(sel,sel+'V');$('cNome').value='';run();});
   renderSegs();run();
+  initShare();
   initMobile();
   initConta();
   initDiario();
