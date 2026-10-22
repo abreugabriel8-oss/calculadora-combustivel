@@ -1611,7 +1611,7 @@ async function openShare(){
   const file=shareBlob?new File([shareBlob],'plano-combustivel.png',{type:'image/png'}):null;
   const canFile=!!(file&&navigator.canShare&&navigator.canShare({files:[file]}));
   $('shNative').hidden=!canFile;
-  $('shDl').href=shareUrl;
+  $('shDl').href=shareUrl;$('shDl').hidden=IN_CLAUDE;
   $('shMsg').textContent=canFile?'Toque em Compartilhar e escolha Instagram Stories.':'Salve a imagem e poste nos Stories. No celular, também dá para tocar e segurar a imagem.';
   track('plano_imagem',{formato:S.formato,tipo:S.tipo});
 }
