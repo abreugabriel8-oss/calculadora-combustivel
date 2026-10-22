@@ -82,7 +82,7 @@ summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--accent-ink)}
 .flag{font-size:11px;font-weight:700;color:var(--warn);background:var(--warn-bg);border-radius:6px;padding:2px 7px;align-self:flex-start}
 /* Resultados */
 .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-@media (max-width:520px){.metrics{grid-template-columns:minmax(0,1fr)}}
+
 .m{border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .m.cho{background:var(--orange-soft)} .m.flu{background:var(--blue-soft)} .m.na{background:var(--sunk)}
 .m .lbl{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
@@ -100,7 +100,7 @@ td{padding:8px;border-bottom:1px solid var(--line);text-align:right;white-space:
 tr:last-child td{border-bottom:0}
 .carry{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
 .carry li{display:flex;gap:12px;align-items:baseline;font-size:14px}
-.carry .q{font-family:var(--display);font-weight:900;font-size:26px;min-width:56px;text-align:right;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
+.carry .q{white-space:nowrap;font-family:var(--display);font-weight:900;font-size:26px;min-width:56px;text-align:right;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
 .carry .q.b{color:var(--blue)}
 .tl{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto;border-left:2px solid var(--line);margin-left:6px}
 .tl li{position:relative;padding:5px 0 5px 16px;font-size:13px;display:flex;gap:10px}
@@ -185,6 +185,79 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
 .acmode{align-self:flex-start}
 .linkbtn{font:inherit;font-size:13px;font-weight:700;background:none;border:0;color:var(--accent-ink);cursor:pointer;align-self:flex-start;padding:2px 0}
 .gbtn{display:flex;align-items:center;justify-content:center;background:var(--surface)}
+/* Seções recolhíveis */
+.sh{position:relative}
+.shbtn{margin-left:auto;align-self:center;width:44px;height:36px;border:0;background:var(--sunk);border-radius:10px;cursor:pointer;display:grid;place-items:center;color:var(--ink)}
+.shbtn .chev{width:10px;height:10px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:translateY(2px) rotate(-135deg);transition:transform .2s}
+section.collapsed .shbtn .chev{transform:translateY(-2px) rotate(45deg)}
+section.collapsed .sbody{display:none}
+.sbody{display:flex;flex-direction:column;gap:14px}
+.ssum{margin:-6px 0 0;font-size:13px;color:var(--muted);cursor:pointer}
+.ssum:empty{display:none}
+section:has(.shbtn) .sh{cursor:pointer}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.shbtn .chev{transition:none}}
+
+/* Barra fixa de resultado (celular) */
+.mbar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--band);color:#F7F4F1;border-top:3px solid var(--accent);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  display:flex;align-items:center;gap:12px;box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+.mbar[hidden]{display:none!important}
+.mb-nums{display:grid;grid-template-columns:repeat(3,auto);gap:4px 16px;flex:1;min-width:0;align-items:baseline}
+.mb-n{display:flex;flex-direction:column;line-height:1}
+.mb-n b{font-family:var(--display);font-weight:900;font-size:28px;font-variant-numeric:tabular-nums}
+.mb-n.c b{color:#F5874A}
+.mb-n span{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#B7ACA0;margin-top:3px}
+.mb-tot{grid-column:1/-1;font-size:11px;color:#B7ACA0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mb-go{flex:0 0 auto;font:inherit;font-weight:800;font-size:13px;background:var(--accent);color:#14100C;border:0;border-radius:10px;padding:0 14px;min-height:44px;cursor:pointer}
+body.has-mbar{padding-bottom:96px}
+
+@media (max-width:960px){
+  .results{scroll-margin-top:12px}
+}
+@media (max-width:600px){
+  /* cabeçalho compacto */
+  .band .wrap{padding-block:18px 20px;gap:12px;flex-wrap:nowrap}
+  .mono{font-size:36px}
+  h1{font-size:30px;margin:2px 0 6px}
+  .sub{font-size:13px}
+  .cut{width:22%;opacity:.9}
+  .eyebrow{font-size:10px}
+  .tabs button{font-size:16px;padding:12px 10px 10px}
+  /* campos e toques */
+  input,select,textarea{font-size:16px}
+  input,select{min-height:44px}
+  .row>label.f:has(select){flex-basis:100%}
+  .row>div:has(>.seg){flex-basis:100%}
+  .seg{display:flex;width:100%}
+  .seg button{flex:1 1 0;min-height:44px;padding:8px 6px;line-height:1.2}
+  .btn{min-height:44px}
+  section.step{padding:16px 14px}
+  main.wrap,main.dview{gap:18px;padding-block:16px 32px}
+  .row>label.f:has(input[type=number]){flex-basis:100px}
+  .metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .m{padding:12px 10px}
+  .m .val{font-size:34px}
+  .m .val small{display:block;font-size:13px;margin:2px 0 0}
+  .m .lbl{font-size:10px;letter-spacing:.08em}
+  .m .tot{font-size:11px}
+  /* tabelas em cartões */
+  .tw table thead{display:none}
+  .tw table,.tw tbody{display:block}
+  .tw tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .tw tr:last-child{border-bottom:0}
+  .tw td{display:flex;flex-direction:column;gap:2px;padding:0;border:0;text-align:left!important;white-space:normal;font-size:14px}
+  .tw td::before{content:attr(data-label);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .tw td:first-child{grid-column:1/-1;font-family:var(--display);font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.03em}
+  .tw td:first-child::before{display:none}
+  .tw td.full{grid-column:1/-1}
+  .tw td.full::before,.tw td[data-label=""]::before{display:none}
+  #histBody tr:has(+ tr td.note){border-bottom:0;padding-bottom:0}
+  .tw td.note{padding-bottom:10px}
+  .tl time{min-width:64px}
+  .carry li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px}
+  .carry .q{font-size:22px;min-width:0}
+}
 </style>
 
 <header class="band">
@@ -340,7 +413,7 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
     </section>
   </div>
 
-  <div class="col results" aria-live="polite">
+  <div class="col results" id="resultsCol" aria-live="polite">
     <div class="metrics">
       <div class="m cho"><span class="lbl">Carboidrato</span><span class="val" id="vCho">0<small>g/h</small></span><span class="tot" id="tCho"></span></div>
       <div class="m flu"><span class="lbl">Líquido</span><span class="val" id="vFl">0<small>ml/h</small></span><span class="tot" id="tFl"></span></div>
@@ -461,6 +534,16 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
     </div>
   </div>
 </main>
+
+<div class="mbar" id="mbar" hidden>
+  <div class="mb-nums">
+    <div class="mb-n c"><b id="mbCho">0</b><span>g/h carbo</span></div>
+    <div class="mb-n"><b id="mbFl">0</b><span>ml/h líquido</span></div>
+    <div class="mb-n"><b id="mbNa">0</b><span>mg/h sódio</span></div>
+    <div class="mb-tot" id="mbTot"></div>
+  </div>
+  <button class="mb-go" id="mbGo" type="button">Ver plano</button>
+</div>
 
 <div class="acctwrap" id="acctPanel" hidden>
   <div class="acct" role="dialog" aria-modal="true" aria-labelledby="acctTitle">
@@ -899,6 +982,7 @@ function run(){
     tb.appendChild(tr);});
   const extra=r.segs.find(s=>s.carbExtra);
   $('lossLine').textContent=`Perda de suor estimada ${fmt(r.loss,1)} L · você repõe ${fmt(r.intake,1)} L · déficit projetado ${fmt(Math.max(0,r.deficitPct),1)}% do peso.`+(extra?` *Inclui +${extra.carbExtra} g/h ${S.formato==='brick'?'antecipados da corrida':'para compensar a natação'}.`:'')+` Sódio do suor considerado: ${fmt(r.conc)} mg/L.`+(inp.srFactor?' Taxa de suor ajustada pelo seu diário.':'');
+  labelize('#tbody');updateMbar(r,feeding);if(typeof refreshSummaries==='function')refreshSummaries();
 
   // o que levar
   // antes da sessão
@@ -1328,7 +1412,7 @@ function applyCal(){
   $('calSwTxt').textContent=`Usar minha calibração do diário (${parts.join(', ')} registro${ST.logs.length>1?'s':''})`;
   const c=$('tabCnt');c.textContent=ST.logs.length;c.hidden=!ST.logs.length;
 }
-function afterLogs(){calibrar();renderCal();renderHist();applyCal();run();}
+function afterLogs(){calibrar();renderCal();renderHist();labelize('#histBody');applyCal();run();}
 function calTol(){if(typeof CAL==='undefined'||!CAL.on||!ST.logs.length)return null;return {ciclismo:CAL.detail.ciclismo?CAL.detail.ciclismo.tol:null,corrida:CAL.detail.corrida?CAL.detail.corrida.tol:null};}
 function calFactor(){return CAL.on&&ST.logs.length?{...CAL.f}:null;}
 
@@ -1381,6 +1465,7 @@ function prefillFromPlan(){
 function showView(v){
   $('viewCalc').hidden=v!=='calc';$('viewDiario').hidden=v!=='diario';
   document.querySelectorAll('.tabs button[data-v]').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v?'true':'false'));
+  if(typeof mbarVisibility==='function')mbarVisibility();
 }
 
 function initDiario(){
@@ -1405,6 +1490,86 @@ function initDiario(){
     }catch(e){$('bkMsg').textContent='Texto inválido. Cole exatamente o que foi copiado no backup.';}});
   lgPreview();
   storeInit();
+}
+
+/* ===== CELULAR ===== */
+const MQ=window.matchMedia('(max-width: 960px)');
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function lsGetM(k){try{return localStorage.getItem(k)}catch(e){return null}}
+
+/* tabelas viram cartões: cada célula recebe o nome da coluna */
+function labelize(sel){
+  const tb=document.querySelector(sel);if(!tb)return;
+  const heads=[...tb.closest('table').querySelectorAll('thead th')].map(th=>th.textContent.trim());
+  tb.querySelectorAll('tr').forEach(tr=>{[...tr.children].forEach((td,k)=>{if(td.colSpan>1)td.classList.add('full');else td.dataset.label=heads[k]||'';});});
+}
+
+/* barra fixa de resultado */
+function updateMbar(r,feeding){
+  $('mbCho').textContent=fmt(feeding?r.carbH:0);
+  $('mbFl').textContent=fmt(feeding?r.flH:0);
+  $('mbNa').textContent=fmt(feeding?r.naH:0);
+  $('mbTot').textContent=feeding&&r.T>0?`${hm(r.T).h}h${String(hm(r.T).m).padStart(2,'0')} · ${fmt(r.carbTot)} g de carbo no total`:'Sessão curta';
+}
+let resultsVisible=false;
+function mbarVisibility(){
+  const show=MQ.matches&&!$('viewCalc').hidden&&!resultsVisible&&$('acctPanel').hidden;
+  $('mbar').hidden=!show;document.body.classList.toggle('has-mbar',show);
+}
+
+/* seções recolhíveis com resumo do que está preenchido */
+const COLL={};
+function sectionSummary(name){
+  if(name==='Atleta'){
+    const sal=['suor pouco salgado','suor médio','suor salgado'][+$('sal').value];
+    const gl=['inic.','interm.','trein.'];
+    return `${fmt(+$('peso').value||0,1)} kg · ${sal} · carbo: pedal ${gl[+$('gutBike').value]}, corrida ${gl[+$('gutRun').value]}`;
+  }
+  if(name==='Produtos'){
+    const t=id=>{const o=$(id).selectedOptions[0];return o&&o.value?o.textContent.replace(' · estimado','').split(' (')[0]:null;};
+    return [t('pGel'),$('drinkWrap').hidden?null:t('pDrink'),t('pElec')].filter(Boolean).join(' · ')||'Nenhum produto escolhido';
+  }
+  return '';
+}
+function setCollapsed(name,c){
+  const s=COLL[name];if(!s)return;
+  s.sec.classList.toggle('collapsed',c);s.btn.setAttribute('aria-expanded',c?'false':'true');
+  s.sum.textContent=c?sectionSummary(name):'';
+  lsSet('gaColl_'+name,c?'1':'0');
+}
+function refreshSummaries(){Object.keys(COLL).forEach(n=>{if(COLL[n].sec.classList.contains('collapsed'))COLL[n].sum.textContent=sectionSummary(n);});}
+function makeCollapsible(name,defaultCollapsed){
+  const sec=[...document.querySelectorAll('#viewCalc section.step')].find(s=>s.querySelector('.sh h2')?.textContent.trim()===name);
+  if(!sec)return;
+  const sh=sec.querySelector('.sh');
+  const body=document.createElement('div');body.className='sbody';
+  while(sh.nextSibling)body.appendChild(sh.nextSibling);
+  sec.appendChild(body);
+  const btn=document.createElement('button');btn.type='button';btn.className='shbtn';
+  btn.innerHTML='<span class="chev" aria-hidden="true"></span><span class="sr">Mostrar ou esconder</span>';
+  sh.appendChild(btn);
+  const sum=document.createElement('p');sum.className='ssum';sh.after(sum);
+  COLL[name]={sec,btn,sum};
+  const toggle=()=>setCollapsed(name,!sec.classList.contains('collapsed'));
+  btn.addEventListener('click',toggle);
+  sh.addEventListener('click',e=>{if(e.target!==btn&&!btn.contains(e.target))toggle();});
+  sum.addEventListener('click',toggle);
+  const saved=lsGetM('gaColl_'+name);
+  setCollapsed(name,saved!=null?saved==='1':defaultCollapsed);
+}
+
+function initMobile(){
+  const phone=MQ.matches;
+  // Atleta recolhe se o atleta já tem perfil salvo (conta ou diário); Produtos recolhe no celular
+  makeCollapsible('Atleta',phone&&(lsGetM('gaHadAccount')==='1'||lsRead().length>0));
+  makeCollapsible('Produtos',phone);
+  $('mbGo').addEventListener('click',()=>{$('resultsCol').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});});
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(es=>{resultsVisible=es.some(e=>e.isIntersecting);mbarVisibility();},{rootMargin:'0px 0px -35% 0px'}).observe($('resultsCol'));
+  }
+  MQ.addEventListener?MQ.addEventListener('change',mbarVisibility):MQ.addListener(mbarVisibility);
+  new MutationObserver(mbarVisibility).observe($('acctPanel'),{attributes:true,attributeFilter:['hidden']});
+  mbarVisibility();
 }
 
 /* ===== INICIALIZAÇÃO ===== */
@@ -1434,6 +1599,7 @@ function initDiario(){
     fillSelect('pGel',['gel'],'Nenhum');fillSelect('pDrink',['bebida','po'],'Só água');fillSelect('pElec',['eletrolito'],'Nenhum');
     const sel=t==='gel'?'pGel':t==='bebida'?'pDrink':'pElec';$(sel).value=p.id;renderProdEdit(sel,sel+'V');$('cNome').value='';run();});
   renderSegs();run();
+  initMobile();
   initConta();
   initDiario();
 })();
