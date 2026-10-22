@@ -194,6 +194,19 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
       </div>
       <div><div class="hint" style="margin-bottom:6px;font-weight:700">Como informar a intensidade</div>
         <div class="seg" id="modo"><button data-v="simples">Zona ou esforço</button><button data-v="tss">TSS planejado</button></div></div>
+      <div class="row">
+        <label class="f" id="objWrap">Objetivo do treino<select id="objetivo">
+          <option value="perf">Performance (qualidade máxima)</option>
+          <option value="gut">Treinar o intestino</option>
+          <option value="low">Adaptação metabólica (train low)</option>
+          <option value="regen">Regenerativo</option></select></label>
+        <label class="f">Como você chega<select id="pre">
+          <option value="refeicao">Refeição com carbo 1 a 4 h antes</option>
+          <option value="leve">Lanche leve 30 a 60 min antes</option>
+          <option value="jejum">Em jejum (só a noite de sono)</option>
+          <option value="loading">Carb loading nos 1 a 2 dias antes</option></select></label>
+      </div>
+      <p class="hint" id="objHint"></p>
     </section>
 
     <section class="step">
@@ -313,6 +326,10 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
       <p class="hint" id="lossLine"></p>
     </div>
     <div class="card">
+      <h3>Antes da sessão</h3>
+      <ul class="carry" id="preList"></ul>
+    </div>
+    <div class="card">
       <h3>O que levar</h3>
       <ul class="carry" id="carry"></ul>
     </div>
@@ -328,11 +345,14 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
       <h3>Como calculamos</h3>
       <p><b>Carboidrato</b> pela duração total da sessão (somando todas as modalidades) e pela intensidade, com transição contínua entre as faixas: abaixo de 1 h, bochecho ou nada; 1 a 2 h, 30 a 70 g/h; a partir de 2,5 h, até 90 g/h com glicose + frutose. Acima de 90 g/h só com intestino treinado. A tolerância é avaliada separadamente no pedal e na corrida, que tem teto menor pelo impacto gastrointestinal.</p>
       <p><b>Líquido</b> pela taxa de suor medida ou estimada em cada modalidade. O déficit tolerável (até 2% do peso) é calculado para a sessão inteira: onde você sua mais do que consegue beber, como na corrida, o pedal compensa. Nunca se bebe mais do que se sua.</p>
+      <p><b>Objetivo e estado pré-sessão</b> seguem o princípio de abastecer conforme o trabalho exigido: carbo completo em treinos de qualidade, carbo reduzido só em sessões leves feitas para adaptação, meta acima da tolerância atual para treinar o intestino, e início precoce quando o atleta chega em jejum. A refeição pré (1 a 4 g/kg), o carb loading (10 a 12 g/kg/dia) e a hidratação pré (5 a 7 ml/kg) seguem o ACSM.</p>
       <p><b>Sódio</b> pela taxa de suor × concentração de sódio no suor, repondo de 35% a 65% conforme a duração. Aclimatação reduz o sódio do suor.</p>
       <ol>
         <li>Thomas DT, Erdman KA, Burke LM. Nutrition and Athletic Performance. Med Sci Sports Exerc, 2016 (ACSM).</li>
         <li>Sawka MN et al. ACSM Position Stand: Exercise and Fluid Replacement. Med Sci Sports Exerc, 2007.</li>
         <li>Baker LB. Sweating Rate and Sweat Sodium Concentration in Athletes. Sports Med, 2017.</li>
+        <li>Impey SG et al. Fuel for the Work Required: A Theoretical Framework for Carbohydrate Periodization and the Glycogen Threshold Hypothesis. Sports Med, 2018.</li>
+        <li>Guest NS et al. ISSN position stand: caffeine and exercise performance. J Int Soc Sports Nutr, 2021.</li>
       </ol>
       <p style="margin-top:10px">Estimativas de ponto de partida. Teste em treino antes de usar em prova. Para um plano individualizado com teste de suor, fale com <b>@gabreutri</b>.</p>
     </div>
@@ -511,9 +531,31 @@ function calcular(inp){
     o.fl=Math.round(o.fl*20)/20;
     o.na=r50(Math.min(o.na,Math.max(o.fl,0.5)*1500));
   });
+  /* objetivo do treino e estado pré-sessão */
+  const obj=inp.objetivo||'perf', pre=inp.pre||'refeicao';
+  const flags={};
+  const TOL_NOW={ciclismo:[35,60,90],corrida:[30,50,75]};
+  const maxI=Math.max(0,...out.filter(o=>o.sport!=='natacao').map(o=>o.i));
+  if(obj==='low'){
+    if(maxI>0.5||T>2.5){flags.lowBlocked=true;}
+    else{feed.forEach(o=>{o.carb=T>2?Math.min(o.carb,30):0;});flags.low=true;}
+  }
+  if(obj==='regen'){feed.forEach(o=>{o.carb=T<=1.5?0:Math.min(o.carb,30);});flags.regen=true;}
+  if(obj==='gut'&&T>=0.75){
+    flags.gut={};
+    feed.forEach(o=>{const g=gutOf(inp,o.sport);
+      const tol=(inp.tol&&inp.tol[o.sport]!=null)?inp.tol[o.sport]:TOL_NOW[o.sport][g];
+      const tgt=r5(Math.min(CARB_CAP[o.sport][2],tol+10));
+      o.carb=Math.max(o.carb,tgt);flags.gut[o.sport]={tol:Math.round(tol),tgt:o.carb};});
+  }
+  if(pre==='jejum'&&(obj==='perf'||obj==='gut')&&T>=0.75){
+    feed.forEach(o=>{const cap=CARB_CAP[o.sport][gutOf(inp,o.sport)];
+      if(o.carb<25&&o.i>=0.5)o.carb=Math.min(cap,25);else if(o.carb>0)o.carb=r5(Math.min(Math.max(cap,o.carb),o.carb+10));});
+    flags.jejum=true;
+  }
   // déficit da natação compensado no ciclismo
   const bike=out.find(o=>o.sport==='ciclismo');
-  if(bike && swimCarbDef>0){
+  if(bike && swimCarbDef>0 && !flags.low && !flags.regen){
     const add=swimCarbDef/bike.h;
     const nc=r5(Math.min(bike.carb+add,CARB_CAP.ciclismo[gutOf(inp,'ciclismo')]));
     bike.carbExtra=nc-bike.carb; bike.carb=nc;
@@ -532,7 +574,7 @@ function calcular(inp){
   const deficitPct=T>0?((loss-intake)/inp.peso)*100:0;
   const feedH=out.filter(o=>o.sport!=='natacao').reduce((a,o)=>a+o.h,0)||1;
   const avg=k=>out.filter(o=>o.sport!=='natacao').reduce((a,o)=>a+o[k]*o.h,0)/feedH;
-  return {T,conc,segs:out,loss,intake,deficitPct,
+  return {T,conc,flags,segs:out,loss,intake,deficitPct,
     carbH:r5(avg('carb')),flH:Math.round(avg('fl')*1000/50)*50,naH:r50(avg('na')),
     carbTot:Math.round(out.reduce((a,o)=>a+o.carb*o.h,0)),
     naTot:r50(out.reduce((a,o)=>a+o.na*o.h,0)),flTot:Math.round(intake*1000/50)*50};
@@ -705,7 +747,7 @@ function readInputs(){
     naMedido:+$('naMedido').value||0,srMedida:{ciclismo:+$('srBike').value||0,corrida:+$('srRun').value||0},aclim:$('aclim').value==='1',
     temp:+$('temp').value||25,rh:+$('rh').value||60,
     cond:(S.formato==='single'&&$('indoor').value==='1')?'indoor':$('cond').value,
-    formato:S.formato,srFactor:calFactor(),segs:segList().map(s=>({...s}))};
+    formato:S.formato,srFactor:calFactor(),objetivo:S.tipo==='prova'?'perf':$('objetivo').value,pre:$('pre').value,tol:calTol(),segs:segList().map(s=>({...s}))};
 }
 
 /* ===== PLANO COM PRODUTOS ===== */
@@ -765,6 +807,24 @@ function run(){
   $('lossLine').textContent=`Perda de suor estimada ${fmt(r.loss,1)} L · você repõe ${fmt(r.intake,1)} L · déficit projetado ${fmt(Math.max(0,r.deficitPct),1)}% do peso.`+(extra?` *Inclui +${extra.carbExtra} g/h ${S.formato==='brick'?'antecipados da corrida':'para compensar a natação'}.`:'')+` Sódio do suor considerado: ${fmt(r.conc)} mg/L.`+(inp.srFactor?' Taxa de suor ajustada pelo seu diário.':'');
 
   // o que levar
+  // antes da sessão
+  const OBJ_HINT={perf:'Carbo para render o máximo na sessão.',gut:'Meta 10 g/h acima do que você tolera hoje, para adaptar o intestino. Use 2 a 3 vezes por semana.',low:'Sessão leve sem carbo para estimular adaptação. Não vale para treino forte nem acima de 2h30.',regen:'Sessão leve e curta: água e sódio bastam.'};
+  $('objWrap').hidden=S.tipo==='prova';
+  $('objHint').textContent=S.tipo==='prova'?'Em prova o objetivo é sempre performance.':OBJ_HINT[inp.objetivo];
+  const pl=$('preList');pl.innerHTML='';
+  const padd=(q,txt,cls)=>{const li=document.createElement('li');li.innerHTML=`<span class="q ${cls||''}">${q}</span><span>${txt}</span>`;pl.appendChild(li);};
+  const kg=inp.peso,prova=S.tipo==='prova',longa=r.T>=1.5,f=r.flags||{};
+  if(f.low){padd('0 g','de carbo antes e durante. Faça em jejum ou depois de uma refeição pobre em carbo, e leve 1 gel para emergência.');}
+  else if(inp.pre==='refeicao'){const [a,b,qd]=prova||longa?[2,3,'cerca de 3 h antes']:[1,1.5,'1 a 2 h antes'];
+    padd(`${fmt(Math.round(a*kg/5)*5)} a ${fmt(Math.round(b*kg/5)*5)} g`,`de carbo ${qd} (${a} a ${b} g/kg), pobre em fibra e gordura. Ex.: tapioca, pão, arroz, banana, mel.`);}
+  else if(inp.pre==='leve'){padd('30 a 60 g','de carbo de fácil digestão 30 a 60 min antes (banana, mel, bisnaguinha ou um gel).');}
+  else if(inp.pre==='jejum'){padd('0 g','Sem refeição: comece a ingerir carbo nos primeiros 15 min'+(f.jejum?', por isso a meta durante a sessão subiu.':'.'));}
+  else if(inp.pre==='loading'){if(r.T>=1.5)padd(`${fmt(Math.round(10*kg/10)*10)} a ${fmt(Math.round(12*kg/10)*10)} g/dia`,'de carbo nas 36 a 48 h antes (10 a 12 g/kg/dia), com pouca fibra. Mantenha a refeição de 2 a 3 g/kg cerca de 3 h antes.');
+    else padd(`${fmt(Math.round(7*kg/10)*10)} a ${fmt(Math.round(12*kg/10)*10)} g`,'de carbo nas 24 h antes (7 a 12 g/kg). Para sessão abaixo de 1h30, carb loading de 2 dias não traz ganho.');}
+  if(r.T>=1)padd(`${fmt(Math.round(5*kg/10)*10)} a ${fmt(Math.round(7*kg/10)*10)} ml`,'de líquido 2 a 4 h antes (5 a 7 ml/kg). Se a urina estiver escura, mais 3 a 5 ml/kg 2 h antes.','b');
+  const cafPre=prova&&r.T>=1?Math.round(3*kg/5)*5:0;
+  if(cafPre)padd(`${fmt(cafPre)} mg`,'de cafeína cerca de 60 min antes (3 mg/kg). Opcional, e só se você já testou em treino.');
+  if(!pl.children.length)padd('','Sessão curta: chegue alimentado e hidratado normalmente.');
   const c=$('carry');c.innerHTML='';
   const add=(q,txt,cls)=>{const li=document.createElement('li');li.innerHTML=`<span class="q ${cls||''}">${q}</span><span>${txt}</span>`;c.appendChild(li);};
   const isTri=S.formato==='tri';
@@ -813,13 +873,19 @@ function run(){
   if(r.segs.some(s=>s.sport==='corrida'&&s.carb>=80))al('w',`<b>Corrida com 80 g/h ou mais.</b> Só se o intestino já estiver treinado nessa faixa correndo. Suba 10 g/h por semana nos longões.`);
   const has=sp=>r.segs.some(s=>s.sport===sp);const gb=has('ciclismo')&&inp.gut.ciclismo===0,gr=has('corrida')&&inp.gut.corrida===0;
   if((gb||gr)&&r.T>=2)al('i',`<b>Tolerância iniciante ${gb&&gr?'no pedal e na corrida':gb?'no pedal':'na corrida'}.</b> A meta foi limitada para conforto. Treinar o intestino (aumentar gradualmente o carboidrato nos treinos longos) libera metas maiores e melhor desempenho.`);
-  if(P.tot.caf>0){const mgkg=P.tot.caf/inp.peso;al(mgkg>6?'w':'i',`<b>Cafeína total ${fmt(P.tot.caf)} mg (${fmt(mgkg,1)} mg/kg).</b> Faixa eficaz 3 a 6 mg/kg; acima disso aumentam tremor, taquicardia e desconforto gástrico.`);}
+  const cafT=P.tot.caf+cafPre;
+  if(cafT>0){const mgkg=cafT/inp.peso;al(mgkg>6?'w':'i',`<b>Cafeína total ${fmt(cafT)} mg (${fmt(mgkg,1)} mg/kg${cafPre?', somando a dose pré':''}).</b> Faixa eficaz 3 a 6 mg/kg; acima disso aumentam tremor, taquicardia e desconforto gástrico.`);}
   if(S.formato==='brick'){const rn=r.segs.find(s=>s.sport==='corrida');
     if(rn&&rn.shifted)al('i',`<b>Brick:</b> com T2 de até 45 min, os ${rn.shifted} g de carboidrato da corrida foram antecipados para o pedal. O último gel entra nos 15 a 20 min finais da bike. Na corrida, só água e sódio, porque o esvaziamento gástrico piora com o impacto.`);
     else al('i',`<b>Brick:</b> tome o último gel nos 15 a 20 min finais do pedal. Na corrida o esvaziamento gástrico piora, então chegue à T2 já abastecido.`);}
   if(isTri)al('i',`<b>Triathlon:</b> sem ingestão na natação; o ciclismo é a janela principal de abastecimento e já compensa o déficit da água.`);
   if(r.segs.length===1&&r.segs[0].sport==='natacao')al('i',`<b>Natação:</b> acima de 75 min, deixe uma garrafa na borda e beba nas pausas da série.`);
   if(r.T<1&&feeding)al('i',`Sessão abaixo de 1 h: líquido pela sede. No calor intenso, 200 a 300 ml ajudam.`);
+  if(f.lowBlocked)al('w',`<b>Train low não se aplica a esta sessão.</b> Treino forte ou acima de 2h30 sem carbo derruba a qualidade e aumenta o risco de lesão e de doença. O plano foi mantido em performance.`);
+  if(f.low)al('i',`<b>Adaptação (train low):</b> carbo segurado para aumentar o estímulo de adaptação mitocondrial. Use no máximo 2 a 3 vezes por semana, só em treinos leves, e mantenha água e sódio.`);
+  if(f.regen)al('i',`<b>Regenerativo:</b> sessão leve e curta não precisa de carbo. Se passar de 1h30, até 30 g/h.`);
+  if(f.gut){Object.entries(f.gut).forEach(([sp,g])=>al('i',`<b>Treino do intestino ${sp==='ciclismo'?'no pedal':'na corrida'}:</b> meta de ${g.tgt} g/h, acima dos ~${g.tol} g/h que você tolera hoje${calTol()&&calTol()[sp]!=null?' (pelo diário)':''}. Repita 2 a 3 vezes por semana e suba mais 10 g/h quando a nota de desconforto ficar em 3 ou menos.`));}
+  if(f.jejum)al('w',`<b>Em jejum:</b> o glicogênio do fígado está baixo depois da noite. O carbo durante a sessão rende mais nessa condição, então comece cedo, já nos primeiros 15 min.`);
   if(S.tipo==='prova')al('i',`<b>Regra de prova:</b> use só produtos e quantidades já testados em treino.`);
   $('alerts').innerHTML=A.join('');
 }
@@ -992,6 +1058,7 @@ function applyCal(){
   const c=$('tabCnt');c.textContent=ST.logs.length;c.hidden=!ST.logs.length;
 }
 function afterLogs(){calibrar();renderCal();renderHist();applyCal();run();}
+function calTol(){if(typeof CAL==='undefined'||!CAL.on||!ST.logs.length)return null;return {ciclismo:CAL.detail.ciclismo?CAL.detail.ciclismo.tol:null,corrida:CAL.detail.corrida?CAL.detail.corrida.tol:null};}
 function calFactor(){return CAL.on&&ST.logs.length?{...CAL.f}:null;}
 
 /* Formulário */
@@ -1085,7 +1152,7 @@ function initDiario(){
     else{S.dist.single=v;if(RUN_DIST[v])S.segs.single[0].h=RUN_DIST[v][2];}
     renderSegs();run();});
   $('tipo').addEventListener('click',()=>{$('bottle').dataset.ctx='';renderBottle();run();});
-  ['peso','gutBike','gutRun','sal','aclim','srBike','srRun','naMedido','temp','rh','cond','indoor','bottle','hora'].forEach(id=>{$(id).addEventListener('input',run);$(id).addEventListener('change',run);});
+  ['objetivo','pre','peso','gutBike','gutRun','sal','aclim','srBike','srRun','naMedido','temp','rh','cond','indoor','bottle','hora'].forEach(id=>{$(id).addEventListener('input',run);$(id).addEventListener('change',run);});
   $('wGo').addEventListener('click',buscarClima);
   $('tGo').addEventListener('click',()=>{const a=+$('tA').value,b=+$('tB').value,c=+$('tC').value||0,d=+$('tD').value||60;
     if(!(a>0&&b>0)){$('tOut').textContent='Informe os dois pesos.';return;}
