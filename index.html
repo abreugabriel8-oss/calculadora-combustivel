@@ -177,6 +177,10 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
 .dangerbtn{background:var(--crit-bg);color:var(--crit);border-color:transparent}
 .priv{font-size:12px;color:var(--muted)} .priv p{margin:6px 0 0}
 .status:empty{display:none}
+.acform{display:flex;flex-direction:column;gap:10px}
+.acmode{align-self:flex-start}
+.linkbtn{font:inherit;font-size:13px;font-weight:700;background:none;border:0;color:var(--accent-ink);cursor:pointer;align-self:flex-start;padding:2px 0}
+.gbtn{display:flex;align-items:center;justify-content:center;background:var(--surface)}
 </style>
 
 <header class="band">
@@ -459,17 +463,25 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
     <div class="acct-h"><h3 id="acctTitle">Sua conta</h3><button class="xbtn" id="acctClose" type="button" aria-label="Fechar">Fechar</button></div>
 
     <div id="acctOut">
-      <p class="hint">Com a conta, seu diário, sua calibração e seu perfil ficam guardados e aparecem em qualquer aparelho. Sem senha: você entra pelo Google ou por um link enviado ao seu e-mail.</p>
-      <label class="consent"><input type="checkbox" id="acConsent"> <span>Autorizo guardar meus dados de treino (peso, suor, consumo e desconforto gastrointestinal) para calibrar a calculadora. Esses dados ficam visíveis só para mim, e posso apagar tudo a qualquer momento.</span></label>
-      <button class="btn gbtn" id="acGoogle" type="button">Entrar com Google</button>
-      <div class="orline"><span>ou</span></div>
-      <form id="acForm" class="row" style="align-items:flex-end" novalidate>
+      <p class="hint">Com a conta, seu diário, sua calibração e seu perfil ficam guardados e aparecem em qualquer aparelho.</p>
+      <div class="seg acmode" id="acMode"><button type="button" data-v="entrar" aria-pressed="true">Entrar</button><button type="button" data-v="criar" aria-pressed="false">Criar conta</button></div>
+      <label class="consent" id="acConsentWrap" hidden><input type="checkbox" id="acConsent"> <span>Autorizo guardar meus dados de treino (peso, suor, consumo e desconforto gastrointestinal) para calibrar a calculadora. Esses dados ficam visíveis só para mim, e posso apagar tudo a qualquer momento.</span></label>
+      <button class="btn gbtn" id="acGoogle" type="button"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true" style="vertical-align:-4px;margin-right:8px"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.5-4.5 2.4-7.2 2.4-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg><span id="acGoogleTxt">Entrar com Google</span></button>
+      <div class="orline"><span>ou com e-mail</span></div>
+      <form id="acForm" class="acform" novalidate>
+        <label class="f" id="acNomeWrap" hidden>Nome<input id="acNome" type="text" autocomplete="name" placeholder="Seu nome"></label>
         <label class="f">E-mail<input id="acEmail" type="email" autocomplete="email" inputmode="email" placeholder="voce@email.com"></label>
-        <button class="btn primary" id="acSend" type="submit" style="flex:0 0 auto">Receber acesso por e-mail</button>
+        <label class="f">Senha<input id="acPass" type="password" autocomplete="current-password" placeholder="Mínimo de 8 caracteres"></label>
+        <button class="btn primary" id="acSend" type="submit">Entrar</button>
+        <button class="linkbtn" id="acForgot" type="button">Esqueci a senha</button>
       </form>
-      <form id="acCodeForm" class="row" style="align-items:flex-end" hidden novalidate>
-        <label class="f">Código do e-mail<input id="acCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="ex.: 123456"></label>
-        <button class="btn primary" id="acCodeGo" type="submit" style="flex:0 0 auto">Entrar com o código</button>
+    </div>
+
+    <div id="acctReset" hidden>
+      <p class="hint">Crie uma nova senha para a sua conta.</p>
+      <form id="acResetForm" class="acform" novalidate>
+        <label class="f">Nova senha<input id="acNewPass" type="password" autocomplete="new-password" placeholder="Mínimo de 8 caracteres"></label>
+        <button class="btn primary" type="submit">Salvar nova senha</button>
       </form>
     </div>
 
@@ -1008,9 +1020,9 @@ const CFG_IDS=['peso','sal','aclim','srBike','srRun','naMedido','gutBike','gutRu
 async function storeInit(){
   if(SB){
     $('acctBtn').hidden=false;
-    SB.auth.onAuthStateChange((ev,session)=>{setTimeout(()=>onSession(session),0);});
+    SB.auth.onAuthStateChange((ev,session)=>{if(ev==='PASSWORD_RECOVERY'){ACC.recovery=true;openAcct();}setTimeout(()=>onSession(session),0);});
     const hp=new URLSearchParams(location.hash.slice(1));
-    if(hp.get('error')){openAcct();$('acctMsg').textContent=hp.get('error_code')==='otp_expired'?'Esse link expirou ou já foi usado. Peça um novo acesso e use o código do e-mail.':'Não foi possível entrar por esse link. Peça um novo acesso.';try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}}
+    if(hp.get('error')){openAcct();$('acctMsg').textContent=hp.get('error_code')==='otp_expired'?'Esse link expirou ou já foi usado. Peça um novo em "Esqueci a senha".':'Não foi possível concluir pelo link. Tente de novo.';try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}}
     const {data}=await SB.auth.getSession();
     if(!data||!data.session)toLocal();
     return;
@@ -1120,12 +1132,13 @@ function closeAcct(){$('acctPanel').hidden=true;}
 function renderAcct(){
   const u=ACC.user;
   $('acctBtn').textContent=u?(u.email||'Minha conta'):'Entrar';
-  $('acctOut').hidden=!!u;$('acctIn').hidden=!u||!ACC.consent;$('acctGate').hidden=!u||ACC.consent;
+  const rec=!!(u&&ACC.recovery);
+  $('acctReset').hidden=!rec;$('acctOut').hidden=!!u;$('acctIn').hidden=!u||!ACC.consent||rec;$('acctGate').hidden=!u||ACC.consent||rec;
   if(u){$('acctEmail').textContent=u.email||'';}
 }
 function redirectUrl(){return location.origin+location.pathname;}
 function wantConsent(){
-  if(!$('acConsent').checked){$('acctMsg').textContent='Para criar a conta, marque o consentimento acima.';return false;}
+  if(!$('acConsent').checked){$('acctMsg').textContent='Para criar a conta, marque a autorização acima.';return false;}
   try{localStorage.setItem('gaConsent',String(Date.now()));}catch(e){}
   return true;
 }
@@ -1134,29 +1147,47 @@ function initConta(){
   $('acctClose').addEventListener('click',closeAcct);
   $('acctPanel').addEventListener('click',e=>{if(e.target===$('acctPanel'))closeAcct();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('acctPanel').hidden)closeAcct();});
+  // modo entrar / criar conta
+  const setMode=m=>{ACC.mode=m;document.querySelectorAll('#acMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===m?'true':'false'));
+    const criar=m==='criar';$('acConsentWrap').hidden=!criar;$('acNomeWrap').hidden=!criar;$('acForgot').hidden=criar;
+    $('acSend').textContent=criar?'Criar conta':'Entrar';$('acGoogleTxt').textContent=criar?'Criar conta com Google':'Entrar com Google';
+    $('acPass').setAttribute('autocomplete',criar?'new-password':'current-password');$('acctMsg').textContent='';};
+  ACC.mode='entrar';
+  $('acMode').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.v);});
+  const authErr=m=>/invalid login/i.test(m)?'E-mail ou senha incorretos.':/not confirmed/i.test(m)?'Confirme seu e-mail pelo link que enviamos antes de entrar.':/already registered|already exists/i.test(m)?'Já existe uma conta com esse e-mail. Use Entrar.':/rate|limit|too many/i.test(m)?'Muitas tentativas em pouco tempo. Espere alguns minutos.':/password/i.test(m)?'A senha precisa ter pelo menos 8 caracteres.':'Não foi possível concluir agora. Tente de novo.';
   $('acGoogle').addEventListener('click',async()=>{
-    if(!SB||!wantConsent())return;
+    if(!SB)return;
+    if(ACC.mode==='criar'&&!wantConsent())return;
     const {error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirectUrl()}});
-    if(error)$('acctMsg').textContent='O login com Google ainda não está ativo. Use o link por e-mail.';
+    if(error)$('acctMsg').textContent=/provider is not enabled|unsupported provider/i.test(error.message)?'O login com Google ainda não está ativo. Use e-mail e senha.':authErr(error.message);
   });
   $('acForm').addEventListener('submit',async e=>{
-    e.preventDefault();if(!SB||!wantConsent())return;
-    const email=$('acEmail').value.trim();
+    e.preventDefault();if(!SB)return;
+    const email=$('acEmail').value.trim(),pass=$('acPass').value;
     if(!/^\S+@\S+\.\S+$/.test(email)){$('acctMsg').textContent='Confira o e-mail digitado.';return;}
-    $('acSend').disabled=true;$('acctMsg').textContent='Enviando...';
-    const {error}=await SB.auth.signInWithOtp({email,options:{emailRedirectTo:redirectUrl()}});
+    if(pass.length<8){$('acctMsg').textContent='A senha precisa ter pelo menos 8 caracteres.';return;}
+    if(ACC.mode==='criar'&&!wantConsent())return;
+    $('acSend').disabled=true;$('acctMsg').textContent=ACC.mode==='criar'?'Criando conta...':'Entrando...';
+    let res;
+    if(ACC.mode==='criar')res=await SB.auth.signUp({email,password:pass,options:{emailRedirectTo:redirectUrl(),data:{full_name:$('acNome').value.trim()||null}}});
+    else res=await SB.auth.signInWithPassword({email,password:pass});
     $('acSend').disabled=false;
-    $('acctMsg').textContent=error?(/rate|limit/i.test(error.message)?'Muitos pedidos de link em pouco tempo. Espere alguns minutos e tente de novo.':'Não foi possível enviar o link. Confira o e-mail e tente de novo.')
-      :`Enviado para ${email}. Digite o código do e-mail aqui, ou toque no link do e-mail neste aparelho.`;
-    if(!error){$('acCodeForm').hidden=false;$('acCode').focus();}
+    if(res.error){$('acctMsg').textContent=authErr(res.error.message);return;}
+    if(ACC.mode==='criar'&&!res.data.session){$('acctMsg').textContent=`Conta criada. Enviamos um link de confirmação para ${email}; depois de confirmar, entre com a sua senha.`;setMode('entrar');return;}
+    $('acPass').value='';$('acctMsg').textContent='';
   });
-  $('acCodeForm').addEventListener('submit',async e=>{
-    e.preventDefault();const token=$('acCode').value.replace(/\D/g,'');const email=$('acEmail').value.trim();
-    if(token.length<6){$('acctMsg').textContent='Digite o código completo enviado por e-mail.';return;}
-    $('acCodeGo').disabled=true;
-    const {error}=await SB.auth.verifyOtp({email,token,type:'email'});
-    $('acCodeGo').disabled=false;
-    $('acctMsg').textContent=error?'Código inválido ou expirado. Use o código do e-mail mais recente.':'';
+  $('acForgot').addEventListener('click',async()=>{
+    const email=$('acEmail').value.trim();
+    if(!/^\S+@\S+\.\S+$/.test(email)){$('acctMsg').textContent='Digite seu e-mail acima e toque de novo em "Esqueci a senha".';$('acEmail').focus();return;}
+    const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:redirectUrl()});
+    $('acctMsg').textContent=error?authErr(error.message):`Se houver uma conta com ${email}, você vai receber um link para criar uma nova senha.`;
+  });
+  $('acResetForm').addEventListener('submit',async e=>{
+    e.preventDefault();const pass=$('acNewPass').value;
+    if(pass.length<8){$('acctMsg').textContent='A senha precisa ter pelo menos 8 caracteres.';return;}
+    const {error}=await SB.auth.updateUser({password:pass});
+    if(error){$('acctMsg').textContent=authErr(error.message);return;}
+    ACC.recovery=false;$('acNewPass').value='';$('acctMsg').textContent='Senha atualizada.';renderAcct();
   });
   $('acGateOk').addEventListener('click',async()=>{
     if(!$('acConsent2').checked){$('acctMsg').textContent='Marque o consentimento para guardar seus dados na conta.';return;}
