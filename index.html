@@ -301,6 +301,42 @@ body.has-mbar{padding-bottom:96px}
 .gact-b .btn{min-height:40px;padding:6px 12px}
 .gsrc{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
 #gDisc.armed{background:var(--crit-bg);color:var(--crit);border-color:transparent}
+
+/* Passo a passo */
+.flowbar{display:flex;flex-direction:column;gap:8px}
+.fb-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fb-top .linkbtn{letter-spacing:0;text-transform:none;font-size:13px}
+.fb-dots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.fb-dots button{font:inherit;border:0;background:none;padding:0;cursor:pointer;display:flex;flex-direction:column;gap:5px;align-items:stretch;text-align:left;color:var(--muted);font-size:11px;font-weight:700}
+.fb-dots button i{display:block;height:5px;border-radius:3px;background:var(--line)}
+.fb-dots button.done i{background:var(--accent)} .fb-dots button.cur i{background:var(--accent-ink)}
+.fb-dots button.cur{color:var(--ink)}
+.fb-dots button:disabled{cursor:default}
+.fnav{display:flex;gap:10px;border-top:1px solid var(--line);padding-top:14px;margin-top:2px}
+.fnav .btn{flex:1 1 0;min-height:48px;font-size:15px}
+.fnav .btn[hidden]{display:none}
+body.flow-on section.step[data-fs]:not(.fcur){display:none}
+body.flow-sum section.step[data-fs]{display:none}
+@media (max-width:960px){body.flow-guided #resultsCol{display:none}}
+.fs-list{display:flex;flex-direction:column}
+.fs-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;font:inherit;color:inherit;text-align:left;width:100%}
+.fs-row:last-child{border-bottom:0}
+.fs-row .k{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fs-row .v{font-size:14px;font-weight:600;grid-column:1}
+.fs-row .e{grid-row:1/3;grid-column:2;font-size:13px;font-weight:700;color:var(--accent-ink)}
+details.adv{border:0;border-top:1px solid var(--line);padding-top:10px}
+details.adv>summary{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.advv{font-weight:600;color:var(--muted);font-size:12px}
+.advb{display:flex;flex-direction:column;gap:14px;margin-top:12px}
+/* Assistente e calor */
+.wiz{gap:16px}
+.wq{display:flex;flex-direction:column;gap:8px}
+.wq>b{font-size:14px}
+.wseg{display:flex;width:100%}
+.wseg button{flex:1 1 0;min-height:44px}
+.heat{display:flex;align-items:center;gap:10px;border-radius:10px;padding:10px 12px;font-size:13px;background:var(--sunk)}
+.heat b{font-family:var(--display);font-weight:900;font-size:24px;font-variant-numeric:tabular-nums}
+.heat.h1{background:var(--blue-soft);color:var(--blue)} .heat.h2{background:var(--warn-bg);color:var(--warn)} .heat.h3,.heat.h4{background:var(--crit-bg);color:var(--crit)}
 </style>
 
 <header class="band">
@@ -323,7 +359,16 @@ body.has-mbar{padding-bottom:96px}
 
 <main class="wrap" id="viewCalc">
   <div class="col">
-    <section class="step">
+    <div class="flowbar" id="flowBar" hidden>
+      <div class="fb-top"><span id="fbTxt">Passo 1 de 5</span><button type="button" class="linkbtn" id="fbAll" hidden>Ver resumo</button></div>
+      <div class="fb-dots" id="fbDots"></div>
+    </div>
+    <section class="step fsum" id="flowSum" hidden>
+      <div class="sh"><b>✓</b><h2>Sua sessão</h2></div>
+      <div class="fs-list" id="fsList"></div>
+      <button type="button" class="btn" id="fsRestart">Montar outra sessão do zero</button>
+    </section>
+    <section class="step" data-fs="1">
       <div class="sh"><b>1</b><h2>Sessão</h2></div>
       <div class="row">
         <div><div class="hint" style="margin-bottom:6px;font-weight:700">Tipo</div>
@@ -335,9 +380,8 @@ body.has-mbar{padding-bottom:96px}
         <label class="f">Modalidade<select id="sport"><option value="corrida">Corrida</option><option value="ciclismo">Ciclismo</option><option value="natacao">Natação</option></select></label>
         <label class="f" id="indoorWrap">Ambiente<select id="indoor"><option value="0">Ao ar livre</option><option value="1">Indoor (rolo ou esteira)</option></select></label>
       </div>
-      <div><div class="hint" style="margin-bottom:6px;font-weight:700">Como informar a intensidade</div>
-        <div class="seg" id="modo"><button data-v="simples">Zona ou esforço</button><button data-v="tss">TSS planejado</button></div></div>
-      <div class="row">
+      <details class="adv"><summary>Objetivo do treino e como você chega <span class="advv" id="advObj"></span></summary>
+      <div class="advb"><div class="row">
         <label class="f" id="objWrap">Objetivo do treino<select id="objetivo">
           <option value="perf">Performance (qualidade máxima)</option>
           <option value="gut">Treinar o intestino</option>
@@ -349,11 +393,14 @@ body.has-mbar{padding-bottom:96px}
           <option value="jejum">Em jejum (só a noite de sono)</option>
           <option value="loading">Carb loading nos 1 a 2 dias antes</option></select></label>
       </div>
-      <p class="hint" id="objHint"></p>
+      <p class="hint" id="objHint"></p></div></details>
     </section>
 
-    <section class="step">
+    <section class="step" data-fs="2">
       <div class="sh"><b>2</b><h2>Duração e intensidade</h2></div>
+      <label class="f" id="distWrap">Prova ou distância<select id="dist"></select></label>
+      <div id="segs" style="display:flex;flex-direction:column;gap:10px"></div>
+      <div class="status" id="totDur" hidden></div>
       <div class="wkbox" id="wkDrop">
         <div class="wkhead">
           <div class="wkht"><b>Importar treino do TrainingPeaks ou Garmin</b><span class="hint">Arquivo do treino estruturado: .fit, .zwo, .erg ou .mrc. A calculadora lê cada trecho, calcula o IF e encaixa os géis fora dos tiros.</span></div>
@@ -379,18 +426,25 @@ body.has-mbar{padding-bottom:96px}
           <p><b>Garmin Connect:</b> no site, em Treinamento, Treinos, abra o treino e procure exportar no menu do treino. Se a sua versão não tiver essa opção, exporte pelo TrainingPeaks.</p>
         </details>
       </div>
-      <label class="f" id="distWrap">Prova ou distância<select id="dist"></select></label>
-      <div id="segs" style="display:flex;flex-direction:column;gap:10px"></div>
-      <div class="status" id="totDur" hidden></div>
+      <details class="adv"><summary>Informar por TSS em vez de zona</summary>
+        <div class="advb"><div class="seg" id="modo"><button data-v="simples">Zona ou esforço</button><button data-v="tss">TSS planejado</button></div></div></details>
       <p class="hint" id="tssHint" hidden>Com TSS e duração calculamos o IF (TSS = horas × IF² × 100). O IF define a intensidade real, porque o mesmo TSS pode ser 3 h leves ou 1h30 forte.</p>
     </section>
 
-    <section class="step">
+    <section class="step" data-fs="3">
       <div class="sh"><b>3</b><h2>Atleta</h2></div>
       <label class="calsw" id="calSwWrap" hidden><input type="checkbox" id="calSw" checked> <span id="calSwTxt">Usar minha calibração do diário</span></label>
       <div class="row">
         <label class="f">Peso (kg)<input id="peso" type="number" inputmode="decimal" min="35" max="140" step="0.5" value="70"></label>
       </div>
+      <div class="row">
+        <label class="f">Perfil de sal no suor<select id="sal">
+          <option value="0">Baixo (pouca marca na roupa)</option>
+          <option value="1" selected>Médio / não sei</option>
+          <option value="2">Alto (marcas brancas, olhos ardem)</option></select></label>
+      </div>
+      <details class="adv"><summary>Tolerância a carbo, calor e dados medidos <span class="advv" id="advAtl"></span></summary>
+      <div class="advb">
       <div class="row">
         <label class="f">Tolerância a carbo pedalando<select id="gutBike">
           <option value="0">Iniciante (até 40 g/h)</option>
@@ -404,10 +458,6 @@ body.has-mbar{padding-bottom:96px}
       <p class="status ok" id="gutNote" hidden style="margin:-4px 0 0"></p>
       <p class="hint" style="margin-top:-6px">O intestino tolera menos carboidrato correndo do que pedalando, e cada um se treina separadamente. Use o que você já consome sem desconforto.</p>
       <div class="row">
-        <label class="f">Perfil de sal no suor<select id="sal">
-          <option value="0">Baixo (pouca marca na roupa)</option>
-          <option value="1" selected>Médio / não sei</option>
-          <option value="2">Alto (marcas brancas, olhos ardem)</option></select></label>
         <label class="f">Aclimatado ao calor?<select id="aclim"><option value="0">Não</option><option value="1" selected>Sim (treina no calor há 2+ semanas)</option></select></label>
       </div>
       <details>
@@ -429,9 +479,10 @@ body.has-mbar{padding-bottom:96px}
           <div class="row" style="align-items:center"><button class="btn" id="tGo" type="button">Calcular e usar</button><span class="hint" id="tOut"></span></div>
         </div>
       </details>
+      </div></details>
     </section>
 
-    <section class="step">
+    <section class="step" data-fs="4">
       <div class="sh"><b>4</b><h2>Clima</h2></div>
       <div class="row">
         <label class="f">Cidade<input id="cidade" type="text" value="Vila Velha" autocomplete="off"></label>
@@ -444,10 +495,12 @@ body.has-mbar{padding-bottom:96px}
         <label class="f">Temperatura (°C)<input id="temp" type="number" step="0.5" inputmode="decimal" value="28"></label>
         <label class="f">Umidade relativa (%)<input id="rh" type="number" step="1" inputmode="numeric" value="75"></label>
         <label class="f">Condição<select id="cond"><option value="sol">Sol direto</option><option value="nublado">Nublado ou noite</option><option value="indoor">Indoor</option></select></label>
+        <label class="f" id="fanW" hidden>Ventilação (indoor)<select id="fan"><option value="1">Com ventilador</option><option value="0">Sem ventilador</option></select></label>
       </div>
+      <div class="heat" id="heat" aria-live="polite"></div>
     </section>
 
-    <section class="step">
+    <section class="step" data-fs="5">
       <div class="sh"><b>5</b><h2>Produtos</h2></div>
       <p class="hint">Escolha o que você vai usar. A calculadora converte as metas em unidades reais. Itens marcados como estimados: confira o rótulo e ajuste os valores.</p>
       <label class="f">Gel ou alimento sólido<select id="pGel"></select></label>
@@ -458,6 +511,7 @@ body.has-mbar{padding-bottom:96px}
       </div>
       <label class="f">Eletrólito<select id="pElec"></select></label>
       <div id="pElecV"></div>
+      <details class="adv"><summary>Caramanhola e produto próprio</summary><div class="advb">
       <div class="row">
         <label class="f"><span id="bottleLbl">Caramanhola</span><select id="bottle"></select></label>
       </div>
@@ -478,6 +532,7 @@ body.has-mbar{padding-bottom:96px}
           <div><button class="btn" id="cAdd" type="button">Adicionar à lista</button></div>
         </div>
       </details>
+      </div></details>
     </section>
   </div>
 
@@ -516,7 +571,7 @@ body.has-mbar{padding-bottom:96px}
       <p><b>Carboidrato</b> pela duração total da sessão (somando todas as modalidades) e pela intensidade, com transição contínua entre as faixas: abaixo de 1 h, bochecho ou nada; 1 a 2 h, 30 a 70 g/h; a partir de 2,5 h, até 90 g/h com glicose + frutose. Acima de 90 g/h só com intestino treinado. A tolerância é avaliada separadamente no pedal e na corrida, que tem teto menor pelo impacto gastrointestinal.</p>
       <p><b>Líquido</b> pela taxa de suor medida ou estimada em cada modalidade. O déficit tolerável (até 2% do peso) é calculado para a sessão inteira: onde você sua mais do que consegue beber, como na corrida, o pedal compensa. Nunca se bebe mais do que se sua.</p>
       <p><b>Objetivo e estado pré-sessão</b> seguem o princípio de abastecer conforme o trabalho exigido: carbo completo em treinos de qualidade, carbo reduzido só em sessões leves feitas para adaptação, meta acima da tolerância atual para treinar o intestino, e início precoce quando o atleta chega em jejum. A refeição pré (1 a 4 g/kg), o carb loading (10 a 12 g/kg/dia) e a hidratação pré (5 a 7 ml/kg) seguem o ACSM.</p>
-      <p><b>Sódio</b> pela taxa de suor × concentração de sódio no suor, repondo de 35% a 65% conforme a duração. Aclimatação reduz o sódio do suor.</p>
+      <p><b>Sódio</b> acoplado ao líquido: cada litro bebido leva de 50% a 90% do sódio do seu suor, conforme a duração (mínimo de 460 mg/L, máximo de 1.500 mg/L). Sem líquido, não há sódio durante: até 1h15 (1h com WBGT de 28 ou mais) a reposição fica para depois. Aclimatação reduz o sódio do suor.</p>
       <ol>
         <li>Thomas DT, Erdman KA, Burke LM. Nutrition and Athletic Performance. Med Sci Sports Exerc, 2016 (ACSM).</li>
         <li>Sawka MN et al. ACSM Position Stand: Exercise and Fluid Replacement. Med Sci Sports Exerc, 2007.</li>
@@ -639,6 +694,24 @@ body.has-mbar{padding-bottom:96px}
   </div>
 </div>
 
+<div class="acctwrap" id="wizPanel" hidden>
+  <div class="acct wiz" role="dialog" aria-modal="true" aria-labelledby="wizTitle">
+    <div class="acintro"><p class="acintro-t" id="wizTitle">Seu plano em 30 segundos</p><span class="hint" style="color:inherit">Quatro perguntas e você recebe carbo, líquido e sódio por hora.</span></div>
+    <div class="wq"><b>1. O que você vai fazer?</b>
+      <div class="seg wseg" id="wzSport"><button type="button" data-v="corrida" aria-pressed="true">Corrida</button><button type="button" data-v="ciclismo" aria-pressed="false">Ciclismo</button><button type="button" data-v="brick" aria-pressed="false">Bike + corrida</button></div></div>
+    <div class="wq"><b>2. Quanto tempo?</b>
+      <div class="row"><label class="f">Horas<input id="wzH" type="number" inputmode="numeric" min="0" max="16" value="1"></label><label class="f">Minutos<input id="wzM" type="number" inputmode="numeric" min="0" max="59" step="5" value="30"></label></div></div>
+    <div class="wq"><b>3. Que intensidade?</b>
+      <div class="seg wseg" id="wzInt"><button type="button" data-v="1" aria-pressed="false">Leve</button><button type="button" data-v="2" aria-pressed="true">Moderado</button><button type="button" data-v="3" aria-pressed="false">Forte</button><button type="button" data-v="4" aria-pressed="false">Prova</button></div></div>
+    <div class="wq"><b>4. Sobre você</b>
+      <div class="row"><label class="f">Peso (kg)<input id="wzPeso" type="number" inputmode="decimal" min="35" max="140" step="0.5" value="70"></label></div>
+      <span class="hint">Depois de treinar, fica com marcas brancas de sal na roupa ou no rosto?</span>
+      <div class="seg wseg" id="wzSal"><button type="button" data-v="0" aria-pressed="false">Não</button><button type="button" data-v="1" aria-pressed="true">Às vezes</button><button type="button" data-v="2" aria-pressed="false">Sim</button></div></div>
+    <button class="btn primary gbtn" id="wzGo" type="button">Ver meu plano</button>
+    <button class="linkbtn skip" id="wzSkip" type="button">Prefiro o formulário completo</button>
+  </div>
+</div>
+
 <div class="acctwrap" id="acctPanel" hidden>
   <div class="acct" role="dialog" aria-modal="true" aria-labelledby="acctTitle">
     <div class="acct-h"><h3 id="acctTitle">Sua conta</h3><button class="xbtn" id="acctClose" type="button" aria-label="Fechar">Fechar</button></div>
@@ -687,7 +760,6 @@ body.has-mbar{padding-bottom:96px}
         <div class="ghead"><img src="data:image/png;base64,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" alt="" width="40" height="40"><div><b>Garmin Connect™</b><span class="gst" id="gStatus">Não conectado</span></div></div>
         <p class="hint">Envia seus treinos com o plano de combustível para o relógio e traz suas atividades para o diário.</p>
         <div class="row"><button class="btn primary" id="gConnect" type="button">Conectar com Garmin Connect™</button><button class="btn" id="gDisc" type="button" hidden>Desconectar</button></div>
-        <button class="linkbtn" id="gTest" type="button" hidden>Testar leitura do calendário do Garmin</button>
         <p class="status" id="gMsg" aria-live="polite"></p>
       </div>
       <div class="row"><button class="btn" id="acOut" type="button">Sair</button></div>
@@ -754,22 +826,38 @@ function carbPerHour(sport,T,i,gut){
   const c=lo+(hi-lo)*i;
   return r5(Math.min(c,CARB_CAP[sport][gut]));
 }
-function heatFactor(T,RH,cond){
+function heatFactor(T,RH,cond,fan){
   let h=1+0.035*(T-20);
   h+=0.004*(RH-50)*clamp((T-15)/15,0,1.5);
   if(cond==='sol') h+=0.08;
-  if(cond==='indoor') h*=1.25;
-  return clamp(h,0.55,1.9);
+  // indoor: sem o vento do deslocamento, a perda de calor por convecção cai; ventilador recupera parte
+  if(cond==='indoor') h*=fan===false?1.3:1.12;
+  return clamp(h,0.55,1.95);
+}
+/* WBGT aproximado: bulbo úmido de Stull (2011); sombra = 0,7·Tw + 0,3·T; sol direto soma ~2,5 °C */
+function wbgt(T,RH,cond){
+  const at=Math.atan;
+  const tw=T*at(0.151977*Math.sqrt(RH+8.313659))+at(T+RH)-at(RH-1.676331)+0.00391838*Math.pow(RH,1.5)*at(0.023101*RH)-4.686035;
+  return 0.7*tw+0.3*T+(cond==='sol'?2.5:0);
 }
 function sweatRate(sport,i,inp){
   const m=typeof inp.srMedida==='object'?inp.srMedida[sport]:inp.srMedida;
   if(m>0 && sport!=='natacao') return m;
   const pf=(inp.srFactor&&inp.srFactor[sport])||1;
   const cond=(sport==='natacao' && inp.cond==='indoor')?'nublado':inp.cond;
-  const sr=SPORT_F[sport]*(0.4+0.8*i)*heatFactor(inp.temp,inp.rh,sport==='natacao'?'nublado':cond)*Math.pow(inp.peso/70,0.8)*(inp.aclim?1.1:1);
+  const sr=SPORT_F[sport]*(0.4+0.8*i)*heatFactor(inp.temp,inp.rh,sport==='natacao'?'nublado':cond,inp.fan)*Math.pow(inp.peso/70,0.8)*(inp.aclim?1.1:1);
   return clamp(sr*pf,0.2,3.2);
 }
-function naFrac(T){ if(T<1) return 0; if(T<2) return 0.35; if(T<4) return 0.5; return 0.65; }
+/* sódio acoplado ao líquido: mg por litro bebido = fração do sódio do suor, crescente com a duração.
+   Sem líquido, sem sódio (cápsula sem água = carga hipertônica no intestino).
+   Piso ACSM 2007 (20 a 30 mmol/L = 460 a 690 mg/L) a partir de 1h15; teto 1500 mg/L (~65 mmol/L). */
+function naDrink(T,conc,wb){
+  const hot=wb>=28, t0=hot?1:1.25;           // WBGT >= 28: começa em 1h e repõe 10 pontos a mais
+  if(T<t0) return 0;
+  let f=T<2?lerp(0.5,0.7,(T-t0)/(2-t0)):T<4?lerp(0.7,0.85,(T-2)/2):0.9;
+  if(hot) f=Math.min(1,f+0.1);
+  return clamp(f*conc,Math.min(460,conc),1500);
+}
 
 function calcular(inp){
   const segs=inp.segs.filter(s=>s.h>0);
@@ -783,9 +871,6 @@ function calcular(inp){
     let fl=0,na=0;
     if(s.sport!=='natacao'){
       fl=Math.min(sr,FLUID_CAP[s.sport]);
-      na=sr*conc*naFrac(T);
-      if(T>=2) na=Math.max(na,300);
-      na=Math.min(na,1500);
     } else {
       swimCarbDef+=carbPerHour('ciclismo',T,i,gutOf(inp,'ciclismo'))*s.h;
     }
@@ -793,21 +878,22 @@ function calcular(inp){
   });
   /* líquido: orçamento de déficit da sessão inteira (até 2% do peso, com margem).
      Bebe-se o máximo tolerável onde se sua mais do que dá para beber;
-     a folga do orçamento reduz a ingestão onde sobra, nunca abaixo de 0,4 L/h em sessões de 1h30+ */
+     a folga do orçamento reduz a ingestão onde sobra, nunca abaixo de 0,4 L/h em sessões de 1h30+ (ou 1h+ com WBGT >= 28) */
   const feed=out.filter(o=>o.sport!=='natacao');
+  const wbS=wbgt(inp.temp,inp.rh,inp.cond==='indoor'?'nublado':inp.cond)+(inp.cond==='indoor'&&inp.fan===false?3:0);
   const budget=0.02*inp.peso*0.8;
   const forced=out.reduce((a,o)=>a+(o.sr-o.fl)*o.h,0);
   let slack=budget-forced;
   const fh=feed.reduce((a,o)=>a+o.h,0);
   if(slack>0&&fh>0){
-    const floor=T>=1.5?0.4:0;
+    const floor=(T>=1.5||(wbS>=28&&T>=1))?0.4:0;   // calor extremo: piso de 400 ml/h já a partir de 1h
     const cut=slack/fh;
     feed.forEach(o=>{o.fl=Math.max(Math.min(floor,o.fl),o.fl-cut);});
   }
   feed.forEach(o=>{
     if(T<1) o.fl=0;
     o.fl=Math.round(o.fl*20)/20;
-    o.na=r50(Math.min(o.na,Math.max(o.fl,0.5)*1500));
+    o.na=r50(o.fl*naDrink(T,conc,wbS));
   });
   /* objetivo do treino e estado pré-sessão */
   const obj=inp.objetivo||'perf', pre=inp.pre||'refeicao';
@@ -850,12 +936,14 @@ function calcular(inp){
   const loss=out.reduce((a,o)=>a+o.sr*o.h,0);
   const intake=out.reduce((a,o)=>a+o.fl*o.h,0);
   const deficitPct=T>0?((loss-intake)/inp.peso)*100:0;
+  /* sódio perdido no suor e o que falta repor depois (refeição ou bebida de recuperação) */
+  const naLoss=r50(loss*conc);
   const feedH=out.filter(o=>o.sport!=='natacao').reduce((a,o)=>a+o.h,0)||1;
   const avg=k=>out.filter(o=>o.sport!=='natacao').reduce((a,o)=>a+o[k]*o.h,0)/feedH;
   return {T,conc,flags,segs:out,loss,intake,deficitPct,
     carbH:r5(avg('carb')),flH:Math.round(avg('fl')*1000/50)*50,naH:r50(avg('na')),
     carbTot:Math.round(out.reduce((a,o)=>a+o.carb*o.h,0)),
-    naTot:r50(out.reduce((a,o)=>a+o.na*o.h,0)),flTot:Math.round(intake*1000/50)*50};
+    naTot:r50(out.reduce((a,o)=>a+o.na*o.h,0)),naLoss,flTot:Math.round(intake*1000/50)*50};
 }
 if(typeof module!=='undefined') module.exports={calcular};
 
@@ -1025,7 +1113,7 @@ function readInputs(){
   return {modo:S.modo,peso:+$('peso').value||70,gut:{ciclismo:+$('gutBike').value,corrida:+$('gutRun').value},sal:+$('sal').value,
     naMedido:+$('naMedido').value||0,srMedida:{ciclismo:+$('srBike').value||0,corrida:+$('srRun').value||0},aclim:$('aclim').value==='1',
     temp:+$('temp').value||25,rh:+$('rh').value||60,
-    cond:(S.formato==='single'&&$('indoor').value==='1')?'indoor':$('cond').value,
+    cond:(S.formato==='single'&&$('indoor').value==='1')?'indoor':$('cond').value,fan:$('fan').value==='1',
     formato:S.formato,srFactor:calFactor(),objetivo:S.tipo==='prova'?'perf':$('objetivo').value,pre:$('pre').value,tol:calTol(),segs:segList().map(s=>({...s}))};
 }
 
@@ -1069,7 +1157,8 @@ function run(){
   $('vNa').innerHTML=fmt(feeding?r.naH:0)+'<small>mg/h</small>';
   $('tCho').textContent=`Total ${fmt(r.carbTot)} g`;
   $('tFl').textContent=`Total ${fmt(r.flTot/1000,1)} L`;
-  $('tNa').textContent=`Total ${fmt(r.naTot)} mg`;
+  const naPos=r50(Math.max(0,r.naLoss-r.naTot));
+  $('tNa').textContent=feeding&&!r.naTot&&r.naLoss?`Só após · repor ~${fmt(naPos)} mg`:`Total ${fmt(r.naTot)} mg`+(naPos>=300?` · após ~${fmt(naPos)} mg`:'');
 
   // duração total
   const td=$('totDur');td.hidden=r.segs.length<2;
@@ -1088,6 +1177,9 @@ function run(){
   labelize('#tbody');updateMbar(r,feeding);if(typeof refreshSummaries==='function')refreshSummaries();
 
   // o que levar
+  // indicador de calor
+  {const ind=inp.cond==='indoor';$('fanW').hidden=!ind;const wbI=wbgt(inp.temp,inp.rh,ind?'nublado':inp.cond);const cat=wbI<18?[1,'baixo']:wbI<23?[2,'moderado']:wbI<28?[3,'alto']:[4,'extremo'];
+   const hb=$('heat');hb.className='heat h'+cat[0];hb.innerHTML=`<b>${fmt(wbI)}°</b><span>WBGT estimado${ind?' (ambiente interno)':''} · risco de calor <strong>${cat[1]}</strong></span>`;}
   // antes da sessão
   const OBJ_HINT={perf:'Carbo para render o máximo na sessão.',gut:'Meta 10 g/h acima do que você tolera hoje, para adaptar o intestino. Use 2 a 3 vezes por semana.',low:'Sessão leve sem carbo para estimular adaptação. Não vale para treino forte nem acima de 2h30.',regen:'Sessão leve e curta: água e sódio bastam.'};
   $('objWrap').hidden=S.tipo==='prova';
@@ -1149,11 +1241,16 @@ function run(){
   const al=(c,t)=>A.push(`<div class="al ${c}">${t}</div>`);
   if(r.deficitPct>2.5)al('c',`<b>Déficit hídrico projetado de ${fmt(r.deficitPct,1)}%.</b> O volume tolerável por hora não cobre o seu suor. Comece bem hidratado (5 a 7 ml/kg 2 a 4 h antes), use os pontos de água e aceite reduzir o ritmo no calor.`);
   if(r.T>=4&&r.segs.some(s=>s.fl>0&&s.fl>=s.sr*0.9))al('c',`<b>Risco de hiponatremia.</b> Ingestão próxima da taxa de suor em sessão longa. Não beba acima do plano e garanta o sódio indicado.`);
-  const ta=inp.temp+(inp.rh>60?(inp.rh-60)*0.1:0);
-  if(ta>=30)al('w',`<b>Estresse térmico alto.</b> Calor e umidade aumentam o suor e a temperatura central. Prefira horários mais frescos e resfriamento (gelo, água na cabeça).`);
+  const wb=wbgt(inp.temp,inp.rh,inp.cond==='indoor'?'nublado':inp.cond);
+  if(wb>=28)al('c',`<b>Estresse térmico extremo (WBGT ~${fmt(wb)} °C).</b> Nessa faixa o ACSM recomenda adiar treinos intensos e provas. Se for treinar, reduza a intensidade, use resfriamento (gelo, água na cabeça e na nuca) e não pule a hidratação.`);
+  else if(wb>=23)al('w',`<b>Estresse térmico alto (WBGT ~${fmt(wb)} °C).</b> O suor e a temperatura central sobem rápido. Prefira horários mais frescos e use resfriamento.`);
+  if(inp.cond==='indoor'&&!inp.fan)al('w',`<b>Rolo ou esteira sem ventilador:</b> sem vento, o corpo perde muito menos calor e sua bem mais. Um ventilador forte de frente reduz o suor e melhora o rendimento.`);
   const maxCarb=Math.max(...r.segs.map(s=>s.carb));
   const multi=(P.gel&&P.gel.multi)||(P.dr&&P.dr.multi);
   if(maxCarb>60&&(P.gel||P.dr)&&!multi)al('w',`<b>Acima de 60 g/h use glicose + frutose.</b> O produto escolhido usa um tipo só de carboidrato, que satura a absorção intestinal por volta de 60 g/h.`);
+  {const naPos=r50(Math.max(0,r.naLoss-r.naTot));
+   if(feeding&&!r.naTot&&r.naLoss>=300)al('i',`<b>Sódio só depois.</b> Com pouco ou nenhum líquido nesta sessão, sódio durante não traz benefício: sem água ele vira uma carga concentrada no intestino. Você perde ~${fmt(r.naLoss)} mg no suor; reponha na refeição ou bebida pós-treino (~${fmt(naPos)} mg).`);
+   else if(naPos>=1000)al('i',`<b>Reposição pós-sessão:</b> o plano repõe ${fmt(r.naTot)} de ~${fmt(r.naLoss)} mg perdidos. Complete ~${fmt(naPos)} mg depois, com 1,25 a 1,5 L de líquido por kg perdido, para reter a água.`);}
   if(maxCarb>60&&!P.gel&&!P.dr)al('i',`Escolha um gel ou bebida para transformar as metas em unidades.`);
   if(r.segs.some(s=>s.sport==='corrida'&&s.carb>=80))al('w',`<b>Corrida com 80 g/h ou mais.</b> Só se o intestino já estiver treinado nessa faixa correndo. Suba 10 g/h por semana nos longões.`);
   const has=sp=>r.segs.some(s=>s.sport===sp);const gb=has('ciclismo')&&inp.gut.ciclismo===0,gr=has('corrida')&&inp.gut.corrida===0;
@@ -1173,6 +1270,7 @@ function run(){
   if(f.jejum)al('w',`<b>Em jejum:</b> o glicogênio do fígado está baixo depois da noite. O carbo durante a sessão rende mais nessa condição, então comece cedo, já nos primeiros 15 min.`);
   if(S.tipo==='prova')al('i',`<b>Regra de prova:</b> use só produtos e quantidades já testados em treino.`);
   $('alerts').innerHTML=A.join('');
+  if(typeof flowRefresh==='function')flowRefresh();
 }
 
 /* ===== CLIMA (Open-Meteo) ===== */
@@ -1219,7 +1317,7 @@ const SB_KEY='sb_publishable_x29ctnGxafVWM6ZTjy9ukA_930OE0Gr';
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const SB=(!IN_CLAUDE&&window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
 const ACC={user:null,perfil:null,consent:false,syncing:false};
-const CFG_IDS=['peso','sal','aclim','srBike','srRun','naMedido','gutBike','gutRun','cidade','wkFtp','wkHr','wkPace'];
+const CFG_IDS=['fan','peso','sal','aclim','srBike','srRun','naMedido','gutBike','gutRun','cidade','wkFtp','wkHr','wkPace'];
 
 async function storeInit(){
   if(SB){
@@ -1229,7 +1327,7 @@ async function storeInit(){
     if(hp.get('error')){openAcct();$('acctMsg').textContent=hp.get('error_code')==='otp_expired'?'Esse link expirou ou já foi usado. Peça um novo em "Esqueci a senha".':'Não foi possível concluir pelo link. Tente de novo.';try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}}
     const {data}=await SB.auth.getSession();
     if(!data||!data.session){toLocal();
-      if(promptDue()&&$('acctPanel').hidden)setTimeout(()=>{if(!ACC.user&&$('acctPanel').hidden)openAcct(true);},1200);}
+      firstRun();}
     return;
   }
   let db=null,uid=null;
@@ -1664,6 +1762,12 @@ function readFitFile(buf){
   const items=out.map(s=>{
     const it={int:s.int,name:s.name};
     if(s.dType===0)it.sec=(s.dVal||0)/1000;else if(s.dType===1)it.m=(s.dVal||0)/100;else it.sec=s.int==='rest'||s.int==='recovery'?120:300;
+    // passos sem tempo fixo continuam iguais no relógio (o tempo acima é só estimativa para o cálculo)
+    const v=s.dVal||0;
+    if(s.dType===5)it.dur={type:'OPEN'};
+    else if(s.dType===2||s.dType===3)it.dur={type:s.dType===2?'HR_LESS_THAN':'HR_GREATER_THAN',...(v>100?{val:v-100}:{val:v,vt:'PERCENT'})};
+    else if(s.dType===4)it.dur={type:'CALORIES',val:v};
+    else if(s.dType===14||s.dType===15)it.dur={type:s.dType===14?'POWER_LESS_THAN':'POWER_GREATER_THAN',...(v>=1000?{val:v-1000}:{val:v,vt:'PERCENT'})};
     if(s.tType===4){if(s.lo||s.hi){const f=v=>v>=1000?{w:v-1000}:{pct:v/100};const a=f(s.lo),b=f(s.hi||s.lo);it.pwr=a.w!=null?{w:(a.w+(b.w??a.w))/2}:{pct:(a.pct+(b.pct??a.pct))/2};}else if(s.tVal)it.pzone=s.tVal;}
     else if(s.tType===1){if(s.lo||s.hi){const f=v=>v>100?{bpm:v-100}:{pct:v/100};const a=f(s.lo),b=f(s.hi||s.lo);it.hr=a.bpm!=null?{bpm:(a.bpm+(b.bpm??a.bpm))/2}:{pct:(a.pct+(b.pct??a.pct))/2};}else if(s.tVal)it.hzone=s.tVal;}
     else if(s.tType===0){if(s.lo||s.hi)it.spd=((s.lo||s.hi)+(s.hi||s.lo))/2/1000;}
@@ -1738,7 +1842,7 @@ function toBlocks(w,prof){
     let sec=i.sec;if(sec==null&&i.m!=null){const v=i.spd||thr*clamp(f,.6,1.05);sec=i.m/Math.max(v,.5);}
     const ftp=w.ftpFile||prof.ftp;
     const tgt={pwrPct:i.pwr?(i.pwr.pct!=null?i.pwr.pct:(ftp?i.pwr.w/ftp:null)):null,pz:i.pzone||null,hrPct:i.hr?(i.hr.pct!=null?i.hr.pct:(prof.hrmax?i.hr.bpm/prof.hrmax:null)):null,hz:i.hzone||null,spd:i.spd||null};
-    const b={start:t,sec:sec||0,if:f,int:i.int,tgt,m:i.sec==null&&i.m!=null?i.m:null};t+=b.sec;return b;}).filter(b=>b.sec>0);
+    const b={start:t,sec:sec||0,if:f,int:i.int,tgt,m:i.sec==null&&i.m!=null?i.m:null,dur:i.dur||null};t+=b.sec;return b;}).filter(b=>b.sec>0);
   const T=blocks.reduce((a,b)=>a+b.sec,0);
   const IF=T?Math.pow(blocks.reduce((a,b)=>a+Math.pow(b.if,4)*b.sec,0)/T,.25):0;
   return {blocks,T,IF,tss:Math.round(T/3600*IF*IF*100)};
@@ -1901,7 +2005,7 @@ function gRender(){
   $('gSec').hidden=!on;
   $('gStatus').textContent=G.connected?'Conectado':'Não conectado';
   $('gStatus').className='gst'+(G.connected?' on':'');
-  $('gConnect').hidden=G.connected;$('gDisc').hidden=!G.connected;$('gTest').hidden=!G.connected;
+  $('gConnect').hidden=G.connected;$('gDisc').hidden=!G.connected;
   const canSend=on&&G.connected&&G.perms.includes('WORKOUT_IMPORT');
   $('gSend').hidden=!canSend;
 }
@@ -1917,50 +2021,93 @@ function gTarget(t,sport){
   if(t&&t.hz)return {...n,targetType:'HEART_RATE',targetValue:t.hz};
   return {...n,targetType:'OPEN'};
 }
-function gSteps(seg,k){
+function gSteps(seg,k,lean){
   const P=LAST.P;const sec=seg.h*3600;
   const bl=(segList().filter(q=>q.h>0)[k]||{}).blocks;
-  let base=bl&&bl.length?bl.map(b=>({start:b.start,sec:b.sec,int:b.int,tgt:b.tgt,m:b.m,if:b.if}))
-    :[{start:0,sec,int:'active',tgt:null,m:null,if:seg.i}];
-  const bounds=()=>base.map(b=>b.start).concat([sec]);
-  const blockAt=t=>base.find(b=>t>=b.start&&t<b.start+b.sec);
-  // pontos de aviso: géis (já deslocados para trechos leves) e água a cada 15 min, como no cronograma
+  const structured=!!(bl&&bl.length>1);
+  let base=bl&&bl.length?bl.map(b=>({start:b.start,sec:b.sec,int:b.int,tgt:b.tgt,m:b.m,if:b.if,dur:b.dur||null}))
+    :[{start:0,sec,int:'active',tgt:null,m:null,if:seg.i,dur:null}];
+  const blockAt=t=>base.find(b=>t>=b.start&&t<b.start+b.sec)||base[base.length-1];
+  /* Regras para não mexer na estrutura do treino:
+     - o relógio só mostra a observação quando um passo começa;
+     - o aviso vai para o INÍCIO de um trecho leve (recuperação, pausa, aquecimento): sem passo novo;
+     - tiro nunca é cortado; dentro da série principal nada é cortado;
+     - só se corta trecho leve longo (5 min+) fora da série, ou o treino sem estrutura (corrida contínua);
+     - passo aberto (lap), por FC, potência ou calorias nunca é cortado. */
+  const hard=x=>x.int==='interval'||x.if>=.85;
+  const fixed=x=>!!x.dur;
+  const H=base.filter(hard);
+  const mS=H.length?H[0].start:Infinity, mE=H.length?H[H.length-1].start+H[H.length-1].sec:-Infinity;
+  const inMain=x=>x.start>=mS&&x.start<mE;
+  const cuttable=x=>!structured||(!hard(x)&&!fixed(x)&&x.sec>=300&&!inMain(x));
+  const easyStarts=()=>base.filter(x=>!hard(x)).map(x=>x.start);
+  const longHard=x=>structured&&hard(x)&&!fixed(x)&&x.sec>=1200;   // bloco forte contínuo de 20 min+
+  const place=t=>{
+    if(!structured)return t;
+    {const b=blockAt(t);if(longHard(b)&&t>b.start+300)return {sip:b.start};}  // dentro do bloco longo: aos goles
+    const es=easyStarts();
+    let best=null,bd=1e9;es.forEach(s=>{const d=Math.abs(s-t);if(d<bd&&d<=300){bd=d;best=s;}});
+    if(best!==null)return best;                                   // começo de um trecho leve a até 5 min
+    const b=blockAt(t);
+    if(cuttable(b))return clamp(t,b.start+60,b.start+b.sec-60);  // trecho leve longo fora da série
+    const nx=es.find(s=>s>=t);if(nx!=null)return nx;              // espera o próximo trecho leve
+    const pv=es.filter(s=>s<=t).pop();return pv!=null?pv:b.start; // ou o anterior
+  };
   const pts=[];
-  ((LAST.gt||{})[k]||[]).forEach(t=>pts.push({t:t*60,gel:true}));
   const ml15=Math.round(seg.fl*1000/4/10)*10;
-  if(ml15>=50)for(let t=900;t<sec-120;t+=900){
-    let tt=t;const b=blockAt(t);const easy=x=>x.if<.85;
-    if(b&&easy(b)){ // trecho leve: usa o início dele ou do próximo trecho leve, se estiver perto
-      const nx=base[base.indexOf(b)+1];
-      if(t-b.start<=180)tt=b.start;else if(nx&&easy(nx)&&nx.start-t<=180)tt=nx.start;}
-    else if(b){ // no meio do tiro: leva para o trecho leve mais próximo (até 5 min)
-      let best=null,bd=1e9;
-      base.forEach(x=>{if(!easy(x)||x.sec<90)return;const c=clamp(t,x.start,x.start+x.sec-60);const d=Math.abs(c-t);if(d<bd&&d<=300){bd=d;best=c-x.start<=180?x.start:c;}});
-      if(best!==null)tt=best;}
-    if(tt<=0)tt=Math.min(sec-60,60);
-    pts.push({t:tt,drink:ml15});
-  }
+  const skip=t=>lean===2&&structured&&t>=mS&&t<mE;                    // treino gigante: sem avisos dentro da série
+  const sips={};
+  ((LAST.gt||{})[k]||[]).forEach(t=>{let tt=place(t*60);if(tt&&tt.sip!=null){sips[tt.sip]=sips[tt.sip]||{ml:0,gel:0};sips[tt.sip].gel++;return;}if(!skip(tt))pts.push({t:tt,gel:true});});
+  if(ml15>=50)for(let t=900;t<sec-120;t+=900){const tt=place(t);if(tt&&tt.sip!=null){sips[tt.sip]=sips[tt.sip]||{ml:0,gel:0};sips[tt.sip].ml+=ml15;continue;}if(!skip(tt))pts.push({t:tt,drink:ml15});}
+  pts.forEach(p=>{p.t=clamp(p.t,0,sec-60);});
   // junta avisos próximos (até 60 s) num só
   pts.sort((a,b)=>a.t-b.t);const merged=[];
   pts.forEach(p=>{const m=merged.find(q=>Math.abs(q.t-p.t)<=60);if(m){m.gel=m.gel||p.gel;m.drink=(m.drink||0)+(p.drink||0);if(p.gel)m.t=p.t;}else merged.push({...p});});
-  // corta os passos nos pontos de aviso
+  // corta só onde é permitido (passo por distância continua por distância)
   merged.forEach(p=>{
-    const i=base.findIndex(b=>p.t>b.start+20&&p.t<b.start+b.sec-20);if(i<0)return;
-    const b=base[i];base.splice(i,1,{...b,sec:p.t-b.start,m:null},{...b,start:p.t,sec:b.start+b.sec-p.t,m:null});});
-  if(base.length>100)throw new Error('passos');
+    const i=base.findIndex(b=>p.t>b.start+45&&p.t<b.start+b.sec-45);if(i<0)return;
+    const b=base[i];if(!cuttable(b)){const nx=base.find(x=>!hard(x)&&x.start>=p.t);p.t=nx?nx.start:b.start;return;}
+    const f=(p.t-b.start)/b.sec;
+    base.splice(i,1,{...b,sec:p.t-b.start,m:b.m?Math.round(b.m*f):null},{...b,start:p.t,sec:b.start+b.sec-p.t,m:b.m?b.m-Math.round(b.m*f):null});});
   const els=((LAST.et||{})[k]||[]);
-  return base.map((b,i)=>{
+  // cada aviso vai para um único passo: o que começa mais perto dele (empate: o trecho leve)
+  const owner=merged.map(p=>{let bi=0,bd=1e9;base.forEach((b,i)=>{const d=Math.abs(b.start-p.t)+(hard(b)&&structured?0.5:0);if(d<bd){bd=d;bi=i;}});return bi;});
+  const steps=base.map((b,i)=>{
     const notes=[];
-    const here=merged.filter(p=>Math.abs(p.t-b.start)<=20);
+    const here=merged.filter((p,j)=>owner[j]===i);
+    const sp=sips[b.start];
+    if(sp&&b.start===base.find(x=>x.start===b.start).start&&longHard(b)){
+      const parts=[];if(sp.gel&&P.gel)parts.push(`${sp.gel} ${P.gel.nome.split(' (')[0]}`);if(sp.ml)parts.push(`~${sp.ml} ml`);
+      if(parts.length)notes.push(`BLOCO LONGO: ${parts.join(' e ')} aos goles durante o bloco`);}
     if(here.some(p=>p.gel)&&P.gel)notes.push(`GEL AGORA: 1 ${P.gel.nome.split(' (')[0]} (${fmt(P.gel.cho)} g)`);
     const dml=here.reduce((a,p)=>a+(p.drink||0),0);if(dml)notes.push(`BEBA ~${dml} ml`);
-    els.forEach(e=>{if(e.t*60>=b.start&&e.t*60<b.start+b.sec)notes.push(`ELETRÓLITO: ${e.q} ${P.el?P.el.un:''}`.trim());});
-    if(i===0&&ml15>=50)notes.push(`Hidratação: ~${ml15} ml a cada 15 min`);
-    return {type:'WorkoutStep',stepOrder:i+1,intensity:G_INT[b.int]||'ACTIVE',description:notes.join(' · ').slice(0,512),
-      durationType:b.m?'DISTANCE':'TIME',durationValue:b.m?Math.round(b.m):Math.round(b.sec),durationValueType:b.m?'METER':null,
-      ...gTarget(b.tgt,seg.sport),secondaryTargetType:null,secondaryTargetValue:null,secondaryTargetValueLow:null,secondaryTargetValueHigh:null,secondaryTargetValueType:null,
+    els.forEach(e=>{if(e.t*60>=b.start&&e.t*60<b.start+b.sec&&!(hard(b)&&structured))notes.push(`ELETRÓLITO: ${e.q} ${P.el?P.el.un:''}`.trim());});
+    if(i===0&&ml15>=50)notes.push(`Hidratação: ~${ml15} ml a cada 15 min`+(structured&&H.length?(lean===2?'; na série, beba nas recuperações':'; na série, os avisos vêm nas recuperações'):''));
+    const d=b.dur?{durationType:b.dur.type,durationValue:b.dur.val??null,durationValueType:b.dur.vt||null}
+      :{durationType:b.m?'DISTANCE':'TIME',durationValue:b.m?Math.round(b.m):Math.round(b.sec),durationValueType:b.m?'METER':null};
+    return {type:'WorkoutStep',stepOrder:0,intensity:G_INT[b.int]||'ACTIVE',description:notes.join(' · ').slice(0,512),
+      ...d,...gTarget(b.tgt,seg.sport),secondaryTargetType:null,secondaryTargetValue:null,secondaryTargetValueLow:null,secondaryTargetValueHigh:null,secondaryTargetValueType:null,
       strokeType:null,drillType:null,equipmentType:null,exerciseCategory:null,exerciseName:null,weightValue:null,weightDisplayUnit:null};});
+  return lean?gCompress(steps):steps;
 }
+/* séries iguais seguidas viram "Repetir N vezes" (usado só quando o treino passa do limite de passos) */
+function gCompress(steps){
+  const key=s=>JSON.stringify({...s,stepOrder:0});
+  const out=[];let i=0;
+  while(i<steps.length){
+    let done=false;
+    for(let L=1;L<=4&&!done;L++){
+      if(i+2*L>steps.length)break;
+      const pat=steps.slice(i,i+L).map(key);let n=1;
+      while(i+(n+1)*L<=steps.length&&steps.slice(i+n*L,i+(n+1)*L).map(key).every((x,j)=>x===pat[j]))n++;
+      if(n>=2){out.push({type:'WorkoutRepeatStep',stepOrder:0,repeatType:'REPEAT_UNTIL_STEPS_CMPLT',repeatValue:n,skipLastRestStep:false,steps:steps.slice(i,i+L)});i+=n*L;done=true;}
+    }
+    if(!done){out.push(steps[i]);i++;}
+  }
+  return out;
+}
+function gCount(steps){return steps.reduce((a,s)=>a+(s.type==='WorkoutRepeatStep'?1+gCount(s.steps):1),0);}
+function gNumber(segments){let n=0;const num=st=>st.forEach(s=>{s.stepOrder=++n;if(s.steps)num(s.steps);});segments.forEach(sg=>num(sg.steps));}
 function gWorkout(){
   const r=LAST.r,P=LAST.P;if(!r)throw new Error('vazio');
   if(r.segs.some(s=>s.sport==='natacao'))throw new Error('tri');
@@ -1970,8 +2117,13 @@ function gWorkout(){
   const name=('Combustível · '+(wkName||sessionTitle())).slice(0,60);
   const leva=[...document.querySelectorAll('#carry li')].map(li=>[...li.children].map(c=>c.textContent.trim()).join(' ').replace(/\s+/g,' ')).join('; ');
   const desc=`Plano da Calculadora Combustível (@gabreutri): carbo ${fmt(r.carbH)} g/h, líquido ${fmt(r.flH)} ml/h, sódio ${fmt(r.naH)} mg/h. Leve: ${leva}.`.slice(0,1024);
-  const segments=segs.map((x,i)=>({segmentOrder:i+1,sport:SG[x.s.sport],poolLength:null,poolLengthUnit:null,steps:gSteps(x.s,x.k)}));
-  const total=segments.reduce((a,s)=>a+s.steps.length,0);if(total>(segments.length>1?250:100))throw new Error('passos');
+  const lim=segs.length>1?250:100;
+  let segments=segs.map((x,i)=>({segmentOrder:i+1,sport:SG[x.s.sport],poolLength:null,poolLengthUnit:null,steps:gSteps(x.s,x.k)}));
+  // treino longo demais para o relógio: repetições viram "Repetir N vezes" e a série fica sem avisos
+  for(const lean of [1,2])if(segments.reduce((a,s)=>a+gCount(s.steps),0)>lim)
+    segments=segs.map((x,i)=>({segmentOrder:i+1,sport:SG[x.s.sport],poolLength:null,poolLengthUnit:null,steps:gSteps(x.s,x.k,lean)}));
+  if(segments.reduce((a,s)=>a+gCount(s.steps),0)>lim)throw new Error('passos');
+  gNumber(segments);
   const base={workoutName:name,description:desc,workoutProvider:'Combustivel',workoutSourceId:'Combustivel',poolLength:null,poolLengthUnit:null};
   if(segments.length===1)return {...base,sport:segments[0].sport,segments};
   return {...base,sport:'MULTI_SPORT',isSessionTransitionEnabled:true,segments};
@@ -2049,7 +2201,6 @@ async function gTest(){
   track('garmin_teste_agenda',{total:r.count||0,outros:outros.length});
 }
 function initGarmin(){
-  $('gTest').addEventListener('click',gTest);
   $('gConnect').addEventListener('click',gConnect);
   $('gDisc').addEventListener('click',gDisconnect);
   $('gSend').addEventListener('click',gSend);
@@ -2168,6 +2319,115 @@ function initShare(){
   $('shWa').addEventListener('mouseenter',upd);$('shWa').addEventListener('focus',upd);$('shWa').addEventListener('touchstart',upd,{passive:true});
 }
 
+/* ===== ASSISTENTE DE PRIMEIRO USO ===== */
+function wizDue(){return lsGet('gaWizard')!=='1'&&!(ST.logs&&ST.logs.length);}
+function wizSeg(id){const box=$(id);box.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;box.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));});}
+function wizVal(id){const b=$(id).querySelector('button[aria-pressed="true"]');return b?b.dataset.v:null;}
+function openWiz(){$('wizPanel').hidden=false;track('assistente_aberto');}
+function closeWiz(done){$('wizPanel').hidden=true;try{localStorage.setItem('gaWizard','1');}catch(e){}
+  // pop-up de conta só depois que a pessoa viu o plano
+  if(SB&&!ACC.user&&promptDue())setTimeout(()=>{if(!ACC.user&&$('acctPanel').hidden&&$('wizPanel').hidden)openAcct(true);},done?20000:1500);}
+function wizApply(){
+  const sp=wizVal('wzSport'),it=+wizVal('wzInt'),h=(+$('wzH').value||0)+(+$('wzM').value||0)/60;
+  if(h<=0){$('wzH').focus();return;}
+  S.tipo=it===4?'prova':'treino';pressSeg('tipo',S.tipo);
+  S.modo='simples';pressSeg('modo','simples');
+  if(sp==='brick'){S.formato='brick';const b=Math.max(h*0.75,h-0.75);S.segs.brick=[{sport:'ciclismo',h:b,int:Math.min(it,3),tss:0},{sport:'corrida',h:h-b,int:it,tss:0}];}
+  else{S.formato='single';$('sport').value=sp;S.dist.single='livre';S.segs.single=[{sport:sp,h,int:it,tss:0}];}
+  pressSeg('formato',S.formato);
+  $('peso').value=$('wzPeso').value||70;$('sal').value=wizVal('wzSal');
+  renderSegs();run();if(typeof queueConfigSave==='function')queueConfigSave();
+  track('assistente_concluido',{modalidade:sp,intensidade:it});
+  closeWiz(true);
+  setTimeout(()=>{try{$('resultsCol').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},50);
+}
+function initWiz(){['wzSport','wzInt','wzSal'].forEach(wizSeg);$('wzGo').addEventListener('click',wizApply);$('wzSkip').addEventListener('click',()=>{track('assistente_pulado');closeWiz(false);});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('wizPanel').hidden)closeWiz(false);});}
+function firstRun(){if(FLOW.mode==='guided')return;if(SB&&promptDue()&&$('acctPanel').hidden)setTimeout(()=>{if(!ACC.user&&$('acctPanel').hidden)openAcct(true);},1200);}
+
+
+/* ===== PASSO A PASSO ===== */
+const FLOW={mode:'off',cur:1,max:1};
+const FS_NOME=['Sessão','Duração','Atleta','Clima','Produtos'];
+function flowSecs(){return [...document.querySelectorAll('#viewCalc section.step[data-fs]')];}
+function flowDue(){return lsGet('gaFlow')!=='1'&&lsGet('gaWizard')!=='1'&&lsGet('gaHadAccount')!=='1'&&!lsRead().length;}
+function flowShow(n){
+  FLOW.cur=n;FLOW.max=Math.max(FLOW.max,n);
+  flowSecs().forEach(s=>s.classList.toggle('fcur',+s.dataset.fs===n));
+  const sec=flowSecs().find(s=>+s.dataset.fs===n);
+  const nav=sec.querySelector('.fnav');
+  const edit=FLOW.mode==='edit';
+  nav.querySelector('[data-fp]').hidden=edit||n===1;
+  const nx=nav.querySelector('[data-fn]');
+  nx.textContent=edit?'Concluir':n===5?'Ver meu plano':'Próximo';
+  $('fbTxt').textContent=edit?`Editando: ${FS_NOME[n-1]}`:`Passo ${n} de 5 · ${FS_NOME[n-1]}`;
+  $('fbAll').hidden=!edit;
+  [...$('fbDots').children].forEach((b,k)=>{const i=k+1;b.className=i===n?'cur':(i<=FLOW.max||edit?'done':'');b.disabled=!(edit||i<=FLOW.max);});
+  mbarVisibility();
+}
+function flowGo(mode,n){
+  FLOW.mode=mode;
+  document.body.classList.toggle('flow-on',mode!=='summary');
+  document.body.classList.toggle('flow-guided',mode==='guided');
+  document.body.classList.toggle('flow-sum',mode==='summary');
+  $('flowBar').hidden=mode==='summary';$('flowSum').hidden=mode!=='summary';
+  if(mode==='summary'){flowSecs().forEach(s=>s.classList.remove('fcur'));flowRefresh();mbarVisibility();return;}
+  flowShow(n||1);
+}
+function flowTop(){try{const el=MQ.matches?$('flowBar'):$('viewCalc');const y=el.getBoundingClientRect().top+window.scrollY-8;if(window.scrollY>y)window.scrollTo({top:y,behavior:'smooth'});}catch(e){}}
+function flowValid(n){
+  if(n===2&&!(LAST.r&&LAST.r.T>0)){const i=document.querySelector('#segs input');if(i)i.focus();return false;}
+  if(n===3&&!(+$('peso').value>0)){$('peso').focus();return false;}
+  return true;
+}
+function flowNext(){
+  const n=FLOW.cur;if(!flowValid(n))return;
+  if(FLOW.mode==='edit'){flowGo('summary');track('fluxo_editado',{passo:n});flowTop();return;}
+  if(n<5){flowShow(n+1);flowTop();track('fluxo_passo',{passo:n+1});return;}
+  flowFinish();
+}
+function flowFinish(){
+  lsSet('gaFlow','1');try{localStorage.setItem('gaWizard','1');}catch(e){}
+  flowGo('summary');track('fluxo_concluido',{formato:S.formato,tipo:S.tipo});
+  if(typeof queueConfigSave==='function')queueConfigSave();
+  setTimeout(()=>{try{$(MQ.matches?'resultsCol':'viewCalc').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},60);
+  // pop-up de conta só depois que a pessoa viu o plano
+  if(SB&&!ACC.user&&promptDue())setTimeout(()=>{if(!ACC.user&&$('acctPanel').hidden)openAcct(true);},20000);
+}
+function flowRefresh(){
+  if(FLOW.mode==='off')return;
+  const r=LAST.r;if(!r)return;
+  const opt=id=>{const o=$(id).selectedOptions[0];return o?o.textContent:'';};
+  const ses=[S.tipo==='prova'?'Prova':'Treino',S.formato==='brick'?'Brick (bike + corrida)':S.formato==='tri'?'Triathlon':opt('sport')];
+  if(S.formato==='single'&&$('indoor').value==='1')ses.push('indoor');
+  if($('objetivo').value!=='perf')ses.push(opt('objetivo').split(' (')[0].toLowerCase());
+  const segs=segList().filter(s=>s.h>0);
+  const wk=(segs.find(s=>s.wkName)||{}).wkName;
+  const ints=[...new Set(r.segs.map(s=>INT_NOME[Math.max(0,Math.round(s.i*4)-1)].split(' (')[0]))].join(' / ');
+  const dur=`${durTxt(r.T)} · ${wk?'treino importado: '+wk:S.modo==='tss'?'por TSS':ints}`;
+  const wb=wbgt(+$('temp').value,+$('rh').value,$('cond').value==='indoor'?'nublado':$('cond').value);
+  const nd=v=>fmt(v,v%1?1:0);const cli=`${nd(+$('temp').value)} °C · ${fmt(+$('rh').value)}% · ${opt('cond').split(' ')[0].toLowerCase()}${$('cond').value==='indoor'?($('fan').value==='0'?' sem ventilador':' com ventilador'):''} · WBGT ${fmt(wb)}°`;
+  const rows=[['Sessão',ses.join(' · ')],['Duração e intensidade',dur],['Atleta',sectionSummary('Atleta')],['Clima',cli],['Produtos',sectionSummary('Produtos')]];
+  $('fsList').innerHTML=rows.map((x,k)=>`<button type="button" class="fs-row" data-fe="${k+1}"><span class="k">${x[0]}</span><span class="v">${x[1]}</span><span class="e">Editar</span></button>`).join('');
+  // resumos dos ajustes avançados
+  $('advObj').textContent=$('objetivo').value==='perf'&&$('pre').value==='refeicao'?'':`· ${opt('objetivo').split(' (')[0]}`;
+  const gl=['iniciante','intermediário','treinado'];$('advAtl').textContent=`· carbo ${gl[+$('gutBike').value]} no pedal, ${gl[+$('gutRun').value]} na corrida`;
+}
+function initFlow(){
+  flowSecs().forEach(s=>{const n=+s.dataset.fs;const nav=document.createElement('div');nav.className='fnav';
+    nav.innerHTML=`<button type="button" class="btn" data-fp>Voltar</button><button type="button" class="btn primary" data-fn>Próximo</button>`;
+    s.appendChild(nav);
+    nav.querySelector('[data-fp]').addEventListener('click',()=>{flowShow(Math.max(1,FLOW.cur-1));flowTop();});
+    nav.querySelector('[data-fn]').addEventListener('click',flowNext);});
+  $('fbDots').innerHTML=FS_NOME.map((n,k)=>`<button type="button" data-fd="${k+1}"><i></i>${n}</button>`).join('');
+  $('fbDots').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;flowShow(+b.dataset.fd);});
+  $('fsList').addEventListener('click',e=>{const b=e.target.closest('[data-fe]');if(!b)return;flowGo('edit',+b.dataset.fe);flowTop();});
+  $('fbAll').addEventListener('click',()=>{flowGo('summary');flowTop();});
+  $('fsRestart').addEventListener('click',()=>{FLOW.max=1;flowGo('guided',1);flowTop();track('fluxo_reiniciado');});
+  flowGo(flowDue()?'guided':'summary',1);
+  if(FLOW.mode==='guided')track('fluxo_iniciado');
+}
+
 /* ===== CELULAR ===== */
 const MQ=window.matchMedia('(max-width: 960px)');
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
@@ -2189,7 +2449,7 @@ function updateMbar(r,feeding){
 }
 let resultsVisible=false;
 function mbarVisibility(){
-  const show=MQ.matches&&!$('viewCalc').hidden&&!resultsVisible&&$('acctPanel').hidden&&$('shPanel').hidden;
+  const show=MQ.matches&&!$('viewCalc').hidden&&!resultsVisible&&FLOW.mode==='summary'&&$('acctPanel').hidden&&$('shPanel').hidden&&$('wizPanel').hidden;
   $('mbar').hidden=!show;document.body.classList.toggle('has-mbar',show);
 }
 
@@ -2199,7 +2459,7 @@ function sectionSummary(name){
   if(name==='Atleta'){
     const sal=['suor pouco salgado','suor médio','suor salgado'][+$('sal').value];
     const gl=['inic.','interm.','trein.'];
-    return `${fmt(+$('peso').value||0,1)} kg · ${sal} · carbo: pedal ${gl[+$('gutBike').value]}, corrida ${gl[+$('gutRun').value]}`;
+    const pw=+$('peso').value||0;return `${fmt(pw,pw%1?1:0)} kg · ${sal} · carbo: pedal ${gl[+$('gutBike').value]}, corrida ${gl[+$('gutRun').value]}`;
   }
   if(name==='Produtos'){
     const t=id=>{const o=$(id).selectedOptions[0];return o&&o.value?o.textContent.replace(' · estimado','').split(' (')[0]:null;};
@@ -2237,14 +2497,12 @@ function makeCollapsible(name,defaultCollapsed){
 function initMobile(){
   const phone=MQ.matches;
   // Atleta recolhe se o atleta já tem perfil salvo (conta ou diário); Produtos recolhe no celular
-  makeCollapsible('Atleta',phone&&(lsGetM('gaHadAccount')==='1'||lsRead().length>0));
-  makeCollapsible('Produtos',phone);
   $('mbGo').addEventListener('click',()=>{$('resultsCol').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});});
   if('IntersectionObserver' in window){
     new IntersectionObserver(es=>{resultsVisible=es.some(e=>e.isIntersecting);mbarVisibility();},{rootMargin:'0px 0px -35% 0px'}).observe($('resultsCol'));
   }
   MQ.addEventListener?MQ.addEventListener('change',mbarVisibility):MQ.addListener(mbarVisibility);
-  [$('acctPanel'),$('shPanel')].forEach(el=>new MutationObserver(mbarVisibility).observe(el,{attributes:true,attributeFilter:['hidden']}));
+  [$('acctPanel'),$('shPanel'),$('wizPanel')].forEach(el=>new MutationObserver(mbarVisibility).observe(el,{attributes:true,attributeFilter:['hidden']}));
   mbarVisibility();
 }
 
@@ -2264,7 +2522,7 @@ function initMobile(){
     else{S.dist.single=v;if(RUN_DIST[v])S.segs.single[0].h=RUN_DIST[v][2];}
     renderSegs();run();});
   $('tipo').addEventListener('click',()=>{$('bottle').dataset.ctx='';renderBottle();run();});
-  ['objetivo','pre','peso','gutBike','gutRun','sal','aclim','srBike','srRun','naMedido','temp','rh','cond','indoor','bottle','hora'].forEach(id=>{$(id).addEventListener('input',run);$(id).addEventListener('change',run);});
+  ['fan','objetivo','pre','peso','gutBike','gutRun','sal','aclim','srBike','srRun','naMedido','temp','rh','cond','indoor','bottle','hora'].forEach(id=>{$(id).addEventListener('input',run);$(id).addEventListener('change',run);});
   $('wGo').addEventListener('click',buscarClima);
   $('tGo').addEventListener('click',()=>{const a=+$('tA').value,b=+$('tB').value,c=+$('tC').value||0,d=+$('tD').value||60;
     if(!(a>0&&b>0)){$('tOut').textContent='Informe os dois pesos.';return;}
@@ -2278,6 +2536,8 @@ function initMobile(){
   initWorkout();
   initGarmin();
   initShare();
+  initWiz();
+  initFlow();
   initMobile();
   initConta();
   initDiario();
