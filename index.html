@@ -101,7 +101,7 @@ th:first-child,td:first-child{text-align:left}
 td{padding:8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 tr:last-child td{border-bottom:0}
 .carry{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
-.carry li{display:flex;gap:12px;align-items:baseline;font-size:14px}
+.carry li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:baseline;font-size:14px}
 .carry .q{white-space:nowrap;font-family:var(--display);font-weight:900;font-size:26px;min-width:56px;text-align:right;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
 .carry .q.b{color:var(--blue)}
 .tl{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto;border-left:2px solid var(--line);margin-left:6px}
@@ -302,6 +302,65 @@ body.has-mbar{padding-bottom:96px}
 .gsrc{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
 #gDisc.armed{background:var(--crit-bg);color:var(--crit);border-color:transparent}
 
+/* Pergunta por pergunta */
+.qz{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px 22px;display:flex;flex-direction:column;gap:14px;min-height:min(560px,72vh)}
+.qz-top{display:flex;align-items:center;gap:10px;min-height:36px}
+.qz-back{font:inherit;font-weight:700;font-size:14px;background:none;border:0;color:var(--ink);cursor:pointer;padding:6px 8px 6px 0}
+.qz-back span{font-size:20px;line-height:0;vertical-align:-2px;margin-right:2px}
+.qz-n{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.qz-top .linkbtn{margin-left:auto;font-size:12px;color:var(--muted)}
+.qz-prog{height:4px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.qz-prog i{display:block;height:100%;background:var(--grad);border-radius:3px;transition:width .35s ease}
+.qz-q{display:flex;flex-direction:column;gap:14px;animation:qzIn .28s ease both}
+.qz-q.back{animation-name:qzBack}
+@keyframes qzIn{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes qzBack{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.qz-q{animation:none}.qz-prog i{transition:none}}
+.qz-t{font-family:var(--display);font-weight:900;font-size:clamp(30px,6vw,40px);line-height:1;text-transform:uppercase;margin:6px 0 0;letter-spacing:.3px;text-wrap:balance;outline:none}
+.qz-s{margin:-4px 0 0;color:var(--muted);font-size:14px;max-width:46ch}
+.qz-a{display:flex;flex-direction:column;gap:14px}
+.qz-cards{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.qz-cards.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.qz-cards.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:380px){.qz-cards.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.qz-card{font:inherit;text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:16px;min-height:64px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:3px;color:var(--ink);transition:border-color .15s,background .15s,transform .1s}
+.qz-card b{font-size:17px;font-weight:800}
+.qz-card span{font-size:13px;color:var(--muted);line-height:1.35}
+.qz-sm .qz-card{min-height:52px;padding:12px}
+.qz-sm .qz-card b{font-size:15px}
+.qz-card:hover{border-color:var(--accent)}
+.qz-card:active{transform:scale(.98)}
+.qz-card.on{border-color:var(--accent);background:var(--orange-soft)}
+.qz-card.on b{color:var(--accent-ink)}
+.qz-step{display:flex;align-items:center;justify-content:center;gap:14px}
+.qz-pm{font:inherit;font-size:28px;font-weight:700;width:58px;height:58px;border-radius:50%;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;flex:0 0 auto;line-height:1}
+.qz-pm:active{background:var(--orange-soft);border-color:var(--accent)}
+.qz-big{font-family:var(--display);font-weight:900;font-size:58px;line-height:1;min-width:3.2ch;text-align:center;font-variant-numeric:tabular-nums}
+.qz-step.sm .qz-pm{width:44px;height:44px;font-size:22px}
+.qz-step.sm .qz-big{font-size:40px;min-width:2.6ch}
+.qz-bigin{display:flex;align-items:baseline;gap:6px}
+.qz-bigin input{font-family:var(--display);font-weight:900;font-size:58px;width:3.4ch;text-align:center;border:0;background:none;padding:0;min-height:0}
+.qz-bigin span{font-weight:800;color:var(--muted)}
+.qz-dur{display:flex;flex-direction:column;gap:6px;align-items:center}
+.qz-dl{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.qz-chips{display:flex;flex-wrap:wrap;gap:8px}
+.qz-chip{font:inherit;font-size:14px;font-weight:700;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:22px;padding:9px 14px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center}
+.qz-chip.on{border-color:var(--accent);background:var(--orange-soft);color:var(--accent-ink)}
+.qz-date{padding:0 6px}.qz-date input{border:0;background:none;min-height:0;padding:6px;width:auto;font-size:14px}
+.qz-city{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.qz-city input{width:auto;flex:1;max-width:240px}
+.qz-pace{margin:0;text-align:center;color:var(--muted);font-weight:700}
+.qz-pace:empty{display:none}
+.qz-wx{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.qz-wxv{display:flex;flex-direction:column;align-items:center;gap:4px}
+.qz-wxv>span{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.qz-other{max-width:100%}
+.qz-go{min-height:54px;font-size:16px;margin-top:6px}
+.qz-a .wkbox{background:var(--bg)}
+body.qz-on section.step[data-fs],body.qz-on #flowBar,body.qz-on #flowSum{display:none}
+@media (max-width:960px){body.qz-on #resultsCol{display:none}}
+@media (max-width:600px){body.qz-on .band .sub{display:none} body.qz-on .band .wrap{padding-block:14px 16px}
+.qz{border-radius:16px;padding:14px 14px 20px;min-height:calc(100svh - 200px)}}
 /* Passo a passo */
 .flowbar{display:flex;flex-direction:column;gap:8px}
 .fb-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -359,6 +418,11 @@ details.adv>summary{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline
 
 <main class="wrap" id="viewCalc">
   <div class="col">
+    <div class="qz" id="qz" hidden>
+      <div class="qz-top"><button type="button" class="qz-back" id="qzBack" hidden><span aria-hidden="true">‹</span> Voltar</button><span class="qz-n" id="qzCount"></span><button type="button" class="linkbtn" id="qzFull">Formulário completo</button></div>
+      <div class="qz-prog" aria-hidden="true"><i id="qzBar"></i></div>
+      <div id="qzBody"></div>
+    </div>
     <div class="flowbar" id="flowBar" hidden>
       <div class="fb-top"><span id="fbTxt">Passo 1 de 5</span><button type="button" class="linkbtn" id="fbAll" hidden>Ver resumo</button></div>
       <div class="fb-dots" id="fbDots"></div>
@@ -366,7 +430,7 @@ details.adv>summary{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline
     <section class="step fsum" id="flowSum" hidden>
       <div class="sh"><b>✓</b><h2>Sua sessão</h2></div>
       <div class="fs-list" id="fsList"></div>
-      <button type="button" class="btn" id="fsRestart">Montar outra sessão do zero</button>
+      <button type="button" class="btn primary" id="fsRestart">Planejar outra sessão</button>
     </section>
     <section class="step" data-fs="1">
       <div class="sh"><b>1</b><h2>Sessão</h2></div>
@@ -401,6 +465,7 @@ details.adv>summary{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline
       <label class="f" id="distWrap">Prova ou distância<select id="dist"></select></label>
       <div id="segs" style="display:flex;flex-direction:column;gap:10px"></div>
       <div class="status" id="totDur" hidden></div>
+      <span id="wkHome" hidden></span>
       <div class="wkbox" id="wkDrop">
         <div class="wkhead">
           <div class="wkht"><b>Importar treino do TrainingPeaks ou Garmin</b><span class="hint">Arquivo do treino estruturado: .fit, .zwo, .erg ou .mrc. A calculadora lê cada trecho, calcula o IF e encaixa os géis fora dos tiros.</span></div>
@@ -2343,8 +2408,188 @@ function wizApply(){
 }
 function initWiz(){['wzSport','wzInt','wzSal'].forEach(wizSeg);$('wzGo').addEventListener('click',wizApply);$('wzSkip').addEventListener('click',()=>{track('assistente_pulado');closeWiz(false);});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('wizPanel').hidden)closeWiz(false);});}
-function firstRun(){if(FLOW.mode==='guided')return;if(SB&&promptDue()&&$('acctPanel').hidden)setTimeout(()=>{if(!ACC.user&&$('acctPanel').hidden)openAcct(true);},1200);}
+function firstRun(){if(FLOW.mode==='quiz')return;if(SB&&promptDue()&&$('acctPanel').hidden)setTimeout(()=>{if(!ACC.user&&$('acctPanel').hidden)openAcct(true);},1200);}
 
+
+/* ===== PERGUNTA POR PERGUNTA (estilo planejador de prova) ===== */
+const QZ={cur:null,hist:[],known:false,wx:null};
+const qzEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function qzSingle(){return S.formato==='single'?segList()[0].sport:null;}
+function qzIndoor(){return S.formato==='single'&&$('indoor').value==='1';}
+function qzSet(id,v){const el=$(id);if(!el)return;el.value=v;el.dispatchEvent(new Event('change',{bubbles:true}));}
+function qzApply(){renderSegs();run();if(typeof queueConfigSave==='function')queueConfigSave();}
+function qzLast(){try{return JSON.parse(localStorage.getItem('gaQzLast')||'null');}catch(e){return null;}}
+function qzSnap(){
+  const sg=segList().map(s=>({sport:s.sport,h:s.h,int:s.int,tss:s.tss||0}));
+  lsSet('gaQzLast',JSON.stringify({tipo:S.tipo,formato:S.formato,sport:$('sport').value,indoor:$('indoor').value,fan:$('fan').value,dist:{...S.dist},segs:sg,
+    gel:$('pGel').value,drink:$('pDrink').value,elec:$('pElec').value}));
+}
+function qzLastTxt(L){
+  const t=L.tipo==='prova'?'Prova':'Treino';
+  const m=L.formato==='brick'?'Brick':L.formato==='tri'?'Triathlon':SPORT_NOME[L.sport];
+  const T=L.segs.reduce((a,s)=>a+s.h,0);
+  const it=L.tipo==='prova'?'':' · '+INT_NOME[(L.segs[0].int||2)-1].split(' (')[0];
+  return `${t} · ${m}${L.indoor==='1'&&L.formato==='single'?' indoor':''} · ${durTxt(T)}${it}`;
+}
+function qzUseLast(L){
+  S.tipo=L.tipo;S.formato=L.formato;S.dist={...S.dist,...L.dist};pressSeg('tipo',S.tipo);pressSeg('formato',S.formato);
+  $('sport').value=L.sport;$('indoor').value=L.indoor;$('fan').value=L.fan;
+  S.segs[L.formato]=L.segs.map(s=>({...s}));
+  ['pGel','pDrink','pElec'].forEach((id,k)=>{const v=[L.gel,L.drink,L.elec][k];if(v!=null&&[...$(id).options].some(o=>o.value===v)){$(id).value=v;renderProdEdit(id,id+'V');}});
+  qzApply();
+}
+/* componentes */
+const qzCards=(opts,cur,cls='')=>`<div class="qz-cards ${cls}">${opts.map(o=>`<button type="button" class="qz-card${String(o.v)===String(cur)?' on':''}" data-v="${qzEsc(o.v)}"><b>${o.t}</b>${o.d?`<span>${o.d}</span>`:''}</button>`).join('')}</div>`;
+function qzDurHtml(k,label,h){const t=Math.round(h*60);
+  return `<div class="qz-dur" data-k="${k}">${label?`<div class="qz-dl">${label}</div>`:''}
+    <div class="qz-step"><button type="button" class="qz-pm" data-d="-5" aria-label="Menos 5 minutos">−</button><output class="qz-big" aria-live="polite">${durTxt(t/60)}</output><button type="button" class="qz-pm" data-d="5" aria-label="Mais 5 minutos">+</button></div></div>`;}
+function qzDurBind(el,onCh){
+  el.querySelectorAll('.qz-dur').forEach(box=>{const k=+box.dataset.k;
+    box.addEventListener('click',e=>{const b=e.target.closest('.qz-pm');if(!b)return;const s=segList()[k];
+      const big=Math.round(s.h*60)>=120?15:5;let m=Math.round(s.h*60)+Math.sign(+b.dataset.d)*big;m=clamp(m,10,17*60);s.h=m/60;delete s.blocks;delete s.wkName;
+      box.querySelector('output').textContent=durTxt(s.h);onCh&&onCh();qzApply();});});
+}
+/* perguntas, em ordem; cada uma diz se aparece */
+const QZQ=[
+ {id:'repetir',show:()=>!!qzLast(),title:()=>'Vamos planejar a próxima sessão',sub:()=>'Repita a última e só confira o clima, ou monte uma nova.',
+  html:()=>qzCards([{v:'rep',t:'Repetir a última',d:qzEsc(qzLastTxt(qzLast()))},{v:'nova',t:'Nova sessão',d:'Escolher tudo de novo'}],null),
+  pick:v=>{if(v==='rep'){qzUseLast(qzLast());QZ.repeat=true;}else QZ.repeat=false;}},
+ {id:'tipo',show:()=>!QZ.repeat,title:()=>'É treino ou prova?',
+  html:()=>qzCards([{v:'treino',t:'Treino',d:'Sessão do dia a dia'},{v:'prova',t:'Prova',d:'Dia de competição'}],S.tipo),
+  pick:v=>{S.tipo=v;pressSeg('tipo',v);$('bottle').dataset.ctx='';}},
+ {id:'mod',show:()=>!QZ.repeat,title:()=>'Qual modalidade?',
+  html:()=>qzCards([{v:'corrida',t:'Corrida'},{v:'ciclismo',t:'Ciclismo'},{v:'brick',t:'Brick',d:'Bike + corrida (T2)'},{v:'tri',t:'Triathlon',d:'Natação, bike e corrida'},{v:'natacao',t:'Natação'}],
+    S.formato==='single'?$('sport').value:S.formato,'g2'),
+  pick:v=>{if(v==='brick'||v==='tri'){S.formato=v;}else{S.formato='single';$('sport').value=v;if(v!=='corrida')S.dist.single='livre';}pressSeg('formato',S.formato);}},
+ {id:'onde',show:()=>!QZ.repeat&&['corrida','ciclismo'].includes(qzSingle()),title:()=>'Onde?',
+  html:()=>qzCards([{v:'0',t:'Ao ar livre'},{v:'1',t:qzSingle()==='corrida'?'Esteira':'Rolo',d:'Indoor'}],$('indoor').value),
+  pick:v=>{$('indoor').value=v;}},
+ {id:'fan',show:()=>!QZ.repeat&&qzIndoor(),title:()=>'Tem ventilador?',sub:()=>'Sem vento, o corpo perde menos calor e sua bem mais.',
+  html:()=>qzCards([{v:'1',t:'Com ventilador'},{v:'0',t:'Sem ventilador'}],$('fan').value),pick:v=>{$('fan').value=v;}},
+ {id:'dist',show:()=>!QZ.repeat&&S.tipo==='prova'&&(qzSingle()==='corrida'||S.formato==='tri'),title:()=>'Qual distância?',
+  html:()=>S.formato==='tri'?qzCards(Object.entries(TRI_NOME).map(([k,n])=>({v:k,t:n.split(' (')[0],d:n.split('(')[1].replace(')','')})),S.dist.tri,'g2')
+    :qzCards(Object.entries(RUN_DIST).map(([k,v])=>({v:k,t:v[0].split(' (')[0]})),S.dist.single,'g2'),
+  pick:v=>{if(S.formato==='tri'){S.dist.tri=v;S.segs.tri=PRESETS[v].map((x,k)=>({sport:['natacao','ciclismo','corrida'][k],h:x[0],int:x[1],tss:0}));}
+    else{S.dist.single=v;segList()[0].h=RUN_DIST[v][2];}}},
+ {id:'dur',show:()=>!QZ.repeat,next:true,
+  title:()=>S.formato==='tri'?'Seus tempos previstos':S.tipo==='prova'&&qzSingle()==='corrida'&&S.dist.single!=='livre'?'Em quanto tempo você pretende fechar?':'Quanto tempo de sessão?',
+  sub:()=>S.formato==='brick'?'O pedal e a corrida da T2.':S.formato==='tri'?'Já vem a média da distância. Ajuste se quiser.':'',
+  html:()=>{const sg=segList();
+    const quick=S.formato==='single'&&!(S.tipo==='prova'&&S.dist.single!=='livre')?`<div class="qz-chips">${[45,60,75,90,120,150,180,240].map(m=>`<button type="button" class="qz-chip" data-m="${m}">${durTxt(m/60)}</button>`).join('')}</div>`:'';
+    return sg.map((s,k)=>qzDurHtml(k,sg.length>1?(S.formato==='brick'&&s.sport==='corrida'?'Corrida (T2)':SPORT_NOME[s.sport]):'',s.h)).join('')+quick+
+      `<p class="qz-pace" id="qzPace"></p><button type="button" class="linkbtn" id="qzImp">Tenho o arquivo do treino (.fit, .zwo)</button>`;},
+  bind:el=>{const pace=()=>{const p=$('qzPace');if(p)p.textContent=paceTxt(segList()[0])||'';};pace();qzDurBind(el,pace);
+    el.querySelectorAll('.qz-chip').forEach(c=>c.addEventListener('click',()=>{const s=segList()[0];s.h=+c.dataset.m/60;delete s.blocks;
+      el.querySelector('.qz-dur output').textContent=durTxt(s.h);el.querySelectorAll('.qz-chip').forEach(x=>x.classList.toggle('on',x===c));qzApply();}));
+    $('qzImp').addEventListener('click',()=>{QZ.importing=true;$('qzImp').hidden=true;el.querySelector('.qz-a').appendChild($('wkDrop'));$('wkPick').click();});},
+  after:()=>{if(S.tipo==='prova'&&S.formato!=='tri')segList().forEach(s=>{if(!s.blocks)s.int=s.h<=1.75?4:3;});qzApply();}},
+ {id:'int',show:()=>!QZ.repeat&&S.tipo==='treino'&&S.formato!=='tri'&&!segList().some(s=>s.blocks),title:()=>'Qual a intensidade?',sub:()=>'Pense no trecho principal do treino.',
+  html:()=>qzCards([{v:1,t:'Leve',d:'Dá para conversar · Z1 a Z2'},{v:2,t:'Moderado',d:'Frases curtas · Z3'},{v:3,t:'Forte',d:'Poucas palavras · tiros ou limiar, Z4'},{v:4,t:'Muito forte',d:'Sem conversa · ritmo de prova, Z5'}],segList()[0].int),
+  pick:v=>{segList().forEach(s=>{s.int=+v;});}},
+ {id:'peso',show:()=>!QZ.known,next:true,title:()=>'Qual o seu peso?',sub:()=>'Usado para estimar o suor e o limite seguro de desidratação.',
+  html:()=>`<div class="qz-step"><button type="button" class="qz-pm" data-d="-0.5" aria-label="Menos meio quilo">−</button><label class="qz-bigin"><input id="qzPeso" type="number" inputmode="decimal" step="0.5" min="35" max="140" value="${+$('peso').value||70}"><span>kg</span></label><button type="button" class="qz-pm" data-d="0.5" aria-label="Mais meio quilo">+</button></div>`,
+  bind:el=>{const i=$('qzPeso');const set=v=>{v=clamp(Math.round(v*2)/2,35,140);i.value=v;qzSet('peso',v);};
+    el.querySelectorAll('.qz-pm').forEach(b=>b.addEventListener('click',()=>set((+i.value||70)+(+b.dataset.d))));
+    i.addEventListener('change',()=>set(+i.value||70));}},
+ {id:'sal',show:()=>!QZ.known,title:()=>'Depois de treinar, fica com marcas brancas de sal na roupa ou no rosto?',sub:()=>'Isso indica quanto sódio você perde no suor.',
+  html:()=>qzCards([{v:'0',t:'Não',d:'Quase nunca'},{v:'1',t:'Às vezes',d:'Ou não sei dizer'},{v:'2',t:'Sim, bastante',d:'Marcas brancas, olhos ardem'}],$('sal').value),
+  pick:v=>qzSet('sal',v)},
+ {id:'gut',show:()=>!QZ.known&&!(qzSingle()==='natacao'),title:()=>'Quanto carboidrato você já usa sem desconforto?',sub:()=>'Por hora de treino longo. Um gel comum tem 20 a 30 g.',
+  html:()=>qzCards([{v:'0',t:'Pouco',d:'Até 1 gel por hora, ou nunca testei'},{v:'1',t:'Médio',d:'Cerca de 2 géis por hora'},{v:'2',t:'Muito',d:'3 ou mais por hora, intestino treinado'}],$('gutBike').value),
+  pick:v=>{$('gutBike').dataset.user='1';$('gutRun').dataset.user='1';qzSet('gutBike',v);qzSet('gutRun',v);}},
+ {id:'quando',show:()=>!qzIndoor()&&qzSingle()!=='natacao',next:true,title:()=>'Quando vai ser?',sub:()=>'Buscamos a previsão do tempo para a janela da sessão.',
+  html:()=>{const d0=new Date();const iso=x=>{const d=new Date(d0);d.setDate(d.getDate()+x);return d.toLocaleDateString('sv-SE');};
+    const cur=$('data').value;const days=[[0,'Hoje'],[1,'Amanhã'],[2,(w=>w.charAt(0).toUpperCase()+w.slice(1))(new Date(Date.now()+2*864e5).toLocaleDateString('pt-BR',{weekday:'long'}))]];
+    const hrs=[5,6,7,8,9,10,16,17,18,19];const hc=+(($('hora').value||'06:00').split(':')[0]);
+    return `<div class="qz-dl">Dia</div><div class="qz-chips">${days.map(([x,n])=>`<button type="button" class="qz-chip${iso(x)===cur?' on':''}" data-day="${iso(x)}">${n}</button>`).join('')}<label class="qz-chip qz-date"><input type="date" id="qzDate" value="${cur}" aria-label="Outra data"></label></div>
+      <div class="qz-dl">Começa às</div><div class="qz-chips">${hrs.map(h=>`<button type="button" class="qz-chip${h===hc?' on':''}" data-h="${h}">${h}h</button>`).join('')}</div>
+      <div class="qz-city"><span>em</span><input id="qzCity" type="text" value="${qzEsc($('cidade').value||'Vila Velha')}" autocomplete="off" aria-label="Cidade"></div>`;},
+  bind:el=>{el.querySelectorAll('[data-day]').forEach(b=>b.addEventListener('click',()=>{$('data').value=b.dataset.day;$('qzDate').value=b.dataset.day;el.querySelectorAll('[data-day]').forEach(x=>x.classList.toggle('on',x===b));}));
+    $('qzDate').addEventListener('change',e=>{if(e.target.value){$('data').value=e.target.value;el.querySelectorAll('[data-day]').forEach(x=>x.classList.toggle('on',x.dataset.day===e.target.value));}});
+    el.querySelectorAll('[data-h]').forEach(b=>b.addEventListener('click',()=>{$('hora').value=String(b.dataset.h).padStart(2,'0')+':00';el.querySelectorAll('[data-h]').forEach(x=>x.classList.toggle('on',x===b));}));
+    $('qzCity').addEventListener('change',e=>{$('cidade').value=e.target.value;});},
+  before:async()=>{QZ.wx=null;$('cidade').value=$('qzCity')?$('qzCity').value:$('cidade').value;await buscarClima();QZ.wx=$('wStatus').classList.contains('ok');}},
+ {id:'clima',show:()=>qzSingle()!=='natacao',next:true,
+  title:()=>qzIndoor()?'Como está o ambiente?':QZ.wx?'Previsão para a sessão':'Como deve estar o tempo?',
+  sub:()=>qzIndoor()?'Temperatura do lugar onde fica o rolo ou a esteira.':QZ.wx?$('wStatus').textContent.split(':')[0]+'. Ajuste se quiser.':'Não deu para buscar a previsão. Escolha o mais parecido ou ajuste.',
+  html:()=>{const t=+$('temp').value,rh=+$('rh').value;
+    const pre=[[18,'Fresco','até 20 °C'],[23,'Ameno','21 a 25 °C'],[28,'Quente','26 a 30 °C'],[32,'Muito quente','acima de 30 °C']];
+    return `${QZ.wx||qzIndoor()?'':qzCards(pre.map(p=>({v:p[0],t:p[1],d:p[2]})),null,'g2 qz-sm')}
+      <div class="qz-wx"><div class="qz-wxv"><div class="qz-step sm"><button type="button" class="qz-pm" data-t="-1" aria-label="Menos 1 grau">−</button><output id="qzT" class="qz-big">${fmt(t,t%1?1:0)}°</output><button type="button" class="qz-pm" data-t="1" aria-label="Mais 1 grau">+</button></div><span>temperatura</span></div>
+      <div class="qz-wxv"><div class="qz-step sm"><button type="button" class="qz-pm" data-r="-5" aria-label="Menos 5 por cento">−</button><output id="qzR" class="qz-big">${fmt(rh)}%</output><button type="button" class="qz-pm" data-r="5" aria-label="Mais 5 por cento">+</button></div><span>umidade</span></div></div>
+      ${qzIndoor()?'':`<div class="qz-chips">${[['sol','Sol'],['nublado','Nublado ou noite']].map(([v,n])=>`<button type="button" class="qz-chip${$('cond').value===v?' on':''}" data-c="${v}">${n}</button>`).join('')}</div>`}
+      <div class="heat" id="qzHeat"></div>`;},
+  bind:el=>{const upd=()=>{$('qzT').textContent=fmt(+$('temp').value,+$('temp').value%1?1:0)+'°';$('qzR').textContent=fmt(+$('rh').value)+'%';
+      const w=wbgt(+$('temp').value,+$('rh').value,qzIndoor()?'nublado':$('cond').value)+(qzIndoor()&&$('fan').value==='0'?3:0);
+      const c=w<18?[1,'baixo']:w<23?[2,'moderado']:w<28?[3,'alto']:[4,'extremo'];const h=$('qzHeat');h.className='heat h'+c[0];h.innerHTML=`<b>${fmt(w)}°</b><span>WBGT estimado · risco de calor ${c[1]}</span>`;run();};
+    el.querySelectorAll('[data-t]').forEach(b=>b.addEventListener('click',()=>{$('temp').value=clamp(Math.round(+$('temp').value)+(+b.dataset.t),0,45);upd();}));
+    el.querySelectorAll('[data-r]').forEach(b=>b.addEventListener('click',()=>{$('rh').value=clamp(Math.round(+$('rh').value/5)*5+(+b.dataset.r),10,100);upd();}));
+    el.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{$('cond').value=b.dataset.c;el.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x===b));upd();}));
+    el.querySelectorAll('.qz-card').forEach(b=>b.addEventListener('click',()=>{$('temp').value=b.dataset.v;$('rh').value=+b.dataset.v>=26?75:65;el.querySelectorAll('.qz-card').forEach(x=>x.classList.toggle('on',x===b));upd();}));
+    if(!qzIndoor()&&$('cond').value==='indoor')$('cond').value='sol';
+    upd();}},
+ {id:'gel',show:()=>!QZ.repeat&&qzSingle()!=='natacao'&&(LAST.r&&LAST.r.carbH>0),title:()=>'Qual gel ou alimento você vai usar?',sub:()=>'A calculadora converte a meta de carbo em unidades.',
+  html:()=>{const L=[['maurten100','Maurten 100'],['pf30','Precision PF 30'],['vo2','VO2 C30'],['fourlab','FourLab'],['paceneutro','Pace It'],['truesource','True Source'],['dobrohidrogel','Dobro Hidrogel'],['carbup','Carb Up'],['gu','GU'],['banana','Banana'],['','Sem gel']];
+    const cur=$('pGel').value;const inL=L.some(x=>x[0]===cur);
+    return qzCards(L.map(([v,t])=>({v,t})),cur,'g3 qz-sm')+`<label class="f qz-other">Outro<select id="qzGelO">${$('pGel').innerHTML}</select></label>`;},
+  bind:el=>{const o=$('qzGelO');o.value=$('pGel').value;o.addEventListener('change',()=>{qzSet('pGel',o.value);qzNext();});},
+  pick:v=>qzSet('pGel',v)},
+ {id:'bebida',show:()=>!QZ.repeat&&segList().some(s=>s.sport==='ciclismo'),title:()=>'E na caramanhola?',
+  html:()=>qzCards([{v:'',t:'Só água'},{v:'gatorade',t:'Isotônico',d:'Tipo Gatorade'},{v:'c90',t:'FourLab C90'},{v:'dm160',t:'Maurten 160'},{v:'pfce',t:'Precision Drink Mix'},{v:'mix108',t:'Malto + frutose',d:'Caseiro'}],$('pDrink').value,'g2 qz-sm'),
+  pick:v=>qzSet('pDrink',v)},
+ {id:'eletro',show:()=>!QZ.repeat&&qzSingle()!=='natacao'&&(LAST.r&&LAST.r.naH>0),title:()=>'E para o sódio?',sub:()=>'Para completar o sódio que a bebida e o gel não cobrem.',
+  html:()=>qzCards([{v:'saltz500',t:'Saltz 500'},{v:'ph1000',t:'Precision PH 1000'},{v:'hidraiso',t:'Dobro Hidra Iso'},{v:'saltstick',t:'Cápsula',d:'SaltStick ou similar'},{v:'sal',t:'Sal de cozinha'},{v:'',t:'Nenhum'}],$('pElec').value,'g2 qz-sm'),
+  pick:v=>qzSet('pElec',v)},
+];
+function qzVisible(){return QZQ.filter(q=>q.show());}
+function qzRender(dir){
+  const q=QZQ.find(x=>x.id===QZ.cur);const vis=qzVisible();const i=Math.max(0,vis.indexOf(q));
+  $('qzBar').style.width=Math.round((i)/(vis.length)*100)+'%';
+  $('qzBack').hidden=!QZ.hist.length;
+  $('qzCount').textContent='';
+  qzHome();const box=$('qzBody');
+  box.innerHTML=`<div class="qz-q ${dir<0?'back':''}"><h2 class="qz-t" tabindex="-1">${q.title()}</h2>${q.sub&&q.sub()?`<p class="qz-s">${q.sub()}</p>`:''}<div class="qz-a">${q.html()}</div>
+    ${q.next?`<button type="button" class="btn primary qz-go" id="qzGo">${vis[vis.length-1]===q?'Ver meu plano':'Continuar'}</button>`:''}</div>`;
+  const el=box.firstElementChild;
+  if(q.pick)el.querySelectorAll('.qz-a > .qz-cards .qz-card').forEach(b=>b.addEventListener('click',()=>{
+    el.querySelectorAll('.qz-a > .qz-cards .qz-card').forEach(x=>x.classList.toggle('on',x===b));q.pick(b.dataset.v);qzApply();
+    track('quiz_resposta',{q:q.id});setTimeout(qzNext,QZ_RM?0:170);}));
+  if(q.bind)q.bind(el);
+  if($('qzGo'))$('qzGo').addEventListener('click',qzNext);
+  try{el.querySelector('.qz-t').focus({preventScroll:true});}catch(e){}
+}
+const QZ_RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function qzHome(){const w=$('wkDrop');if(w&&w.closest('#qz'))$('wkHome').after(w);}
+async function qzNext(){
+  const q=QZQ.find(x=>x.id===QZ.cur);
+  if(q&&q.after)q.after();
+  if(q&&q.before){const g=$('qzGo');if(g){g.disabled=true;g.textContent='Buscando previsão...';}try{await q.before();}catch(e){}if(g)g.disabled=false;}
+  const order=QZQ.map(x=>x.id);let k=order.indexOf(QZ.cur)+1;
+  while(k<QZQ.length&&!QZQ[k].show())k++;
+  if(k>=QZQ.length){qzFinish();return;}
+  QZ.hist.push(QZ.cur);QZ.cur=QZQ[k].id;qzRender(1);qzTop();
+}
+function qzBackFn(){if(!QZ.hist.length)return;QZ.cur=QZ.hist.pop();if(QZ.cur==='repetir')QZ.repeat=false;qzRender(-1);qzTop();}
+function qzTop(){try{const y=$('qz').getBoundingClientRect().top+window.scrollY-8;if(Math.abs(window.scrollY-y)>40&&window.scrollY>y)window.scrollTo({top:y,behavior:QZ_RM?'auto':'smooth'});}catch(e){}}
+function qzStart(){
+  QZ.hist=[];QZ.repeat=false;QZ.wx=null;
+  QZ.known=lsGet('gaFlow')==='1'||lsGet('gaHadAccount')==='1'||!!(ACC&&ACC.user);
+  FLOW.mode='quiz';document.body.classList.add('qz-on');document.body.classList.remove('flow-on','flow-guided','flow-sum');
+  $('qz').hidden=false;$('flowBar').hidden=true;$('flowSum').hidden=true;
+  flowSecs().forEach(s=>s.classList.remove('fcur'));
+  QZ.cur=qzVisible()[0].id;qzRender(1);mbarVisibility();track('quiz_iniciado',{conhecido:QZ.known});
+}
+function qzFinish(){
+  qzHome();$('qz').hidden=true;document.body.classList.remove('qz-on');
+  qzSnap();track('quiz_concluido',{formato:S.formato,tipo:S.tipo,repetiu:!!QZ.repeat});
+  flowFinish();
+}
+function initQuiz(){
+  $('qzBack').addEventListener('click',qzBackFn);
+  $('qzFull').addEventListener('click',()=>{qzHome();$('qz').hidden=true;document.body.classList.remove('qz-on');lsSet('gaFlow','1');flowGo('summary');track('quiz_formulario');});
+  // arquivo de treino escolhido pelo quiz: ao aplicar, segue para a próxima pergunta
+  $('wkApply').addEventListener('click',()=>{if(QZ.importing&&FLOW.mode==='quiz'){QZ.importing=false;setTimeout(qzNext,50);}});
+}
 
 /* ===== PASSO A PASSO ===== */
 const FLOW={mode:'off',cur:1,max:1};
@@ -2405,8 +2650,8 @@ function flowRefresh(){
   const wk=(segs.find(s=>s.wkName)||{}).wkName;
   const ints=[...new Set(r.segs.map(s=>INT_NOME[Math.max(0,Math.round(s.i*4)-1)].split(' (')[0]))].join(' / ');
   const dur=`${durTxt(r.T)} · ${wk?'treino importado: '+wk:S.modo==='tss'?'por TSS':ints}`;
-  const wb=wbgt(+$('temp').value,+$('rh').value,$('cond').value==='indoor'?'nublado':$('cond').value);
-  const nd=v=>fmt(v,v%1?1:0);const cli=`${nd(+$('temp').value)} °C · ${fmt(+$('rh').value)}% · ${opt('cond').split(' ')[0].toLowerCase()}${$('cond').value==='indoor'?($('fan').value==='0'?' sem ventilador':' com ventilador'):''} · WBGT ${fmt(wb)}°`;
+  const wb=wbgt(+$('temp').value,+$('rh').value,readInputs().cond==='indoor'?'nublado':$('cond').value);
+  const nd=v=>fmt(v,v%1?1:0);const cli=`${nd(+$('temp').value)} °C · ${fmt(+$('rh').value)}% · ${(readInputs().cond==='indoor'?'indoor':opt('cond').split(' ')[0].toLowerCase())}${readInputs().cond==='indoor'?($('fan').value==='0'?' sem ventilador':' com ventilador'):''} · WBGT ${fmt(wb)}°`;
   const rows=[['Sessão',ses.join(' · ')],['Duração e intensidade',dur],['Atleta',sectionSummary('Atleta')],['Clima',cli],['Produtos',sectionSummary('Produtos')]];
   $('fsList').innerHTML=rows.map((x,k)=>`<button type="button" class="fs-row" data-fe="${k+1}"><span class="k">${x[0]}</span><span class="v">${x[1]}</span><span class="e">Editar</span></button>`).join('');
   // resumos dos ajustes avançados
@@ -2423,9 +2668,9 @@ function initFlow(){
   $('fbDots').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;flowShow(+b.dataset.fd);});
   $('fsList').addEventListener('click',e=>{const b=e.target.closest('[data-fe]');if(!b)return;flowGo('edit',+b.dataset.fe);flowTop();});
   $('fbAll').addEventListener('click',()=>{flowGo('summary');flowTop();});
-  $('fsRestart').addEventListener('click',()=>{FLOW.max=1;flowGo('guided',1);flowTop();track('fluxo_reiniciado');});
-  flowGo(flowDue()?'guided':'summary',1);
-  if(FLOW.mode==='guided')track('fluxo_iniciado');
+  $('fsRestart').addEventListener('click',()=>{qzStart();qzTop();});
+  initQuiz();
+  if(flowDue())qzStart();else flowGo('summary');
 }
 
 /* ===== CELULAR ===== */
