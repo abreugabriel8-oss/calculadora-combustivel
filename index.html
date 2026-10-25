@@ -563,7 +563,13 @@ details.method[open]>summary::after{content:"−"}
 @media (max-width:600px){.mth-s{display:none}}
 details.method[open]>summary{margin-bottom:10px}
 /* diário */
-.log-cta{display:none}
+.log-cta{display:flex;flex-direction:column;gap:12px;background:linear-gradient(135deg,var(--orange-soft),var(--surface) 75%)}
+.log-cta>div{display:flex;flex-direction:column;gap:4px}
+.log-cta b{font-family:var(--display);font-weight:800;font-size:26px}
+.log-cta span{font-size:13.5px;color:var(--muted)}
+.log-cta .btn{min-height:50px;border-radius:14px;font-size:15px}
+.log-cta.open{display:none}
+#logForm.lf-closed{display:none}
 .cal-hero{background:#14100C;color:#F7F4F1;box-shadow:0 14px 34px rgba(20,16,12,.2)}
 .cal-hero .hint{color:#B7ACA0}
 .cal-hero .cal{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
@@ -613,13 +619,6 @@ details.method[open]>summary{margin-bottom:10px}
   body.has-mbar{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
   #resultsCol .metrics{padding:16px 14px}
   #resultsCol .m .val{font-size:36px}
-  .log-cta{display:flex;flex-direction:column;gap:12px;background:linear-gradient(135deg,var(--orange-soft),var(--surface) 75%)}
-  .log-cta>div{display:flex;flex-direction:column;gap:4px}
-  .log-cta b{font-family:var(--display);font-weight:900;font-size:24px;text-transform:uppercase}
-  .log-cta span{font-size:13px;color:var(--muted)}
-  .log-cta .btn{min-height:50px;border-radius:14px;font-size:15px}
-  .log-cta.open{display:none}
-  #logForm.lf-closed{display:none}
   main.dview{display:flex;flex-direction:column}
   main.dview .col{display:contents}
   #calCard{order:1}#logCta{order:2}#gActs{order:3}#logForm{order:4}#histCard{order:5}#bkCard{order:6}
@@ -731,6 +730,66 @@ th{text-transform:none;letter-spacing:0;font-size:12px}
 }
 @keyframes sheetUp{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.acct{animation:none}}
+
+/* ===== Experiência: dobras, avisos, toast, resumo em faixa ===== */
+details.fold{display:block}
+details.fold>summary,details.method>summary{list-style:none;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--ink)}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary h3{margin:0}
+.fold-n{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:600;text-align:right}
+details.fold>summary::after{content:"";width:9px;height:9px;border-right:2.5px solid var(--muted);border-bottom:2.5px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px);margin-left:6px;transition:transform .2s;flex:0 0 auto}
+details.fold[open]>summary::after{transform:rotate(-135deg)}
+details.fold[open]>summary{margin-bottom:14px}
+.al-btn{font:inherit;font-size:13px;font-weight:700;color:var(--accent-ink);background:none;border:0;cursor:pointer;padding:4px 2px;align-self:flex-start}
+.al-more{display:flex;flex-direction:column;gap:8px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:80;background:#14100C;color:#F7F4F1;font-size:14px;font-weight:700;border-radius:14px;padding:12px 16px;box-shadow:0 12px 30px rgba(0,0,0,.3);transition:opacity .2s,transform .25s;max-width:calc(100vw - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.ok::before{content:"✓";color:#F5874A;margin-right:8px}
+@media (min-width:601px){.toast{bottom:28px}}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+@media (max-width:600px){
+  .fsum{gap:10px}
+  .fsum .fs-list{display:flex;flex-direction:row;overflow-x:auto;scroll-snap-type:x proximity;gap:8px;margin:0 -14px;padding:0 14px 2px;scrollbar-width:none}
+  .fsum .fs-list::-webkit-scrollbar{display:none}
+  .fs-row{flex:0 0 auto;width:max-content;max-width:62vw;scroll-snap-align:start;padding:10px 12px}
+  .fs-row:last-child{grid-column:auto}
+  .fs-row .v{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .fsum .sh h2{font-size:20px}
+}
+
+/* ===== Registro guiado do diário ===== */
+.lq-body{flex:1;display:flex;flex-direction:column}
+#lq{width:100%;max-width:100%;min-width:0}
+#lq>*{min-width:0}
+.lq-cta{display:flex;flex-direction:column;gap:8px}
+.lq-cta:empty{display:none}
+.lq .qz-top .linkbtn{margin-left:auto}
+.lq-x{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:#F7F4F1;display:grid;place-items:center;cursor:pointer}
+.lq-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.lq-row{display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--q-mut);font-weight:700}
+.lq-gi{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.lq-g{font:inherit;font-family:var(--display);font-weight:900;font-size:22px;aspect-ratio:1;border-radius:12px;border:1.5px solid var(--q-line);background:var(--q-card);color:var(--q-ink);cursor:pointer}
+.lq-g.g0{box-shadow:inset 0 -4px 0 rgba(122,171,242,.5)}.lq-g.g1{box-shadow:inset 0 -4px 0 rgba(242,194,107,.6)}.lq-g.g2{box-shadow:inset 0 -4px 0 rgba(242,147,138,.7)}
+.lq-g.on{background:var(--q-acc);color:#14100C;border-color:var(--q-acc)}
+.qz-rg b{color:var(--q-ink);font-weight:800;margin-left:6px}
+body.lq-on #viewDiario .col>:not(#lq),body.lq-on #viewDiario .results{display:none!important}
+body.lq-on main.dview{grid-template-columns:minmax(0,640px);justify-content:center}
+@media (max-width:600px){
+  body.lq-on .band,body.lq-on .tabs,body.lq-on footer{display:none}
+  body.lq-on main.dview{padding:0}
+  body.lq-on{padding-bottom:0}
+  .lq{border-radius:0;min-height:100svh;padding:max(14px,env(safe-area-inset-top,0px)) 16px 0}
+}
+
+.hhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hhead h3{margin:0}
+.hf{display:inline-flex;background:var(--sunk);border-radius:12px;padding:3px;gap:2px}
+.hf[hidden]{display:none}
+.hf button{font:inherit;font-size:13px;font-weight:700;border:0;background:none;color:var(--muted);padding:7px 12px;border-radius:9px;cursor:pointer;min-height:36px}
+.hf button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.spark{width:100%;height:34px;display:block;overflow:visible}
+.spark polyline{fill:none;stroke:#F5874A;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.spark circle{fill:#F7F4F1}
 </style>
 
 <header class="band">
@@ -950,22 +1009,22 @@ th{text-transform:none;letter-spacing:0;font-size:12px}
     <p class="status" id="gSendMsg" aria-live="polite"></p>
     <div class="alerts" id="alerts"></div>
     <div class="card">
-      <h3><i class="ci">≡</i>Plano por segmento</h3>
-      <div class="tw"><table><thead><tr><th>Segmento</th><th>Tempo</th><th>Intens.</th><th>Suor est.</th><th>CHO g/h</th><th>Líq. ml/h</th><th>Na mg/h</th></tr></thead><tbody id="tbody"></tbody></table></div>
-      <p class="hint" id="lossLine"></p>
+      <h3><i class="ci">✓</i>O que levar</h3>
+      <ul class="carry" id="carry"></ul>
     </div>
     <div class="card">
       <h3><i class="ci">⏱</i>Antes da sessão</h3>
       <ul class="carry" id="preList"></ul>
     </div>
-    <div class="card">
-      <h3><i class="ci">✓</i>O que levar</h3>
-      <ul class="carry" id="carry"></ul>
-    </div>
-    <div class="card">
-      <h3><i class="ci">◷</i>Cronograma</h3>
+    <details class="card fold" data-fold="crono">
+      <summary><h3><i class="ci">◷</i>Cronograma</h3><span class="fold-n" id="tlN"></span></summary>
       <ol class="tl" id="tl"></ol>
-    </div>
+    </details>
+    <details class="card fold" data-fold="seg">
+      <summary><h3><i class="ci">≡</i>Detalhes</h3><span class="fold-n">por modalidade</span></summary>
+      <div class="tw"><table><thead><tr><th>Segmento</th><th>Tempo</th><th>Intens.</th><th>Suor est.</th><th>CHO g/h</th><th>Líq. ml/h</th><th>Na mg/h</th></tr></thead><tbody id="tbody"></tbody></table></div>
+      <p class="hint" id="lossLine"></p>
+    </details>
     <div class="card cta-card">
       <div class="lgcta"><div><h3>Depois do treino</h3><p class="hint" style="margin:4px 0 0">Registre peso, líquido e carbo. Cada registro ajusta sua taxa de suor e sua tolerância a carbo.</p></div>
       <button class="btn primary" id="lgFromPlan" type="button">Registrar no diário</button></div>
@@ -990,9 +1049,16 @@ th{text-transform:none;letter-spacing:0;font-size:12px}
 
 <main class="wrap dview" id="viewDiario" hidden>
   <div class="col">
+    <div class="qz lq" id="lq" hidden>
+      <div class="qz-top"><button type="button" class="qz-back" id="lqBack" hidden><span aria-hidden="true">‹</span> Voltar</button><span class="qz-brand">Novo registro</span><button type="button" class="linkbtn" id="lqFull">Formulário</button><button type="button" class="lq-x" id="lqX" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="qz-prog" aria-hidden="true"><i id="lqBar"></i></div>
+      <div class="qz-recap" id="lqRecap" aria-label="Suas respostas"></div>
+      <div id="lqBody" class="lq-body" aria-live="polite"></div>
+      <div class="qz-foot"><div id="lqCta" class="lq-cta"></div></div>
+    </div>
     <div class="card log-cta" id="logCta">
       <div><b>Registrar treino</b><span>Peso antes e depois, o que bebeu e comeu. Cada registro deixa o seu plano mais preciso.</span></div>
-      <button type="button" class="btn primary" id="logOpen">+ Novo registro</button>
+      <button type="button" class="btn primary" id="logOpen">Começar registro</button>
       <button type="button" class="btn" id="logFit">Importar atividade do Garmin (.fit)</button>
     </div>
     <section class="step" id="gActs" hidden>
@@ -1055,7 +1121,7 @@ th{text-transform:none;letter-spacing:0;font-size:12px}
       <p class="hint" id="calHow">A taxa de suor vira um fator pessoal sobre o modelo: quem sua 30% acima da média no calor também sua 30% acima no frio, e a calculadora ajusta para o clima de cada sessão. Com poucos registros, o fator é puxado para a média da população até ganhar confiança.</p>
     </div>
     <div class="card" id="histCard">
-      <h3>Histórico</h3>
+      <div class="hhead"><h3>Histórico</h3><div class="hf" id="hFilt" role="group" aria-label="Filtrar"><button type="button" data-f="" aria-pressed="true">Todos</button><button type="button" data-f="ciclismo" aria-pressed="false">Pedal</button><button type="button" data-f="corrida" aria-pressed="false">Corrida</button></div></div>
       <div class="hlist" id="hList"></div>
       <div id="histEmpty" class="empty">
         <b>Nenhum treino registrado ainda.</b>
@@ -1642,7 +1708,7 @@ function run(){
     }
     off+=len;});
   ev.push({t:off,cls:'s',txt:'Fim da sessão'});
-  ev.sort((a,b)=>a.t-b.t);LAST.ev=ev;fuelStrip(P,off,clock,rel);ev.forEach(e=>{const li=document.createElement('li');li.className=e.cls;
+  ev.sort((a,b)=>a.t-b.t);LAST.ev=ev;fuelStrip(P,off,clock,rel);if($('tlN'))$('tlN').textContent=ev.length+' itens';ev.forEach(e=>{const li=document.createElement('li');li.className=e.cls;
     li.innerHTML=`<time>${e.t<0?'-0:12':rel(e.t)} <span class="hint">${clock(e.t)}</span></time><span>${e.txt}</span>`;tl.appendChild(li);});
 
   // alertas
@@ -1678,7 +1744,7 @@ function run(){
   if(f.gut){Object.entries(f.gut).forEach(([sp,g])=>al('i',`<b>Treino do intestino ${sp==='ciclismo'?'no pedal':'na corrida'}:</b> meta de ${g.tgt} g/h, acima dos ~${g.tol} g/h que você tolera hoje${calTol()&&calTol()[sp]!=null?' (pelo diário)':''}. Repita 2 a 3 vezes por semana e suba mais 10 g/h quando a nota de desconforto ficar em 3 ou menos.`));}
   if(f.jejum)al('w',`<b>Em jejum:</b> o glicogênio do fígado está baixo depois da noite. O carbo durante a sessão rende mais nessa condição, então comece cedo, já nos primeiros 15 min.`);
   if(S.tipo==='prova')al('i',`<b>Regra de prova:</b> use só produtos e quantidades já testados em treino.`);
-  $('alerts').innerHTML=A.join('');
+  $('alerts').innerHTML=A.length>2?A.slice(0,2).join('')+`<div class="al-more" hidden>${A.slice(2).join('')}</div><button type="button" class="al-btn" onclick="this.previousElementSibling.hidden=false;this.remove()">Ver mais ${A.length-2} aviso${A.length-2>1?'s':''}</button>`:A.join('');
   if(typeof flowRefresh==='function')flowRefresh();
 }
 
@@ -1988,7 +2054,10 @@ function renderCal(){
     const d=CAL.detail[sp];const box=document.createElement('div');box.className='cal';
     if(!d||!d.n){box.classList.add('none');box.innerHTML=`<h4>${sp==='ciclismo'?'Pedal':'Corrida'}</h4><span>Sem registros ${sp==='ciclismo'?'pedalando':'correndo'}. A calculadora usa a média da população.</span>`;g.appendChild(box);return;}
     const pct=Math.round((d.f-1)*100);
-    box.innerHTML=`<h4>${sp==='ciclismo'?'Pedal':'Corrida'} <small>${d.n} registro${d.n>1?'s':''}</small></h4>
+    const srs=ST.logs.filter(l=>l.sport===sp).sort((a,b)=>a.data.localeCompare(b.data)).map(l=>derive(l).sr).filter(v=>v>0&&v<4).slice(-12);
+    let spark='';if(srs.length>=2){const mn=Math.min(...srs),mx=Math.max(...srs),rg=Math.max(.1,mx-mn);const pts=srs.map((v,i)=>`${(i/(srs.length-1)*100).toFixed(1)},${(26-(v-mn)/rg*22).toFixed(1)}`);
+      spark=`<svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-label="Taxa de suor nos últimos ${srs.length} registros"><polyline points="${pts.join(' ')}"/><circle cx="100" cy="${pts[pts.length-1].split(',')[1]}" r="2.6"/></svg>`;}
+    box.innerHTML=`<h4>${sp==='ciclismo'?'Pedal':'Corrida'} <small>${d.n} registro${d.n>1?'s':''}</small></h4>${spark}
       <div class="kv"><span class="k">Taxa de suor média</span><span class="v">${fmt(d.mean,2)}<small>L/h</small></span>
         <span class="s">${pct===0?'Igual à média':`${Math.abs(pct)}% ${pct>0?'acima':'abaixo'} da média`} para as mesmas condições</span></div>
       ${confBars(d.n)}
@@ -2001,7 +2070,8 @@ function renderHist(){
   const logs=[...ST.logs].sort((a,b)=>b.data.localeCompare(a.data)||(b.created||0)-(a.created||0));
   $('histEmpty').hidden=logs.length>0;$('histTable').hidden=true;
   const HL=$('hList');HL.innerHTML='';
-  logs.forEach(l=>{const d=derive(l);const t=hm(d.h);const gi=l.gi||0;const giC=gi<=3?'g0':gi<=5?'g1':'g2';
+  const HF=window.HFILT||'';$('hFilt').hidden=logs.length<2;
+  logs.filter(l=>!HF||l.sport===HF).forEach(l=>{const d=derive(l);const t=hm(d.h);const gi=l.gi||0;const giC=gi<=3?'g0':gi<=5?'g1':'g2';
     const dt=l.data.split('-').reverse().slice(0,2).join('/');
     const nt=[l.fonte==='garmin'?`Dados de Garmin${l.device?' '+l.device.replace(/^Garmin\s+/i,''):''}`:'',l.notas||''].filter(Boolean).join(' · ');
     const c=document.createElement('div');c.className='hcard';
@@ -2081,19 +2151,19 @@ async function lgSave(){
   $('lgSave').disabled=true;
   const ok=await storeSave(log);
   $('lgSave').disabled=false;
-  if(ok){gAfterSave();track('registro_salvo',{modalidade:l.sport,fonte:log.fonte||'manual'});m.textContent='Registro salvo. Calibração atualizada.';['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa','lgNotas'].forEach(id=>$(id).value='');$('lgGi').value=0;lgPreview();}
+  if(ok){gAfterSave();track('registro_salvo',{modalidade:l.sport,fonte:log.fonte||'manual'});m.textContent='Registro salvo. Calibração atualizada.';toast('Registro salvo. Sua calibração foi atualizada.','ok');{logOpen(false);setTimeout(()=>{try{$('histCard').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},100);}['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa','lgNotas'].forEach(id=>$(id).value='');$('lgGi').value=0;lgPreview();}
 }
 
 /* Pré-preenche o diário a partir do plano calculado */
-function prefillFromPlan(){
+function prefillFromPlan(quiet){
   const inp=readInputs();const r=calcular(inp);
   const seg=r.segs.find(s=>s.sport!=='natacao');if(!seg)return;
   $('lgSport').value=seg.sport;$('lgDur').value=Math.round(seg.h*60);
   $('lgInt').value=String(clamp(Math.round(seg.i*4),1,4));
   $('lgTemp').value=inp.temp;$('lgRh').value=inp.rh;$('lgCond').value=inp.cond;
   $('lgCho').value=Math.round(seg.carb*seg.h);$('lgNa').value=Math.round(seg.na*seg.h/50)*50;
-  $('lgData').value=$('data').value||new Date().toLocaleDateString('sv-SE');
-  showView('diario');logOpen(true);lgPreview();
+  {const td=new Date().toLocaleDateString('sv-SE');const pd=$('data').value||td;$('lgData').value=pd>td?td:pd;}
+  showView('diario');if(quiet){lgPreview();return;}logOpen(true);lgPreview();
   $('lgMsg').textContent=r.segs.length>1?'Pré-preenchido com o pedal do plano. Depois registre a corrida separadamente.':'Pré-preenchido com o plano. Ajuste para o que você realmente consumiu.';
   $('lgPre').focus();
 }
@@ -2112,14 +2182,15 @@ function initDiario(){
   if(location.hash==='#diario')showView('diario');
   $('logForm').addEventListener('input',lgPreview);$('logForm').addEventListener('change',lgPreview);
   $('lgSave').addEventListener('click',lgSave);
-  $('logOpen').addEventListener('click',()=>logOpen(true));
-  $('logFit').addEventListener('click',()=>{logOpen(true);$('lgFitPick').click();});
-  if(MQ.matches&&lsRead().length)logOpen(false);
+  $('hFilt').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;window.HFILT=b.dataset.f;$('hFilt').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));renderHist();});
+  $('logOpen').addEventListener('click',lqStart);
+  $('logFit').addEventListener('click',()=>{lqStart();LQ.fit=true;$('lgFitPick').click();});
+  logOpen(false);
   $('calSw').addEventListener('change',()=>{applyCal();run();});
   ['gutBike','gutRun'].forEach(id=>$(id).addEventListener('change',()=>{$(id).dataset.user='1';applyCal();}));
-  $('lgFromPlan').addEventListener('click',prefillFromPlan);
+  $('lgFromPlan').addEventListener('click',()=>{showView('diario');lqFromPlan();});
   $('bkCopy').addEventListener('click',()=>{const t=JSON.stringify({app:'calculadora-combustivel',v:1,logs:ST.logs});
-    const done=()=>{$('bkMsg').textContent=`${ST.logs.length} registros copiados.`;};
+    const done=()=>{$('bkMsg').textContent=`${ST.logs.length} registros copiados.`;toast(`${ST.logs.length} registros copiados`,'ok');};
     try{navigator.clipboard.writeText(t).then(done,()=>{$('bkBox').hidden=false;$('bkText').value=t;$('bkText').select();$('bkMsg').textContent='Copie o texto selecionado.';});}
     catch(e){$('bkBox').hidden=false;$('bkText').value=t;$('bkText').select();$('bkMsg').textContent='Copie o texto selecionado.';}});
   $('bkShow').addEventListener('click',()=>{$('bkBox').hidden=!$('bkBox').hidden;$('bkText').value='';});
@@ -2567,6 +2638,7 @@ async function gSend(){
   if(r.workoutId){
     const dt=date.split('-').reverse().join('/');
     m.className='status ok';
+    toast('Treino enviado para o Garmin Connect','ok');
     m.textContent=r.schedule&&!r.schedule.error?`Treino enviado e agendado para ${dt}. Sincronize o relógio pelo app Garmin Connect. Os géis e a hidratação aparecem nas observações de cada passo.`:'Treino enviado para a sua biblioteca no Garmin Connect, mas sem data. Agende pelo app.';
     track('garmin_treino_enviado',{formato:S.formato});
   }else{
@@ -2610,7 +2682,7 @@ function gUseAct(a){
   lgPreview();
   const fmEl=$('lgFitMsg');fmEl.className='status ok';
   fmEl.textContent=`Atividade de Garmin ${(d.deviceName||'').replace(/^Garmin\s+/i,'')} carregada. Preencha pesos, líquido e carbo e salve.`.replace('Garmin  ','Garmin ');
-  try{$('logForm').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}$('lgPre').focus({preventScroll:true});
+  lqStartAt('clima');
 }
 async function gMarkDone(id){
   G.acts=G.acts.filter(a=>a.summary_id!==id);gRenderActs();
@@ -2819,6 +2891,151 @@ function fuelStrip(P,T,clock,rel){
     b.addEventListener('click',show);b.addEventListener('mouseenter',show);b.addEventListener('focus',show);});
 }
 
+
+/* ===== Avisos rápidos (toast) e toque ===== */
+let toastT=null;
+function toast(msg,kind){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
+  t.textContent=msg;t.className='toast on'+(kind?' '+kind:'');clearTimeout(toastT);toastT=setTimeout(()=>{t.className='toast';},2600);}
+function buzz(){try{if(navigator.vibrate)navigator.vibrate(8);}catch(e){}}
+function initFolds(){document.querySelectorAll('details.fold').forEach(d=>{const k='gaFold_'+d.dataset.fold;try{if(localStorage.getItem(k)==='1')d.open=true;}catch(e){}
+  d.addEventListener('toggle',()=>{try{localStorage.setItem(k,d.open?'1':'0');}catch(e){}});});}
+
+/* ===== DIÁRIO: registro pergunta por pergunta ===== */
+const LQ={cur:null,hist:[],v:{}};
+const lqWh=(id,vals,lab)=>whHtml(id,vals,lab);
+function lqSetField(id,v){$(id).value=v;}
+function lqDur(){return (+$('lgDur').value||0);}
+const LQQ=[
+ {id:'origem',show:()=>!!(LAST.r&&LAST.r.segs.some(s=>s.sport!=='natacao')),title:()=>'O que você vai registrar?',
+  html:()=>{const seg=LAST.r.segs.find(s=>s.sport!=='natacao');return qzCards([
+    {v:'plano',t:'O treino do plano',d:qzEsc(sessionTitle()),ic:IC[seg.sport]},
+    {v:'fit',t:'Arquivo do Garmin',d:'Atividade .fit ou .zip exportada',ic:'<svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>'},
+    {v:'zero',t:'Outro treino',d:'Preencher do zero',ic:IC.treino}],null);},
+  pick:v=>{if(v==='plano'){lqFromPlan();return;}
+    else if(v==='fit'){LQ.fit=true;$('lgFitPick').click();}
+    else{['lgDur','lgTemp','lgRh','lgCho','lgNa'].forEach(i=>$(i).value='');}}},
+ {id:'sport',title:()=>'Qual modalidade?',
+  html:()=>qzCards([{v:'corrida',t:'Corrida',ic:IC.corrida},{v:'ciclismo',t:'Ciclismo',ic:IC.ciclismo}],$('lgSport').value,'g2'),pick:v=>lqSetField('lgSport',v),
+  recap:()=>SPORT_NOME[$('lgSport').value]},
+ {id:'data',title:()=>'Quando foi?',next:true,recap:()=>{const d=$('lgData').value;return d?d.split('-').reverse().slice(0,2).join('/'):''},
+  html:()=>{const iso=k=>{const d=new Date();d.setDate(d.getDate()-k);return d.toLocaleDateString('sv-SE');};const cur=$('lgData').value||iso(0);
+    return `<div class="qz-chips">${[[0,'Hoje'],[1,'Ontem'],[2,'Anteontem']].map(([k,n])=>`<button type="button" class="qz-chip${iso(k)===cur?' on':''}" data-d="${iso(k)}">${n}</button>`).join('')}<label class="qz-chip qz-date"><input type="date" id="lqDate" value="${cur}" max="${iso(0)}" aria-label="Outra data"></label></div>`;},
+  bind:el=>{if(!$('lgData').value)$('lgData').value=new Date().toLocaleDateString('sv-SE');
+    el.querySelectorAll('[data-d]').forEach(b=>b.addEventListener('click',()=>{$('lgData').value=b.dataset.d;$('lqDate').value=b.dataset.d;el.querySelectorAll('[data-d]').forEach(x=>x.classList.toggle('on',x===b));}));
+    $('lqDate').addEventListener('change',e=>{if(e.target.value){$('lgData').value=e.target.value;el.querySelectorAll('[data-d]').forEach(x=>x.classList.toggle('on',x.dataset.d===e.target.value));}});}},
+ {id:'dur',title:()=>'Quanto tempo durou?',next:true,recap:()=>lqDur()?durTxt(lqDur()/60):'',
+  html:()=>{const m=lqDur()||60;const H=Array.from({length:13},(_,h)=>[h,String(h)]),M=Array.from({length:60},(_,k)=>[k,String(k).padStart(2,'0')]);
+    return `<div class="qz-read"><output id="lqDurBig" class="qz-big">${durTxt(m/60)}</output></div><div class="wh"><div class="wh-band" aria-hidden="true"></div>${whHtml('lwH',H,'Horas')}<span class="wh-u">h</span>${whHtml('lwM',M,'Minutos')}<span class="wh-u">min</span></div>`;},
+  bind:el=>{let m=lqDur()||60;let h=Math.floor(m/60),mi=m%60;$('lgDur').value=m;
+    const up=()=>{const t=Math.max(10,h*60+mi);$('lgDur').value=t;$('lqDurBig').textContent=durTxt(t/60);};
+    whBind('lwH',h,v=>{h=v;up();});whBind('lwM',mi,v=>{mi=v;up();});}},
+ {id:'int',title:()=>'Qual foi a intensidade média?',recap:()=>INT_NOME[(+$('lgInt').value||2)-1].split(' (')[0],
+  html:()=>qzCards([{v:1,t:'Leve',d:'Dava para conversar'},{v:2,t:'Moderado',d:'Frases curtas'},{v:3,t:'Forte',d:'Poucas palavras'},{v:4,t:'Muito forte',d:'Ritmo de prova'}].map(o=>({...o,lv:qzLvl(o.v,4)})),$('lgInt').value),
+  pick:v=>lqSetField('lgInt',v)},
+ {id:'clima',title:()=>'Como estava o tempo?',next:true,recap:()=>$('lgTemp').value?fmt(+$('lgTemp').value)+'°':'',
+  html:()=>{if(!$('lgTemp').value)$('lgTemp').value=+$('temp').value||27;if(!$('lgRh').value)$('lgRh').value=+$('rh').value||70;
+    return qzCards([{v:'sol',t:'Sol',ic:IC.fora},{v:'nublado',t:'Nublado ou noite',ic:'<svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 0-8 5.5 5.5 0 0 0-10.6 1.5A3.3 3.3 0 0 0 7 18z"/></svg>'},{v:'indoor',t:'Indoor',ic:IC.dentro}],$('lgCond').value,'g3 qz-sm lq-cond')+
+      `<label class="qz-rg"><span>Temperatura <b id="lqT"></b></span><input type="range" id="lqRT" class="rg-t" min="5" max="42" step="0.5" value="${+$('lgTemp').value}"></label>
+       <label class="qz-rg"><span>Umidade <b id="lqR"></b></span><input type="range" id="lqRR" class="rg-r" min="15" max="100" step="1" value="${+$('lgRh').value}"></label>`;},
+  bind:el=>{const up=()=>{$('lqT').textContent=fmt(+$('lgTemp').value,+$('lgTemp').value%1?1:0)+' °C';$('lqR').textContent=fmt(+$('lgRh').value)+'%';};up();
+    $('lqRT').addEventListener('input',e=>{$('lgTemp').value=e.target.value;up();});$('lqRR').addEventListener('input',e=>{$('lgRh').value=e.target.value;up();});
+    el.querySelectorAll('.lq-cond .qz-card').forEach(b=>b.addEventListener('click',()=>{buzz();$('lgCond').value=b.dataset.v;el.querySelectorAll('.lq-cond .qz-card').forEach(x=>x.classList.toggle('on',x===b));}));}},
+ {id:'pre',title:()=>'Peso antes do treino',sub:()=>'Sem roupa e seco, de preferência.',next:true,recap:()=>$('lgPre').value?fmt(+$('lgPre').value,1)+' kg':'',
+  html:()=>lqPeso('lgPre'),bind:el=>lqPesoBind('lgPre')},
+ {id:'pos',title:()=>'Peso depois do treino',sub:()=>'Seque o suor antes de subir na balança.',next:true,recap:()=>$('lgPos').value?fmt(+$('lgPos').value,1)+' kg':'',
+  html:()=>lqPeso('lgPos')+'<p class="qz-pace" id="lqDelta"></p>',bind:el=>lqPesoBind('lgPos',()=>{const a=+$('lgPre').value,b=+$('lgPos').value;const d=a-b;
+    $('lqDelta').textContent=d>=0?`Perdeu ${fmt(d,1)} kg (${fmt(d/a*100,1)}% do peso)`:`Ganhou ${fmt(-d,1)} kg: você bebeu mais do que suou`;})},
+ {id:'bebeu',title:()=>'Quanto você bebeu?',sub:()=>'Some caramanholas, copos e flasks.',next:true,recap:()=>fmt(+$('lgBebeu').value||0)+' ml',
+  html:()=>`<div class="qz-read"><output id="lqBb" class="qz-big"></output></div><div class="wh"><div class="wh-band" aria-hidden="true"></div>${whHtml('lwB',Array.from({length:121},(_,k)=>[k*50,fmt(k*50)]),'Mililitros')}<span class="wh-u">ml</span></div>
+    <div class="qz-chips c">${[[500,'+ 500 ml'],[600,'+ 600 ml'],[750,'+ 750 ml']].map(([v,n])=>`<button type="button" class="qz-chip" data-add="${v}">${n}</button>`).join('')}</div>
+    <div class="lq-row"><span>Urinou durante o treino?</span><div class="qz-chips">${[[0,'Não'],[200,'Pouco'],[400,'Bastante']].map(([v,n])=>`<button type="button" class="qz-chip${(+$('lgUrina').value||0)===v?' on':''}" data-ur="${v}">${n}</button>`).join('')}</div></div>`,
+  bind:el=>{const up=v=>{$('lgBebeu').value=v;$('lqBb').textContent=fmt(v)+' ml';};const w=whBind('lwB',+$('lgBebeu').value||0,up);up(+$('lgBebeu').value||0);
+    el.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{const v=Math.min(6000,(+$('lgBebeu').value||0)+(+b.dataset.add));w.set(Math.round(v/50)*50);up(Math.round(v/50)*50);}));
+    el.querySelectorAll('[data-ur]').forEach(b=>b.addEventListener('click',()=>{$('lgUrina').value=b.dataset.ur;el.querySelectorAll('[data-ur]').forEach(x=>x.classList.toggle('on',x===b));}));}},
+ {id:'cho',title:()=>'Quanto carboidrato você consumiu?',sub:()=>'Some géis, bebida e comida. Toque nos atalhos para somar.',next:true,recap:()=>fmt(+$('lgCho').value||0)+' g carbo',
+  html:()=>{const g=prod($('pGel').value),d=prod($('pDrink').value);
+    return `<div class="qz-read"><output id="lqCh" class="qz-big"></output><span class="qz-pace" id="lqChH"></span></div><div class="wh"><div class="wh-band" aria-hidden="true"></div>${whHtml('lwC',Array.from({length:81},(_,k)=>[k*5,String(k*5)]),'Gramas')}<span class="wh-u">g</span></div>
+    <div class="qz-chips c">${g&&g.cho?`<button type="button" class="qz-chip" data-add="${g.cho}">+ 1 ${qzEsc(g.nome.split(' (')[0].split(' ').slice(0,2).join(' '))} (${fmt(g.cho)} g)</button>`:''}${d&&d.cho?`<button type="button" class="qz-chip" data-add="${d.cho}">+ 1 porção de bebida (${fmt(d.cho)} g)</button>`:''}<button type="button" class="qz-chip" data-add="25">+ 25 g</button><button type="button" class="qz-chip" data-zero="1">Zerar</button></div>`;},
+  bind:el=>{const up=v=>{$('lgCho').value=v;$('lqCh').textContent=fmt(v)+' g';const h=lqDur()/60;$('lqChH').textContent=h>0?`${fmt(v/h)} g por hora`:'';};
+    const w=whBind('lwC',Math.round((+$('lgCho').value||0)/5)*5,up);up(+$('lgCho').value||0);
+    el.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{const v=Math.min(400,Math.round(((+$('lgCho').value||0)+(+b.dataset.add))/5)*5);w.set(v);up(v);}));
+    el.querySelectorAll('[data-zero]').forEach(b=>b.addEventListener('click',()=>{w.set(0);up(0);}));}},
+ {id:'na',title:()=>'E de sódio?',sub:()=>'Cápsulas, sachês, bebida e gel. Se não souber, deixe a estimativa.',next:true,recap:()=>fmt(+$('lgNa').value||0)+' mg sódio',
+  html:()=>`<div class="qz-read"><output id="lqNaB" class="qz-big"></output></div><div class="wh"><div class="wh-band" aria-hidden="true"></div>${whHtml('lwN',Array.from({length:81},(_,k)=>[k*50,fmt(k*50)]),'Miligramas')}<span class="wh-u">mg</span></div>`,
+  bind:el=>{const up=v=>{$('lgNa').value=v;$('lqNaB').textContent=fmt(v)+' mg';};const v0=Math.round((+$('lgNa').value||0)/50)*50;whBind('lwN',v0,up);up(v0);}},
+ {id:'gi',title:()=>'Teve desconforto no estômago ou intestino?',sub:()=>'De 0 (nada) a 10 (precisou parar).',next:true,recap:()=>'GI '+$('lgGi').value,
+  html:()=>`<div class="lq-gi">${Array.from({length:11},(_,k)=>`<button type="button" class="lq-g g${k<=3?0:k<=5?1:2}${+$('lgGi').value===k?' on':''}" data-g="${k}">${k}</button>`).join('')}</div>
+    <p class="qz-pace" id="lqGiT"></p><label class="f qz-other">Algo a anotar? (opcional)<input id="lqNt" type="text" maxlength="200" value="${qzEsc($('lgNotas').value)}" placeholder="ex.: náusea no km 15"></label>`,
+  bind:el=>{const up=()=>{$('lqGiT').textContent=GI_TXT[+$('lgGi').value];};up();
+    el.querySelectorAll('[data-g]').forEach(b=>b.addEventListener('click',()=>{buzz();$('lgGi').value=b.dataset.g;el.querySelectorAll('[data-g]').forEach(x=>x.classList.toggle('on',x===b));up();}));
+    $('lqNt').addEventListener('input',e=>{$('lgNotas').value=e.target.value;});}},
+];
+function lqPeso(id){const v=+$(id).value||(id==='lgPos'&&+$('lgPre').value?Math.round((+$('lgPre').value-1)*10)/10:(+$('peso').value||70));$(id).value=v;
+  return `<div class="qz-read"><output id="lqPB" class="qz-big"></output></div><div class="wh"><div class="wh-band" aria-hidden="true"></div>${whHtml('lwK',Array.from({length:106},(_,k)=>[k+35,String(k+35)]),'Quilos')}<span class="wh-u">,</span>${whHtml('lwD',Array.from({length:10},(_,k)=>[k,String(k)]),'Decimal')}<span class="wh-u">kg</span></div>`;}
+function lqPesoBind(id,after){const v=+$(id).value;let k=Math.floor(v),d=Math.round((v-k)*10)%10;
+  const up=()=>{const x=Math.round((k+d/10)*10)/10;$(id).value=x;$('lqPB').textContent=fmt(x,1)+' kg';after&&after();};
+  whBind('lwK',k,x=>{k=x;up();});whBind('lwD',d,x=>{d=x;up();});up();}
+function lqVis(){return LQQ.filter(q=>!q.show||q.show());}
+function lqRender(dir){
+  const q=LQQ.find(x=>x.id===LQ.cur);const vis=lqVis();const i=Math.max(0,vis.indexOf(q));
+  $('lqBar').style.width=Math.round((i+.4)/vis.length*100)+'%';$('lqBack').hidden=!LQ.hist.length;
+  $('lqRecap').innerHTML=LQ.hist.map(id=>LQQ.find(x=>x.id===id)).filter(x=>x&&x.recap).map(x=>[x.id,x.recap()]).filter(x=>x[1]).map(([id,t])=>`<button type="button" class="qz-rc" data-q="${id}">${qzEsc(t)}</button>`).join('');
+  $('lqBody').innerHTML=`<div class="qz-q ${dir<0?'back':''}"><h2 class="qz-t" tabindex="-1">${q.title()}</h2>${q.sub?`<p class="qz-s">${q.sub()}</p>`:''}<div class="qz-a">${q.html()}</div></div>`;
+  const el=$('lqBody').firstElementChild;
+  $('lqCta').innerHTML=q.next?`<button type="button" class="qz-go" id="lqGo">${q.id==='gi'?'Salvar registro':'Continuar'}</button>`:'';
+  if(q.pick)el.querySelectorAll('.qz-a > .qz-cards .qz-card').forEach(b=>b.addEventListener('click',()=>{buzz();
+    el.querySelectorAll('.qz-a > .qz-cards .qz-card').forEach(x=>x.classList.toggle('on',x===b));q.pick(b.dataset.v);if(!LQ.fit&&!LQ.jumped)setTimeout(lqNext,QZ_RM?0:220);LQ.jumped=false;}));
+  if(q.bind)q.bind(el);
+  if($('lqGo'))$('lqGo').addEventListener('click',lqNext);
+  try{el.querySelector('.qz-t').focus({preventScroll:true});}catch(e){}
+}
+function lqNext(){
+  const k0=LQQ.findIndex(x=>x.id===LQ.cur);let k=k0+1;while(k<LQQ.length&&LQQ[k].show&&!LQQ[k].show())k++;
+  if(LQ.cur==='gi'||k>=LQQ.length){lqSave();return;}
+  LQ.hist.push(LQ.cur);LQ.cur=LQQ[k].id;lqRender(1);lqTop();
+}
+function lqBack(){if(!LQ.hist.length)return;LQ.cur=LQ.hist.pop();lqRender(-1);lqTop();}
+function lqTop(){try{const y=$('lq').getBoundingClientRect().top+window.scrollY;if(window.scrollY>y)window.scrollTo({top:y,behavior:QZ_RM?'auto':'smooth'});}catch(e){}}
+function lqShowOnly(){$('lq').hidden=false;document.body.classList.add('lq-on');}
+function lqStart(){
+  LQ.hist=[];LQ.fit=false;['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa','lgNotas'].forEach(id=>$(id).value='');$('lgGi').value=0;
+  if(!$('lgData').value)$('lgData').value=new Date().toLocaleDateString('sv-SE');
+  LQ.cur=lqVis()[0].id;lqShowOnly();lqRender(1);lqTop();track('registro_quiz_iniciado');
+}
+function lqGoto(id,hist){LQ.hist=hist||LQ.hist;LQ.cur=id;LQ.jumped=true;lqShowOnly();lqRender(1);lqTop();}
+function lqFromPlan(){prefillFromPlan(true);lqGoto('pre',['sport','data','dur','int','clima']);}
+function lqStartAt(id){['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa','lgNotas'].forEach(i=>$(i).value='');$('lgGi').value=0;LQ.fit=false;lqGoto(id,['sport','data','dur','int'].slice(0,['sport','data','dur','int','clima'].indexOf(id)));}
+function lqClose(){$('lq').hidden=true;document.body.classList.remove('lq-on');}
+async function lqSave(){
+  const l=lgVal();
+  if(!(l.durMin>0)||!(l.pesoPre>0)||!(l.pesoPos>0)){toast('Faltam duração ou pesos','');return;}
+  const before=CAL.detail[l.sport]?CAL.detail[l.sport].mean:null;
+  $('lgMsg').textContent='';  const g=$('lqGo');if(g){g.disabled=true;g.textContent='Salvando...';}
+  await lgSave();
+  if(g)g.disabled=false;
+  if(!/salvo/i.test($('lgMsg').textContent)){toast($('lgMsg').textContent||'Não foi possível salvar','');if(g)g.textContent='Salvar registro';return;}
+  const d=derive(l);const after=CAL.detail[l.sport]?CAL.detail[l.sport].mean:null;
+  $('lqBar').style.width='100%';$('lqBack').hidden=true;$('lqRecap').innerHTML='';
+  $('lqBody').innerHTML=`<div class="qz-q qz-rev"><p class="qz-eb">${SPORT_NOME[l.sport]}, ${durTxt(l.durMin/60)}</p><h2 class="qz-t" tabindex="-1">Registro salvo</h2>
+    <div class="qz-mets"><div class="qz-met f"><b id="lrS">0</b><span>L/h de suor</span></div><div class="qz-met"><b id="lrP">0</b><span>% do peso ${d.ganhou?'ganho':'perdido'}</span></div><div class="qz-met c"><b id="lrC">0</b><span>g/h de carbo</span></div></div>
+    <p class="qz-tot">${after!=null?`Sua taxa média ${l.sport==='ciclismo'?'pedalando':'correndo'} agora é <b>${fmt(after,2)} L/h</b>${before!=null?` (antes ${fmt(before,2)})`:''}. O seu próximo plano já usa esse valor.`:'Calibração atualizada.'}</p>
+    ${d.perdaPct>3?`<div class="qz-al">Perda acima de 3% costuma derrubar o desempenho. No próximo treino parecido, beba mais.</div>`:d.ganhou?`<div class="qz-al">Ganhar peso no treino indica que você bebeu mais do que suou, o que aumenta o risco de hiponatremia.</div>`:''}</div>`;
+  $('lqCta').innerHTML=`<button type="button" class="qz-go" id="lqGo">Ver meu diário</button>`;
+  $('lqGo').addEventListener('click',()=>{lqClose();setTimeout(()=>{try{$('histCard').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},60);});
+  [['lrS',d.sr,2],['lrP',Math.abs(d.perdaPct),1],['lrC',d.choH,0]].forEach(([id,v,dd],k)=>setTimeout(()=>qzCount($(id),+v.toFixed(dd),dd),QZ_RM?0:120+k*140));
+  lqTop();
+}
+function initLq(){
+  $('lqBack').addEventListener('click',lqBack);
+  $('lqX').addEventListener('click',lqClose);
+  $('lqFull').addEventListener('click',()=>{lqClose();logOpen(true);});
+  $('lqRecap').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b)return;const k=LQ.hist.indexOf(b.dataset.q);if(k<0)return;LQ.hist=LQ.hist.slice(0,k);LQ.cur=b.dataset.q;lqRender(-1);});
+  // depois de importar o .fit pelo registro guiado, segue para a próxima pergunta
+  new MutationObserver(()=>{if(!LQ.fit||$('lq').hidden)return;const m=$('lgFitMsg');
+    if(/^Atividade importada/.test(m.textContent)){LQ.fit=false;['lgPre','lgPos','lgBebeu','lgUrina','lgCho','lgNa'].forEach(i=>$(i).value='');lqGoto('clima',['sport','data','dur','int']);}
+    else if(m.classList.contains('bad')){LQ.fit=false;toast(m.textContent);}}).observe($('lgFitMsg'),{childList:true,characterData:true,subtree:true,attributes:true});
+}
+
 /* ===== PERGUNTA POR PERGUNTA (estilo planejador de prova) ===== */
 const QZ={cur:null,hist:[],known:false,wx:null};
 const qzEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -2866,10 +3083,12 @@ function whHtml(id,vals,lab){return `<div class="wh-w"><div class="wh-col" id="$
 function whBind(id,cur,onCh){
   const col=$(id);const items=[...col.children];let idx=Math.max(0,items.findIndex(x=>+x.dataset.v===+cur));let t=null,prog=true;
   const mark=()=>items.forEach((x,k)=>x.classList.toggle('on',k===idx));
-  const go=(k,smooth)=>{idx=clamp(k,0,items.length-1);prog=true;col.scrollTo({top:idx*WH,behavior:smooth&&!QZ_RM?'smooth':'auto'});mark();onCh(+items[idx].dataset.v);setTimeout(()=>{prog=false;},smooth?400:60);};
+  let pt=null;
+  const go=(k,smooth)=>{idx=clamp(k,0,items.length-1);prog=true;clearTimeout(t);clearTimeout(pt);col.scrollTo({top:idx*WH,behavior:smooth&&!QZ_RM?'smooth':'auto'});mark();onCh(+items[idx].dataset.v);pt=setTimeout(()=>{prog=false;},smooth?700:80);};
   requestAnimationFrame(()=>{col.scrollTop=idx*WH;mark();setTimeout(()=>{prog=false;},80);});
-  col.addEventListener('scroll',()=>{const k=clamp(Math.round(col.scrollTop/WH),0,items.length-1);if(k!==idx){idx=k;mark();}
-    clearTimeout(t);t=setTimeout(()=>{if(!prog)onCh(+items[idx].dataset.v);},90);},{passive:true});
+  ['touchstart','wheel','pointerdown'].forEach(ev=>col.addEventListener(ev,()=>{prog=false;clearTimeout(pt);},{passive:true}));
+  col.addEventListener('scroll',()=>{if(prog||!col.isConnected)return;const k=clamp(Math.round(col.scrollTop/WH),0,items.length-1);if(k!==idx){idx=k;mark();}
+    clearTimeout(t);t=setTimeout(()=>{if(!prog&&col.isConnected)onCh(+items[idx].dataset.v);},90);},{passive:true});
   col.addEventListener('click',e=>{const it=e.target.closest('.wh-i');if(it)go(items.indexOf(it),true);});
   col.addEventListener('keydown',e=>{if(e.key==='ArrowUp'){e.preventDefault();go(idx-1,true);}if(e.key==='ArrowDown'){e.preventDefault();go(idx+1,true);}});
   return {set:v=>go(items.findIndex(x=>+x.dataset.v===+v),true)};
@@ -3031,7 +3250,7 @@ function qzRender(dir){
   const el=box.firstElementChild;
   $('qzCta').innerHTML=q.next?`<button type="button" class="qz-go" id="qzGo">${vis[vis.length-1]===q?'Ver meu plano':'Continuar'}</button>`:'';
   if(q.pick)el.querySelectorAll('.qz-a > .qz-cards .qz-card').forEach(b=>b.addEventListener('click',()=>{
-    el.querySelectorAll('.qz-a > .qz-cards .qz-card').forEach(x=>x.classList.toggle('on',x===b));q.pick(b.dataset.v);qzApply();
+    buzz();el.querySelectorAll('.qz-a > .qz-cards .qz-card').forEach(x=>x.classList.toggle('on',x===b));q.pick(b.dataset.v);qzApply();
     track('quiz_resposta',{q:q.id});setTimeout(qzNext,QZ_RM?0:220);}));
   if(q.bind)q.bind(el);
   if($('qzGo'))$('qzGo').addEventListener('click',qzNext);
@@ -3085,6 +3304,10 @@ function qzFinish(){
 }
 function initQuiz(){
   $('qzBack').addEventListener('click',qzBackFn);
+  document.addEventListener('keydown',e=>{if(FLOW.mode!=='quiz'||$('qz').hidden)return;const tg=e.target;if(tg&&/^(INPUT|SELECT|TEXTAREA)$/.test(tg.tagName))return;
+    if(e.key==='Enter'&&$('qzGo')&&!tg.closest('.qz-a button')){e.preventDefault();$('qzGo').click();return;}
+    if(/^[1-9]$/.test(e.key)){const c=$('qzBody').querySelectorAll('.qz-a > .qz-cards .qz-card')[+e.key-1];if(c){e.preventDefault();c.click();}}
+    if(e.key==='Backspace'&&QZ.hist.length){e.preventDefault();qzBackFn();}});
   $('qzRecap').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b)qzJump(b.dataset.q);});
   $('qzFull').addEventListener('click',()=>{qzHome();$('qz').hidden=true;document.body.classList.remove('qz-on');lsSet('gaFlow','1');flowGo('summary');track('quiz_formulario');});
   // arquivo de treino escolhido pelo quiz: ao aplicar, segue para a próxima pergunta
@@ -3282,6 +3505,8 @@ function initMobile(){
   initGarmin();
   initShare();
   initWiz();
+  initFolds();
+  initLq();
   initFlow();
   initMobile();
   initConta();
