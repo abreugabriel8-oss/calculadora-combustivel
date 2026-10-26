@@ -3159,7 +3159,7 @@ function qzLast(){try{return JSON.parse(localStorage.getItem('gaQzLast')||'null'
 function qzSnap(){
   const sg=segList().map(s=>({sport:s.sport,h:s.h,int:s.int,tss:s.tss||0}));
   lsSet('gaQzLast',JSON.stringify({tipo:S.tipo,formato:S.formato,sport:$('sport').value,indoor:$('indoor').value,fan:$('fan').value,dist:{...S.dist},segs:sg,
-    gel:$('pGel').value,drink:$('pDrink').value,elec:$('pElec').value}));
+    gel:$('pGel').value,drink:$('pDrink').value,elec:$('pElec').value,obj:$('objetivo').value}));
 }
 function qzLastTxt(L){
   const t=L.tipo==='prova'?'Prova':'Treino';
@@ -3171,7 +3171,7 @@ function qzLastTxt(L){
 function qzUseLast(L){
   S.tipo=L.tipo;S.formato=L.formato;S.dist={...S.dist,...L.dist};pressSeg('tipo',S.tipo);pressSeg('formato',S.formato);
   $('sport').value=L.sport;$('indoor').value=L.indoor;$('fan').value=L.fan;
-  S.segs[L.formato]=L.segs.map(s=>({...s}));
+  S.segs[L.formato]=L.segs.map(s=>({...s}));if(L.obj)$('objetivo').value=L.obj;
   ['pGel','pDrink','pElec'].forEach((id,k)=>{const v=[L.gel,L.drink,L.elec][k];if(v!=null&&[...$(id).options].some(o=>o.value===v)){$(id).value=v;renderProdEdit(id,id+'V');}});
   qzApply();
 }
@@ -3227,7 +3227,7 @@ const QZQ=[
   pick:v=>{if(v==='rep'){qzUseLast(qzLast());QZ.repeat=true;}else QZ.repeat=false;}},
  {id:'tipo',show:()=>!QZ.repeat,title:()=>'É treino ou prova?',
   html:()=>qzCards([{v:'treino',t:'Treino',d:'Sessão do dia a dia',ic:IC.treino},{v:'prova',t:'Prova',d:'Dia de competição',ic:IC.prova}],S.tipo),recap:()=>S.tipo==='prova'?'Prova':'Treino',
-  pick:v=>{S.tipo=v;pressSeg('tipo',v);$('bottle').dataset.ctx='';}},
+  pick:v=>{S.tipo=v;pressSeg('tipo',v);$('bottle').dataset.ctx='';if(v==='prova')$('objetivo').value='perf';}},
  {id:'mod',show:()=>!QZ.repeat,title:()=>'Qual modalidade?',
   recap:()=>S.formato==='brick'?'Brick':S.formato==='tri'?'Triathlon':SPORT_NOME[$('sport').value],
   html:()=>qzCards([{v:'corrida',t:'Corrida',ic:IC.corrida},{v:'ciclismo',t:'Ciclismo',ic:IC.ciclismo},{v:'brick',t:'Brick',d:'Bike + corrida',ic:IC.brick},{v:'tri',t:'Triathlon',d:'Nadar, pedalar e correr',ic:IC.tri},{v:'natacao',t:'Natação',ic:IC.natacao}],
@@ -3272,6 +3272,14 @@ const QZQ=[
   recap:()=>INT_NOME[segList()[0].int-1].split(' (')[0],
   html:()=>qzCards([{v:1,t:'Leve',d:'Dá para conversar · Z1 a Z2'},{v:2,t:'Moderado',d:'Frases curtas · Z3'},{v:3,t:'Forte',d:'Poucas palavras · tiros ou limiar, Z4'},{v:4,t:'Muito forte',d:'Sem conversa · ritmo de prova, Z5'}].map(o=>({...o,lv:qzLvl(o.v,4)})),segList()[0].int),
   pick:v=>{segList().forEach(s=>{s.int=+v;});}},
+ {id:'objetivo',show:()=>!QZ.repeat&&S.tipo==='treino'&&qzSingle()!=='natacao',title:()=>'Qual o objetivo do treino?',sub:()=>'Muda quanto carboidrato faz sentido usar.',
+  recap:()=>({perf:'Performance',gut:'Treinar intestino',low:'Train low',regen:'Regenerativo'})[$('objetivo').value],
+  html:()=>qzCards([{v:'perf',t:'Performance',d:'Render o máximo nesta sessão'},{v:'gut',t:'Treinar o intestino',d:'Subir aos poucos o carbo que você tolera'},{v:'low',t:'Adaptação (train low)',d:'Pouco ou nenhum carbo, só em treino leve'},{v:'regen',t:'Regenerativo',d:'Sessão leve de recuperação'}],$('objetivo').value),
+  pick:v=>qzSet('objetivo',v)},
+ {id:'pre',show:()=>qzSingle()!=='natacao'||S.formato!=='single',title:()=>'Como você chega para a sessão?',sub:()=>'O que você comeu antes muda quando começar e quanto usar.',
+  recap:()=>({refeicao:'Refeição antes',leve:'Lanche leve',jejum:'Em jejum',loading:'Carb loading'})[$('pre').value],
+  html:()=>qzCards([{v:'refeicao',t:'Refeição com carbo',d:'De 1 a 4 h antes'},{v:'leve',t:'Lanche leve',d:'De 30 a 60 min antes'},{v:'jejum',t:'Em jejum',d:'Só a noite de sono'},{v:'loading',t:'Carb loading',d:'Carbo alto nos 1 a 2 dias antes'}],$('pre').value),
+  pick:v=>qzSet('pre',v)},
  {id:'peso',show:()=>!QZ.known,next:true,recap:()=>fmt(+$('peso').value,+$('peso').value%1?1:0)+' kg',title:()=>'Qual o seu peso?',sub:()=>'Usado para estimar o suor e o limite seguro de desidratação.',
   html:()=>`<div class="qz-read"><output id="qzPesoBig" class="qz-big"></output></div>
     <div class="wh"><div class="wh-band" aria-hidden="true"></div>${whHtml('whK',Array.from({length:106},(_,k)=>[k+35,String(k+35)]),'Quilos')}<span class="wh-u">,</span>${whHtml('whD',[[0,'0'],[5,'5']],'Decimal')}<span class="wh-u">kg</span></div>`,
@@ -3483,7 +3491,8 @@ function flowRefresh(){
   const opt=id=>{const o=$(id).selectedOptions[0];return o?o.textContent:'';};
   const ses=[S.tipo==='prova'?'Prova':'Treino',S.formato==='brick'?'Brick (bike + corrida)':S.formato==='tri'?'Triathlon':opt('sport')];
   if(S.formato==='single'&&$('indoor').value==='1')ses.push('indoor');
-  if($('objetivo').value!=='perf')ses.push(opt('objetivo').split(' (')[0].toLowerCase());
+  if(S.tipo==='treino'&&$('objetivo').value!=='perf')ses.push(opt('objetivo').split(' (')[0].toLowerCase());
+  if($('pre').value!=='refeicao')ses.push(({leve:'lanche leve antes',jejum:'em jejum',loading:'com carb loading'})[$('pre').value]);
   const segs=segList().filter(s=>s.h>0);
   const wk=(segs.find(s=>s.wkName)||{}).wkName;
   const ints=[...new Set(r.segs.map(s=>INT_NOME[Math.max(0,Math.round(s.i*4)-1)].split(' (')[0]))].join(' / ');
