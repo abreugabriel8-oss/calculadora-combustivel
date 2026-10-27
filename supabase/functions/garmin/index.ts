@@ -8,7 +8,7 @@ const CSEC = Deno.env.get("GARMIN_CLIENT_SECRET") ?? "";
 const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
 });
-const ORIGINS = ["https://gabreutri.netlify.app"];
+const ORIGINS = ["https://app.gabreutri.com.br", "https://gabreutri.netlify.app"];
 const TOKEN_URL = "https://diauth.garmin.com/di-oauth2-service/oauth/token";
 const API = "https://apis.garmin.com";
 
