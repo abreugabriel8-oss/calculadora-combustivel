@@ -988,6 +988,66 @@ main.pview[hidden]{display:none!important}
 .vin-box>div{display:flex;flex-direction:column;gap:2px}
 .vin-box .btn.armed,#vinEnd.armed{background:var(--crit-bg);color:var(--crit)}
 @media (max-width:600px){main.pview{padding:14px 14px 32px}.pro-head .btn{width:100%}}
+
+/* ===== Pro e modo prova ===== */
+.pro-tag{display:inline-flex;align-items:center;gap:4px;font:800 10.5px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--grad);padding:4px 7px 4px 6px;border-radius:999px;vertical-align:middle;margin-left:6px;white-space:nowrap}
+.pro-tag svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.4}
+.btn>svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;vertical-align:-3px;margin-left:6px}
+.pay .pay-why{margin:0 0 4px;color:var(--muted);font-size:14px;line-height:1.45}
+.pay-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.pay-list li{display:flex;flex-direction:column;gap:1px;padding:8px 12px 8px 36px;border-radius:12px;background:var(--sunk);position:relative;font-size:13px;line-height:1.4;transition:background .2s}
+.pay-list li::before{content:"";position:absolute;left:15px;top:11px;width:6px;height:11px;border:solid var(--accent);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.pay-list li b{font-size:14px;color:var(--ink)}
+.pay-list li span{font-size:12.5px}
+.pay-list li span{color:var(--muted)}
+.pay-list li.hl{background:var(--orange-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.acct>.pay-plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 12px}
+.pay-plan{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:18px 14px 14px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.pay-plan:active{transform:scale(.98)}
+.pay-plan[aria-pressed="true"]{border-color:var(--accent);background:var(--orange-soft)}
+.pay-plan b{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.pay-plan strong{font:900 32px/1 var(--display);color:var(--ink);white-space:nowrap}
+.pay-plan small{font-size:12.5px;color:var(--muted)}
+.pay-tag{position:absolute;top:-10px;right:10px;background:var(--grad);color:#fff;font:800 10px/1 var(--body);letter-spacing:.05em;padding:5px 8px;border-radius:999px;text-transform:uppercase}
+#payGo{width:100%;min-height:52px}
+.pay-fine{font-size:12px;margin:10px 0 0;line-height:1.5}
+.pay-box{margin:12px 0}
+.pay-st{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-radius:14px;background:var(--sunk);flex-wrap:wrap}
+.pay-st>div:first-child{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 170px}
+.pay-st b{font-size:15px}
+.pay-st.pro{background:var(--orange-soft);box-shadow:inset 0 0 0 1px rgba(242,100,25,.35)}
+.pay-demo{flex:0 0 auto}
+.calsw.locked{color:var(--muted)}
+.mlock{display:inline-flex;align-items:center;gap:4px;border:1px dashed var(--line);background:none;color:var(--muted);font:600 13px var(--body);padding:8px 12px;border-radius:999px;cursor:pointer;align-self:flex-start}
+.race-card .rc-h{display:flex;align-items:baseline;justify-content:space-between;gap:6px 10px;flex-wrap:wrap}
+.race-card .rc-h h3{margin:0}
+.rc-when{font-size:12.5px;color:var(--muted);font-weight:700}
+.rc-sec{border-top:1px solid var(--line);padding-top:14px;margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.rc-sec h4{margin:0;font:800 15px/1.2 var(--body);display:flex;gap:4px 8px;align-items:baseline;flex-wrap:wrap}
+.rc-sec h4 small{font-weight:600;color:var(--muted);font-size:12px}
+.rc-row{display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;font-size:14px;line-height:1.45;align-items:baseline}
+.rc-row time{font:800 17px/1.15 var(--display);color:var(--accent-ink);letter-spacing:.02em;display:flex;flex-direction:column}
+.rc-row time small{font:600 11.5px/1.3 var(--body);color:var(--muted);letter-spacing:0}
+.rc-big{display:flex;align-items:baseline;gap:4px 8px;flex-wrap:wrap}
+.rc-big b{font:900 34px/1 var(--display);color:var(--accent-ink)}
+.rc-big span{color:var(--muted);font-size:13px}
+.rc-meals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.rc-meals span{background:var(--sunk);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;min-width:0}
+.rc-meals small{font-size:11.5px;color:var(--muted)}
+.rc-meals b{font:800 19px/1.1 var(--display)}
+.rc-more summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--accent-ink)}
+.rc-eq{margin:8px 0;padding-left:18px;font-size:13.5px;line-height:1.6}
+.rc-seg{align-self:flex-start;max-width:100%;overflow-x:auto}
+.rc-in{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end}
+.rc-in .f{font-size:12px}
+.rc-tab{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding-right:4px}
+.rc-carry{font-size:13px;line-height:1.5;margin:4px 0 0;padding:10px 12px;border-radius:10px;background:var(--blue-soft)}
+.rc-warn{color:var(--warn)}
+.rc-act{margin-top:16px}.rc-act .btn{width:100%;min-height:50px}
+.rc-lock{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.rc-blur{filter:blur(4px);opacity:.5;pointer-events:none;user-select:none;display:flex;flex-direction:column;gap:6px}
+.rc-feat{margin:0;padding-left:18px;font-size:14px;line-height:1.6}
+#preCard.race-hid{display:none!important}
 </style>
 
 <header class="band">
@@ -1215,6 +1275,7 @@ main.pview[hidden]{display:none!important}
     <div class="sharerow"><button class="btn primary" id="shOpen" type="button">Compartilhar plano nos Stories</button><button class="btn" id="gSend" type="button" hidden>Enviar para o relógio (Garmin Connect™)</button></div>
     <p class="status" id="gSendMsg" aria-live="polite"></p>
     <div class="alerts" id="alerts"></div>
+    <div class="card race-card" id="raceCard" hidden></div>
     <span id="kitHome" hidden></span>
     <div class="card" id="kitCard">
       <h3><i class="ci"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></i>O que levar</h3>
@@ -1433,6 +1494,25 @@ main.pview[hidden]{display:none!important}
     <p class="status" id="convMsg"></p>
   </div>
 </div>
+<div class="acctwrap" id="payPanel" hidden>
+  <div class="acct pay" role="dialog" aria-modal="true" aria-labelledby="payT">
+    <div class="acct-h"><h3 id="payT">Combustível Pro</h3><button class="xclose" id="payX" type="button" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="pay-why" id="payWhy"></p>
+    <ul class="pay-list" id="payList">
+      <li data-k="prova"><b>Modo prova</b><span>Carb loading, refeição pré, cafeína, postos e cartão da equipe.</span></li>
+      <li data-k="cal"><b>Calibração pelo diário</b><span>O plano usa o seu suor e a sua tolerância a carbo medidos.</span></li>
+      <li data-k="garmin"><b>Garmin Connect</b><span>Avisos de gel e água no relógio e atividades no diário.</span></li>
+      <li data-k="multi"><b>Vários produtos</b><span>Alterna géis e divide as caramanholas entre bebidas.</span></li>
+    </ul>
+    <div class="pay-plans" id="payPlans">
+      <button type="button" class="pay-plan" data-p="anual" aria-pressed="true"><span class="pay-tag">Economize 50%</span><b>Anual</b><strong>R$ 119</strong><small>R$ 9,92 por mês</small></button>
+      <button type="button" class="pay-plan" data-p="mensal" aria-pressed="false"><b>Mensal</b><strong>R$ 19,90</strong><small>por 30 dias</small></button>
+    </div>
+    <button type="button" class="btn primary" id="payGo">Pagar com Pix ou cartão</button>
+    <p class="hint pay-fine">Pagamento único pelo Mercado Pago, sem renovação automática. Desistiu em até 7 dias? Devolvemos o valor. Calcular e registrar no diário seguem grátis.</p>
+    <p class="status" id="payMsg" aria-live="polite"></p>
+  </div>
+</div>
 <div class="ptr" id="ptr" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></svg></div>
 
 <div class="acctwrap" id="wizPanel" hidden>
@@ -1460,8 +1540,8 @@ main.pview[hidden]{display:none!important}
       <p class="acintro-t" id="acIntroT">Crie sua conta grátis</p>
       <ul class="ac-ben">
         <li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>Diário de treinos salvo em qualquer aparelho</li>
-        <li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>Taxa de suor e tolerância a carbo calibradas a cada registro</li>
-        <li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>Plano enviado direto para o relógio Garmin</li>
+        <li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>Sua taxa de suor e sua tolerância a carbo medidas a cada registro</li>
+        <li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>No Pro: plano calibrado, modo prova e envio para o relógio Garmin</li>
       </ul>
     </div>
 
@@ -1497,6 +1577,7 @@ main.pview[hidden]{display:none!important}
     <div id="acctIn" hidden>
       <div class="acct-me"><span class="av" id="acctAv" aria-hidden="true"></span><div><span class="hint">Conectado como</span><b id="acctEmail"></b><span class="hint">Diário, calibração e perfil salvos automaticamente.</span></div></div>
       <div class="vin-box" id="vinBox" hidden></div>
+      <div class="pay-box" id="payBox" hidden></div>
       <div class="gsec" id="gSec" hidden>
         <div class="ghead"><img src="data:image/png;base64,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" alt="" width="40" height="40"><div><b>Garmin Connect™</b><span class="gst" id="gStatus">Não conectado</span></div></div>
         <p class="hint">Envia seus treinos com o plano de combustível para o relógio e traz suas atividades para o diário.</p>
@@ -1863,7 +1944,7 @@ function readInputs(){
 /* vários géis (alternados) e várias bebidas/pós (caramanholas divididas) */
 const MULTI={pGel:[],pDrink:[]};
 try{const m=JSON.parse(localStorage.getItem('gaMulti')||'null');if(m){MULTI.pGel=m.pGel||[];MULTI.pDrink=m.pDrink||[];}}catch(e){}
-function multiIds(sel){const first=$(sel).value;const extra=MULTI[sel].filter(id=>id&&id!==first&&prod(id));return first?[first,...extra]:[];}
+function multiIds(sel){const first=$(sel).value;const extra=isPro()?MULTI[sel].filter(id=>id&&id!==first&&prod(id)):[];return first?[first,...extra]:[];}
 function multiSave(){lsSet('gaMulti',JSON.stringify(MULTI));}
 function plano(r,inp){
   const gels=multiIds('pGel').map(prod).filter(g=>g&&g.cho>0);
@@ -1951,7 +2032,7 @@ function run(){
   else if(inp.pre==='loading'){if(r.T>=1.5)padd(`${fmt(Math.round(10*kg/10)*10)} a ${fmt(Math.round(12*kg/10)*10)} g/dia`,'de carbo nas 36 a 48 h antes (10 a 12 g/kg/dia), com pouca fibra. Mantenha a refeição de 2 a 3 g/kg cerca de 3 h antes.');
     else padd(`${fmt(Math.round(7*kg/10)*10)} a ${fmt(Math.round(12*kg/10)*10)} g`,'de carbo nas 24 h antes (7 a 12 g/kg). Para sessão abaixo de 1h30, carb loading de 2 dias não traz ganho.');}
   if(r.T>=1)padd(`${fmt(Math.round(5*kg/10)*10)} a ${fmt(Math.round(7*kg/10)*10)} ml`,'de líquido 2 a 4 h antes (5 a 7 ml/kg). Se a urina estiver escura, mais 3 a 5 ml/kg 2 h antes.','b');
-  const cafPre=prova&&r.T>=1?Math.round(3*kg/5)*5:0;
+  const cafPre=prova&&r.T>=1?raceCafPre(kg,r.T):0;const cafDur=prova?raceCafDur(kg,r.T):0;
   if(cafPre)padd(`${fmt(cafPre)} mg`,'de cafeína cerca de 60 min antes (3 mg/kg). Opcional, e só se você já testou em treino.');
   if(!pl.children.length)padd('','Sessão curta: chegue alimentado e hidratado normalmente.');
   const c=$('carry');c.innerHTML='';
@@ -2013,7 +2094,7 @@ function run(){
   if(r.segs.some(s=>s.sport==='corrida'&&s.carb>=80))al('w',`<b>Corrida com 80 g/h ou mais.</b> Só se o intestino já estiver treinado nessa faixa correndo. Suba 10 g/h por semana nos longões.`);
   const has=sp=>r.segs.some(s=>s.sport===sp);const gb=has('ciclismo')&&inp.gut.ciclismo===0,gr=has('corrida')&&inp.gut.corrida===0;
   if((gb||gr)&&r.T>=2)al('i',`<b>Tolerância iniciante ${gb&&gr?'no pedal e na corrida':gb?'no pedal':'na corrida'}.</b> A meta foi limitada para conforto. Treinar o intestino (aumentar gradualmente o carboidrato nos treinos longos) libera metas maiores e melhor desempenho.`);
-  const cafT=P.tot.caf+cafPre;
+  const cafT=P.tot.caf+cafPre+cafDur;
   if(cafT>0){const mgkg=cafT/inp.peso;al(mgkg>6?'w':'i',`<b>Cafeína total ${fmt(cafT)} mg (${fmt(mgkg,1)} mg/kg${cafPre?', somando a dose pré':''}).</b> Faixa eficaz 3 a 6 mg/kg; acima disso aumentam tremor, taquicardia e desconforto gástrico.`);}
   if(S.formato==='brick'){const rn=r.segs.find(s=>s.sport==='corrida');
     if(rn&&rn.shifted)al('i',`<b>Brick:</b> com T2 de até 45 min, os ${rn.shifted} g de carboidrato da corrida foram antecipados para o pedal. O último gel entra nos 15 a 20 min finais da bike. Na corrida, só água e sódio, porque o esvaziamento gástrico piora com o impacto.`);
@@ -2030,6 +2111,7 @@ function run(){
   $('alerts').innerHTML=A.length>2?A.slice(0,2).join('')+`<div class="al-more" hidden>${A.slice(2).join('')}</div><button type="button" class="al-btn" onclick="this.previousElementSibling.hidden=false;this.remove()">Ver mais ${A.length-2} aviso${A.length-2>1?'s':''}</button>`:A.join('');
   if(typeof flowRefresh==='function')flowRefresh();
   if(typeof renderMulti==='function'&&$('pGelM'))['pGel','pDrink'].forEach(renderMulti);
+  raceRender();
 }
 
 /* ===== CLIMA (Open-Meteo) ===== */
@@ -2142,7 +2224,7 @@ async function storeDelete(id){
 /* ===== CONTA ===== */
 async function onSession(session){
   const u=session&&session.user;
-  if(!u){ACC.user=null;ACC.perfil=null;ACC.consent=false;if(typeof nutriClear==='function')nutriClear();if(ST.mode==='conta')toLocal();renderAcct();return;}
+  if(!u){ACC.user=null;ACC.perfil=null;ACC.consent=false;if(typeof payReset==='function')payReset();if(typeof nutriClear==='function')nutriClear();if(ST.mode==='conta')toLocal();renderAcct();return;}
   if(ACC.user&&ACC.user.id===u.id&&ST.mode==='conta')return;
   ACC.user=u;try{localStorage.setItem('gaHadAccount','1');}catch(e){}
   const {data:perfil}=await SB.from('perfis').select('nome,config,consentimento_em').eq('id',u.id).maybeSingle();
@@ -2173,6 +2255,8 @@ async function enterAccount(){
   storeChip();afterLogs();
   if(typeof nutriLoad==='function')nutriLoad();
   gStatus();gFinish();
+  payLoad().then(payConfirm);
+  if(PAY.after){PAY.after=false;setTimeout(()=>{closeAcct();payOpen(PAY.motivo);},500);}
 }
 function applyConfig(cfg){
   if(!cfg)return;
@@ -2389,7 +2473,9 @@ function renderHist(){
 function applyCal(){
   const has=ST.logs.length>0;
   $('calSwWrap').hidden=!has;
-  const on=has&&$('calSw').checked;CAL.on=on;
+  const pro=isPro();$('calSwWrap').classList.toggle('locked',!pro);
+  if(!pro)$('calSw').checked=false;else if(!$('calSw').dataset.off)$('calSw').checked=true;
+  const on=has&&pro&&$('calSw').checked;CAL.on=on;
   const sets=[['gutBike','ciclismo'],['gutRun','corrida']];
   const LVN=['Iniciante','Intermediário','Treinado'];const notes=[];
   sets.forEach(([id,sp])=>{const el=$(id);const lvl=CAL.gut[sp];el.disabled=false;
@@ -2400,7 +2486,7 @@ function applyCal(){
   });
   const gn=$('gutNote');gn.hidden=!notes.length;gn.textContent=notes.join(' · ')+'. Você pode mudar quando quiser.';
   const parts=[];['ciclismo','corrida'].forEach(sp=>{if(CAL.n[sp])parts.push(`${sp==='ciclismo'?'pedal':'corrida'} ${CAL.n[sp]}`);});
-  $('calSwTxt').textContent=`Usar minha calibração do diário (${parts.join(', ')} registro${ST.logs.length>1?'s':''})`;
+  $('calSwTxt').innerHTML=`Usar minha calibração do diário (${parts.join(', ')} registro${ST.logs.length>1?'s':''})${pro?'':' '+proTag()}`;
   const c=$('tabCnt');c.textContent=ST.logs.length;c.hidden=!ST.logs.length;
 }
 function afterLogs(){calibrar();renderCal();renderHist();labelize('#histBody');applyCal();run();}
@@ -2476,7 +2562,7 @@ function initDiario(){
   $('logOpen').addEventListener('click',lqStart);
   $('logFit').addEventListener('click',()=>{lqStart();LQ.fit=true;$('lgFitPick').click();});
   logOpen(false);
-  $('calSw').addEventListener('change',()=>{applyCal();run();});
+  $('calSw').addEventListener('change',()=>{if(!isPro()){$('calSw').checked=false;payOpen('cal');return;}$('calSw').dataset.off=$('calSw').checked?'':'1';applyCal();run();});
   ['gutBike','gutRun'].forEach(id=>$(id).addEventListener('change',()=>{$(id).dataset.user='1';applyCal();}));
   $('lgFromPlan').addEventListener('click',()=>{showView('diario');lqFromPlan();});
   $('bkCopy').addEventListener('click',()=>{const t=JSON.stringify({app:'calculadora-combustivel',v:1,logs:ST.logs});
@@ -2745,6 +2831,7 @@ function gRedirect(){return location.origin+location.pathname;}
 
 async function gConnect(){
   if(!SB||!ACC.user)return;
+  if(!isPro()){payOpen('garmin');return;}
   const ver=b64url(crypto.getRandomValues(new Uint8Array(48)));
   const ch=b64url(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ver))));
   const state=b64url(crypto.getRandomValues(new Uint8Array(16)));
@@ -2919,6 +3006,7 @@ function gWorkout(){
   return {...base,sport:'MULTI_SPORT',isSessionTransitionEnabled:true,segments};
 }
 async function gSend(){
+  if(!isPro()){payOpen('garmin');return;}
   const btn=$('gSend');const m=$('gSendMsg');
   let w;try{w=gWorkout();}catch(e){m.className='status bad';m.textContent=e.message==='tri'?'Treinos com natação ainda não vão para o relógio. Envie bike e corrida separados.':e.message==='passos'?'Esse treino tem passos demais para o relógio. Simplifique a estrutura.':'Calcule um plano antes de enviar.';return;}
   const date=$('data').value||new Date().toLocaleDateString('sv-SE');
@@ -3013,7 +3101,7 @@ function sessionTitle(){
   if(s.sport==='corrida'&&RUN_DIST[S.dist.single])return `${RUN_DIST[S.dist.single][0].split(' (')[0]} · ${durTxt(s.h)}${prova?' · prova':''}`;
   return `${SPORT_NOME[s.sport]} · ${durTxt(s.h)} · ${prova?'prova':'treino'}`;
 }
-function shareLines(){
+function shareLines(){if(SHMODE==='equipe')return teamLines();
   const r=LAST.r,P=LAST.P,inp=LAST.inp;const out=[];
   out.push(`Meu plano de combustível: ${sessionTitle()}`);
   out.push(`Carbo ${fmt(r.carbH)} g/h · Líquido ${fmt(r.flH)} ml/h · Sódio ${fmt(r.naH)} mg/h`);
@@ -3041,6 +3129,7 @@ async function drawStory(){
   g.font=`900 96px ${D}`;const mg=g.createLinearGradient(L,260,L+140,340);mg.addColorStop(0,'#A8440F');mg.addColorStop(.55,'#F26419');mg.addColorStop(1,'#F5874A');
   g.fillStyle=mg;g.textBaseline='alphabetic';g.fillText('GA',L,350);
   g.fillStyle='#B7ACA0';g.font=`700 28px ${B}`;g.fillText('@gabreutri · nutrição esportiva',L+150,318);
+  {const pro=isPro(),tx=pro?'PRO':'VERSÃO GRÁTIS';g.font=`800 26px ${B}`;const w=g.measureText(tx).width+44;g.fillStyle=pro?'#14100C':'rgba(20,16,12,.5)';roundRect(g,W-L-w,92,w,54,27);g.fill();g.fillStyle=pro?'#F5874A':'#F7F4F1';g.fillText(tx,W-L-w+22,129);}
   // título
   g.fillStyle='#F7F4F1';g.font=`900 118px ${D}`;g.fillText('PLANO DE',L,500);
   g.fillStyle='#F26419';g.fillText('COMBUSTÍVEL',L,612);
@@ -3094,10 +3183,10 @@ function roundRect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,
 function fitText(g,t,x,y,max){let s=t;while(g.measureText(s).width>max&&s.length>4)s=s.slice(0,-2);if(s!==t)s=s.trimEnd()+'…';g.fillText(s,x,y);}
 function wrapText(g,t,x,y,max,lh){const w=t.split(' ');let line='';let n=0;for(const p of w){const tst=line?line+' '+p:p;if(g.measureText(tst).width>max&&line){g.fillText(line,x,y+n*lh);n++;line=p;}else line=tst;}g.fillText(line,x,y+n*lh);}
 
-let shareBlob=null,shareUrl=null;
-async function openShare(){
+let shareBlob=null,shareUrl=null,SHMODE='plano';
+async function openShare(mode){SHMODE=mode==='equipe'?'equipe':'plano';
   if($('shPanel').hidden)navPush('sheet');$('shPanel').hidden=false;$('shMsg').textContent='Gerando imagem...';$('shImg').removeAttribute('src');
-  const c=await drawStory();
+  const c=SHMODE==='equipe'?await drawTeam():await drawStory();
   shareBlob=await new Promise(res=>c.toBlob(res,'image/png'));
   if(shareUrl)URL.revokeObjectURL(shareUrl);
   shareUrl=shareBlob?URL.createObjectURL(shareBlob):c.toDataURL('image/png');
@@ -3107,10 +3196,10 @@ async function openShare(){
   $('shNative').hidden=!canFile;
   $('shDl').href=shareUrl;$('shDl').hidden=IN_CLAUDE;
   $('shMsg').textContent=canFile?'Toque em Compartilhar e escolha Instagram Stories.':'Salve a imagem e poste nos Stories. No celular, também dá para tocar e segurar a imagem.';
-  track('plano_imagem',{formato:S.formato,tipo:S.tipo});
+  track(SHMODE==='equipe'?'prova_cartao':'plano_imagem',{formato:S.formato,tipo:S.tipo});
 }
 function initShare(){
-  $('shOpen').addEventListener('click',openShare);
+  $('shOpen').addEventListener('click',()=>openShare('plano'));
   const shX=()=>{$('shPanel').hidden=true;navPop('sheet');};
   $('shClose').addEventListener('click',shX);
   $('shPanel').addEventListener('click',e=>{if(e.target===$('shPanel'))shX();});
@@ -3209,12 +3298,12 @@ function picHtml(p,cls){const x=picOf(p);return `<i class="pic ${cls||''}" style
 /* chips de produtos extras no formulário */
 function renderMulti(sel){
   const box=$(sel+'M');if(!box)return;
-  const extras=MULTI[sel].filter(id=>id&&id!==$(sel).value&&prod(id));
+  const extras=isPro()?MULTI[sel].filter(id=>id&&id!==$(sel).value&&prod(id)):[];
   const types=sel==='pGel'?['gel']:['bebida','po'];
   const chosen=new Set([$(sel).value,...extras]);
   const opts=PRODUTOS.filter(p=>types.includes(p.t)&&!chosen.has(p.id)).map(p=>`<option value="${p.id}">${p.nome}</option>`).join('');
   box.innerHTML=(extras.map(id=>{const pr=prod(id);return `<span class="mchip">${picHtml(pr,'sm')}${qzEsc(pr.nome.split(' (')[0])}<button type="button" data-rm="${id}" aria-label="Tirar ${qzEsc(pr.nome)}">×</button></span>`;}).join(''))+
-    ($(sel).value?`<label class="madd"><span>+ ${sel==='pGel'?'Alternar com outro gel':'Somar outra bebida ou pó'}</span><select data-add="1"><option value="">Escolher...</option>${opts}</select></label>`:'');
+    ($(sel).value&&!isPro()?`<button type="button" class="mlock" data-pro="multi">+ ${sel==='pGel'?'Alternar com outro gel':'Somar outra bebida ou pó'} ${proTag()}</button>`:$(sel).value?`<label class="madd"><span>+ ${sel==='pGel'?'Alternar com outro gel':'Somar outra bebida ou pó'}</span><select data-add="1"><option value="">Escolher...</option>${opts}</select></label>`:'');
 }
 function initMulti(){
   ['pGel','pDrink'].forEach(sel=>{
@@ -3382,6 +3471,322 @@ function initNutri(){
   const pend=lsGet('gaConvite');if(pend&&SB)setTimeout(()=>{if(!ACC.user)convOpen(pend,false);},900);
 }
 
+/* ===== PLANO PRO (Mercado Pago) ===== */
+const PAY={ready:lsGet('gaPayReady')==='1',ate:null,paciente:false,profissional:false,after:false,plano:'anual',motivo:''};
+try{const c=JSON.parse(lsGet('gaAcc')||'null');if(c){PAY.ate=c.ate||null;PAY.paciente=!!c.paciente;PAY.profissional=!!c.profissional;}}catch(e){}
+const LOCK_IC='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+function proTag(){return `<span class="pro-tag">${LOCK_IC}Pro</span>`;}
+/* sem as tabelas de pagamento no banco (ready=false), tudo fica liberado, como antes do Pro */
+function isPro(){
+  if(IN_CLAUDE)return lsGet('gaDemoPro')!=='0';
+  if(!PAY.ready)return true;
+  if(!ACC.user)return false;
+  if(ACC.pro||(ACC.vin&&ACC.vin.status==='ativo'))return true;
+  return PAY.paciente||PAY.profissional||!!(PAY.ate&&new Date(PAY.ate)>new Date());
+}
+function proSrc(){
+  if(ACC.pro||PAY.profissional)return 'profissional';
+  if((ACC.vin&&ACC.vin.status==='ativo')||PAY.paciente)return 'paciente';
+  return PAY.ate&&new Date(PAY.ate)>new Date()?'pago':null;
+}
+function dBr(d){return new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function proDaysLeft(){return PAY.ate?Math.max(0,Math.ceil((new Date(PAY.ate)-new Date())/864e5)):0;}
+async function payLoad(){
+  if(!SB||IN_CLAUDE){payApply();return;}
+  try{
+    const {data,error}=await SB.rpc('meu_acesso');
+    if(error){const t=(error.code||'')+' '+(error.message||'');if(/PGRST202|42883|meu_acesso/i.test(t)){PAY.ready=false;lsSet('gaPayReady','0');}}
+    else if(data){
+      PAY.ready=!!data.ready;lsSet('gaPayReady',PAY.ready?'1':'0');
+      if(ACC.user){PAY.ate=data.ate||null;PAY.paciente=!!data.paciente;PAY.profissional=!!data.profissional;
+        lsSet('gaAcc',JSON.stringify({ate:PAY.ate,paciente:PAY.paciente,profissional:PAY.profissional}));}
+    }
+  }catch(e){}
+  payApply();payRemind();
+}
+function payReset(){PAY.ate=null;PAY.paciente=false;PAY.profissional=false;try{localStorage.removeItem('gaAcc');}catch(e){}payApply();}
+function payApply(){
+  payRender();
+  if(typeof applyCal==='function'&&$('calSw'))applyCal();
+  ['pGel','pDrink'].forEach(s=>{if($(s+'M'))renderMulti(s);});
+  run();
+}
+function payRemind(){
+  if(proSrc()!=='pago')return;const n=proDaysLeft();if(n>5)return;
+  const k=new Date().toLocaleDateString('sv-SE');if(lsGet('gaPayRem')===k)return;lsSet('gaPayRem',k);
+  setTimeout(()=>toast(n<=0?'Seu Pro acaba hoje. Renove em Conta.':`Seu Pro acaba em ${n} dia${n>1?'s':''}. Renove em Conta.`),1500);
+}
+const PAY_WHY={prova:'O modo prova faz parte do Pro.',cal:'Usar a calibração do diário no plano faz parte do Pro.',garmin:'A integração com o Garmin Connect faz parte do Pro.',multi:'Alternar géis e somar bebidas faz parte do Pro.'};
+function payOpen(motivo){
+  PAY.motivo=motivo||'';
+  $('payWhy').textContent=PAY_WHY[motivo]||'Tudo para treinar e competir com o plano certo.';
+  document.querySelectorAll('#payList li').forEach(li=>li.classList.toggle('hl',li.dataset.k===motivo));
+  payPlan(PAY.plano);$('payMsg').textContent='';$('payGo').disabled=false;
+  $('payGo').textContent=ACC.user||IN_CLAUDE?'Pagar com Pix ou cartão':'Criar conta e assinar';
+  if($('payPanel').hidden){navPush('sheet');$('payPanel').hidden=false;}
+  track('pro_paywall',{motivo:motivo||'conta'});
+}
+function payClose(){if($('payPanel').hidden)return;$('payPanel').hidden=true;navPop('sheet');}
+function payPlan(p){PAY.plano=p;document.querySelectorAll('#payPlans [data-p]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.p===p)));}
+async function payCall(body){
+  const {data,error}=await SB.functions.invoke('pagamento',{body});
+  if(error){let d=null;try{d=await error.context.json();}catch(e){}return {error:(d&&d.error)||'rede'};}
+  return data||{};
+}
+async function payGo(){
+  const m=$('payMsg');
+  if(IN_CLAUDE){m.className='status ok';m.textContent='Na prévia não há cobrança. No site, este botão abre o Mercado Pago.';return;}
+  if(!SB)return;
+  if(!ACC.user){PAY.after=true;payClose();openAcct(false);if(ACC.setMode)ACC.setMode('criar');$('acctMsg').textContent='Crie sua conta (ou entre) para assinar o Pro.';return;}
+  const b=$('payGo');b.disabled=true;m.className='status ok';m.textContent='Abrindo o Mercado Pago...';
+  const r=await payCall({action:'criar',plano:PAY.plano});
+  if(r.url){track('pro_checkout',{plano:PAY.plano,motivo:PAY.motivo||'conta'});lsSet('gaPayPlano',PAY.plano);location.href=r.url;return;}
+  b.disabled=false;m.className='status bad';
+  m.textContent=r.error==='login'?'Sua sessão expirou. Saia e entre de novo.':'Não foi possível abrir o pagamento agora. Tente de novo em instantes.';
+}
+/* volta do Mercado Pago: ?pagamento=ok|pendente|falhou&payment_id=... */
+function payReturnParse(){
+  const q=new URLSearchParams(location.search);const st=q.get('pagamento');if(!st)return;
+  const pid=q.get('payment_id')||q.get('collection_id');
+  ['pagamento','payment_id','collection_id','collection_status','status','external_reference','payment_type','merchant_order_id','preference_id','site_id','processing_mode','merchant_account_id'].forEach(k=>q.delete(k));
+  try{history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);}catch(e){}
+  track('pro_retorno',{status:st});
+  if(st==='falhou'){setTimeout(()=>toast('O pagamento não foi concluído. Nada foi cobrado.'),600);return;}
+  if(pid&&/^\d+$/.test(pid))lsSet('gaPayPend',pid);
+  setTimeout(()=>toast(st==='pendente'?'Pagamento em análise. O Pro é liberado assim que o Mercado Pago confirmar.':'Confirmando seu pagamento...'),600);
+}
+async function payConfirm(){
+  const pid=lsGet('gaPayPend');if(!pid||!ACC.user||IN_CLAUDE||!SB)return;
+  const r=await payCall({action:'confirmar',payment_id:pid});
+  const clear=()=>{try{localStorage.removeItem('gaPayPend');}catch(e){}};
+  if(r.status==='aprovado'){clear();await payLoad();toast(`Pro ativado até ${dBr(PAY.ate)}`,'ok');buzz();track('pro_ativado',{plano:lsGet('gaPayPlano')||''});}
+  else if(r.status==='pendente')toast('Pagamento ainda em análise. Assim que for aprovado, o Pro é liberado.');
+  else if(r.status==='recusado'){clear();toast('O pagamento foi recusado. Nada foi cobrado.');}
+  else if(r.status||/pagamento_nao_encontrado|outro_usuario|referencia/.test(r.error||''))clear();
+}
+function payRender(){
+  const box=$('payBox');if(!box)return;
+  if(!IN_CLAUDE&&!PAY.ready){box.hidden=true;return;}
+  box.hidden=false;const src=proSrc();let h='';
+  if(IN_CLAUDE){const pro=isPro();
+    h=`<div class="pay-st${pro?' pro':''}"><div><span class="hint">Prévia do Claude</span><b>Ver o app como ${pro?'Pro':'grátis'}</b><span class="hint">No site, isso depende do pagamento.</span></div>
+      <div class="seg pay-demo"><button type="button" data-demo="0" aria-pressed="${!pro}">Grátis</button><button type="button" data-demo="1" aria-pressed="${pro}">Pro</button></div></div>`;}
+  else if(src==='profissional')h=`<div class="pay-st pro"><div><span class="hint">Seu plano</span><b>Pro, como nutricionista</b></div></div>`;
+  else if(src==='paciente')h=`<div class="pay-st pro"><div><span class="hint">Seu plano</span><b>Pro incluso no acompanhamento</b><span class="hint">Vale enquanto o acompanhamento estiver ativo.</span></div></div>`;
+  else if(src==='pago'){const n=proDaysLeft();
+    h=`<div class="pay-st pro"><div><span class="hint">Seu plano</span><b>Pro até ${dBr(PAY.ate)}</b><span class="hint">${n<=7?`Falta${n>1?'m':''} ${n} dia${n>1?'s':''}. Renovando agora, os dias se somam.`:'Pagamento único, não renova sozinho.'}</span></div><button type="button" class="btn" data-pro="conta">${n<=7?'Renovar':'Estender'}</button></div>`;}
+  else h=`<div class="pay-st"><div><span class="hint">Seu plano</span><b>Grátis</b><span class="hint">Modo prova, calibração pelo diário, Garmin e vários produtos ficam no Pro.</span></div><button type="button" class="btn primary" data-pro="conta">Conhecer o Pro</button></div>`;
+  box.innerHTML=h;
+}
+function initPay(){
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-pro]');if(b){e.preventDefault();buzz();payOpen(b.dataset.pro);return;}
+    const d=e.target.closest('[data-demo]');if(d){lsSet('gaDemoPro',d.dataset.demo);payApply();}
+  });
+  $('payX').addEventListener('click',payClose);
+  $('payPanel').addEventListener('click',e=>{if(e.target===$('payPanel'))payClose();});
+  $('payPlans').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(b){buzz();payPlan(b.dataset.p);}});
+  $('payGo').addEventListener('click',payGo);
+  payReturnParse();payRender();payLoad();
+}
+
+/* ===== MODO PROVA ===== */
+const RACE=(()=>{let o={};try{o=JSON.parse(lsGet('gaProva')||'{}')||{};}catch(e){}return Object.assign({preH:3,caf:'pre',seg:{}},o);})();
+function raceSave(){lsSet('gaProva',JSON.stringify(RACE));}
+const TRI_KM={sprint:{ciclismo:20,corrida:5},olimpico:{ciclismo:40,corrida:10},'703':{ciclismo:90,corrida:21.1},im:{ciclismo:180,corrida:42.2}};
+function raceKey(sp){return S.formato+'|'+(S.formato==='tri'?S.dist.tri:S.dist.single)+'|'+sp;}
+function raceCfg(s){
+  const sp=s.sport,bike=sp==='ciclismo';const c=RACE.seg[sp]||(RACE.seg[sp]={});
+  let km=null;
+  if(c.km&&c.kmFor===raceKey(sp))km=c.km;
+  else if(S.formato==='tri'&&TRI_KM[S.dist.tri])km=TRI_KM[S.dist.tri][sp];
+  else if(!bike&&isRunRace())km=RUN_DIST[S.dist.single][1];
+  if(!km)km=bike?Math.max(5,Math.round(s.h*30)):Math.max(1,Math.round(s.h*10*10)/10);
+  const longo=S.formato==='tri'&&['703','im'].includes(S.dist.tri);
+  return {km,cada:c.cada||(bike?20:longo?2:2.5),iso:!!c.iso,copo:c.copo||(bike?(+$('bottle').value>=500?+$('bottle').value:600):150)};
+}
+/* cafeína: dose antes e (opcional) dose menor na segunda metade, ISSN 2021 */
+function raceCafPre(kg,T){if(!isPro())return Math.round(3*kg/5)*5;if(RACE.caf==='nao')return 0;if(RACE.caf==='div'&&T>=2)return Math.round(2*kg/5)*5;return Math.round(3*kg/5)*5;}
+function raceCafDur(kg,T){return isPro()&&RACE.caf==='div'&&T>=2?Math.round(1*kg/5)*5:0;}
+function raceClock(min){const [hh,mm]=($('hora').value||'06:00').split(':').map(Number);const t=hh*60+mm+Math.round(min);const h=((Math.floor(t/60)%24)+24)%24,m=((t%60)+60)%60;return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;}
+const kmTxt=d=>fmt(d,d%1?1:0);
+/* postos de um segmento: volume por posto, géis encaixados nos postos e o que carregar */
+function racePostos(x,k,off){
+  const s=x.s,cfg=raceCfg(s),bike=s.sport==='ciclismo';
+  const len=s.h*60,pace=len/cfg.km,mlMin=s.fl*1000/60;
+  const pts=[];for(let d=cfg.cada;d<cfg.km-0.3&&pts.length<60;d+=cfg.cada)pts.push(Math.round(d*10)/10);
+  let prev=0;const P=pts.map(d=>{const t=d*pace;const need=mlMin*(t-prev);prev=t;return {d,t,need,gel:[]};});
+  const tail=mlMin*(len-prev);
+  const gt=(LAST.gt&&LAST.gt[k])||[],gn=(LAST.gn&&LAST.gn[k])||[];const loose=[];
+  // corrida: o gel vai para o posto mais próximo livre (tomar com o copo d'água), no máximo 1 por posto
+  // pedal: o gel segue o próprio horário, com a água das caramanholas
+  const win=Math.min(10,Math.max(4,cfg.cada*pace*0.6));
+  gt.forEach((t,j)=>{let best=null,bd=1e9;if(!bike)P.forEach(p=>{const dd=Math.abs(p.t-t);if(!p.gel.length&&dd<bd){bd=dd;best=p;}});
+    if(best&&bd<=win)best.gel.push(gn[j]);else loose.push({t,g:gn[j]});});
+  let isoCho=0,isoNa=0,rmGel=0;
+  P.forEach(p=>{
+    if(bike){p.garrafas=p.need/cfg.copo;}
+    else{p.drink=Math.round(Math.min(p.need,cfg.copo*2)/10)*10;p.copos=Math.max(1,Math.round(p.drink/cfg.copo));if(cfg.iso){isoCho+=p.drink*0.06;isoNa+=p.drink*0.45;}}
+  });
+  if(cfg.iso&&!bike&&isoCho>0){
+    const slots=[];P.forEach(p=>p.gel.forEach((g,i)=>slots.push([p,i])));
+    const avg=slots.length?slots.reduce((a,[p,i])=>a+(p.gel[i]?p.gel[i].cho:25),0)/slots.length:25;
+    rmGel=Math.min(slots.length,Math.floor(isoCho/avg));
+    const kill=new Set();for(let i=0;i<rmGel;i++)kill.add(Math.floor((i+0.5)*slots.length/rmGel));
+    const keep=new Map();slots.forEach(([p,i],j)=>{if(!kill.has(j)){keep.set(p,(keep.get(p)||[]).concat([p.gel[i]]));}});
+    P.forEach(p=>{p.gel=keep.get(p)||[];});
+  }
+  const maxNeed=P.length?Math.max(...P.map(p=>p.need),tail):tail;
+  const rows=P.map(p=>{
+    const parts=[];
+    if(bike){const n=Math.round(p.garrafas*2)/2;parts.push(n>=0.5?`pegar ${fmt(Math.max(1,Math.round(n)))} garrafa${Math.round(n)>1?'s':''} de água`:'pode passar direto');}
+    else parts.push(`${cfg.iso?'isotônico':'água'}: ${p.copos} copo${p.copos>1?'s':''} (~${fmt(p.drink)} ml)`);
+    p.gel.forEach(g=>parts.push(`1 ${g?g.nome:'gel'}`));
+    return {t:off+p.t,km:p.d,txt:parts.join(' + ')};
+  });
+  loose.forEach(l=>rows.push({t:off+l.t,km:Math.round(l.t/pace*10)/10,txt:bike?`1 ${l.g?l.g.nome:'gel'}, com água da caramanhola`:`1 ${l.g?l.g.nome:'gel'} (entre postos, com a água que você leva)`}));
+  rows.sort((a,b)=>a.t-b.t);
+  const carry=[];
+  if(!bike&&maxNeed>cfg.copo*2*1.15)carry.push(`um flask de 250 ml: há trechos em que o plano pede ~${fmt(Math.round(maxNeed/10)*10)} ml entre postos, mais do que 2 copos`);
+  if(!bike&&!P.length&&tail>150)carry.push(`água para o percurso (~${fmt(Math.round(tail/50)*50)} ml): não há posto no intervalo informado`);
+  if(rmGel>0)carry.push(`${rmGel} ${rmGel>1?'géis':'gel'} a menos: o isotônico dos postos cobre ~${fmt(Math.round(isoCho/5)*5)} g de carbo e ~${fmt(Math.round(isoNa/50)*50)} mg de sódio`);
+  if(bike&&(LAST.P&&LAST.P.drs||[]).some(d=>d.t==='po'))carry.push('o pó de carbo em saquinhos, para misturar na água dos postos');
+  return {cfg,rows,carry,bike,nP:P.length};
+}
+function raceData(){
+  const r=LAST.r,P=LAST.P,inp=LAST.inp;if(!r||!P)return null;
+  const kg=inp.peso,T=r.T;const out={days:[],pre:[],caf:[],segs:[],post:[],team:[]};
+  const dt=$('data').value?new Date($('data').value+'T12:00'):null;
+  const dayLbl=n=>{if(!dt)return n===1?'Véspera':'2 dias antes';const d=new Date(dt);d.setDate(d.getDate()-n);const s=d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'});return s.charAt(0).toUpperCase()+s.slice(1);};
+  // dias antes (ACSM 2016): >90 min, 36 a 48 h com 10 a 12 g/kg/dia; 60 a 90 min, 7 a 12 g/kg nas 24 h
+  if(T>=1.5){out.load={lo:Math.round(10*kg/10)*10,hi:Math.round(12*kg/10)*10,dias:[2,1].map(dayLbl),txt:'10 a 12 g/kg por dia, nos 2 dias antes'};}
+  else if(T>=1){out.load={lo:Math.round(7*kg/10)*10,hi:Math.round(10*kg/10)*10,dias:[dayLbl(1)],txt:'7 a 10 g/kg na véspera'};}
+  if(out.load){const L=out.load.lo;out.load.ref=[['Café da manhã',.2],['Lanche',.15],['Almoço',.2],['Lanche',.15],['Jantar',.2],['Ceia',.1]].map(([n,f])=>[n,Math.round(L*f/5)*5]);
+    out.team.push({h:'',k:'',t:`${out.load.dias.join(' e ')}: ${fmt(out.load.lo)} a ${fmt(out.load.hi)} g de carbo por dia`});}
+  // manhã da prova
+  const hs=+(($('hora').value||'06:00').split(':')[0]);const pH=RACE.preHu?RACE.preH:(hs<7?2:3),pre=Math.round(pH*kg/5)*5;out.preH=pH;
+  const ex={4:'arroz ou macarrão com frango, pão e suco',3:'pão francês com mel, banana e suco',2:'tapioca com mel e banana',1:'banana com mel ou um pão com geleia'}[pH];
+  out.pre.push({tm:-pH*60,h:raceClock(-pH*60),t:`Refeição com ~${fmt(pre)} g de carbo (${pH} g/kg), pouca fibra e gordura. Ex.: ${ex}.`});
+  {const tf=Math.max(-240,-pH*60);out.pre.push({tm:tf-0.5,h:raceClock(tf),t:`${fmt(Math.round(5*kg/10)*10)} a ${fmt(Math.round(7*kg/10)*10)} ml de líquido${tf===-pH*60?' junto com a refeição':''} (5 a 7 ml/kg). Urina escura 2 h antes da largada? Mais ${fmt(Math.round(3*kg/10)*10)} a ${fmt(Math.round(5*kg/10)*10)} ml.`});}
+  if(T>=1.25&&P.gel)out.pre.push({tm:-12,h:raceClock(-12),t:`1 ${P.gel.nome}, 10 a 15 min antes da largada${S.formato==='tri'?' da natação':''}.`});
+  // cafeína
+  const c1=raceCafPre(kg,T),c2=raceCafDur(kg,T),cg=P.tot.caf||0;
+  if(c1)out.caf.push({tm:-60,h:raceClock(-60),t:`${fmt(c1)} mg de cafeína (${RACE.caf==='div'&&T>=2?2:3} mg/kg), 60 min antes. Ex.: cápsula de 200 mg ou gel com cafeína.`});
+  if(c2)out.caf.push({tm:T*60*0.6,h:raceClock(T*60*0.6),t:`Mais ${fmt(c2)} mg (1 mg/kg) a partir de 60% da prova, quando o cansaço aperta. Um gel com cafeína resolve.`});
+  if(cg)out.caf.push({h:'',t:`Os géis do plano já somam ${fmt(cg)} mg de cafeína.`});
+  const tot=c1+c2+cg;out.cafTot=tot;out.cafKg=tot/kg;
+  // postos
+  let off=0;
+  P.rows.forEach((x,k)=>{const s=x.s;if(s.sport!=='natacao'&&s.h>0&&s.fl+s.carb>0)out.segs.push({k,s,...racePostos(x,k,off)});off+=s.h*60;});
+  // depois (ACSM 2016; Shirreffs 1996; Jäger/ISSN 2017)
+  const defKg=Math.max(0,r.loss-r.intake);
+  out.post.push({t:`${fmt(Math.round(defKg*1.25*10)/10,1)} a ${fmt(Math.round(defKg*1.5*10)/10,1)} L de líquido nas horas seguintes (125 a 150% do peso que você deve perder, ~${fmt(defKg,1)} kg).`});
+  const naPos=r50(Math.max(0,r.naLoss-r.naTot));if(naPos>=300)out.post.push({t:`~${fmt(naPos)} mg de sódio junto, para reter a água (caldo, comida salgada ou bebida com eletrólito).`});
+  out.post.push({t:`${fmt(Math.round(kg/5)*5)} g de carbo e ~${fmt(Math.round(0.3*kg/5)*5)} g de proteína na primeira hora (1 g/kg e 0,3 g/kg).`});
+  // cartão da equipe, em ordem de horário
+  out.pre.sort((a,b)=>a.tm-b.tm);
+  const tl=[];
+  out.pre.forEach(i=>tl.push({tm:i.tm,h:i.h,k:'',t:i.t.split('. Ex.')[0].split('. Urina')[0]}));
+  out.caf.filter(i=>i.h).forEach(i=>tl.push({tm:i.tm,h:i.h,k:'',t:i.t.split('. Ex.')[0].split('. Um gel')[0]}));
+  tl.push({tm:0,h:raceClock(0),k:'',t:'Largada'});
+  let o2=0;r.segs.forEach((s,j)=>{if(j>0)tl.push({tm:o2-0.01,h:raceClock(o2),k:'',t:S.formato==='tri'?(s.sport==='ciclismo'?'T1: começa o pedal':'T2: começa a corrida'):`Início ${SPORT_NOME[s.sport].toLowerCase()}`});o2+=s.h*60;});
+  out.segs.forEach(sg=>sg.rows.forEach(rw=>tl.push({tm:rw.t,h:raceClock(rw.t),k:`${sg.bike?'Bike':'Km'} ${kmTxt(rw.km)}`,t:rw.txt})));
+  tl.push({tm:T*60,h:raceClock(T*60),k:'',t:'Chegada'});
+  tl.sort((a,b)=>a.tm-b.tm);out.team.push(...tl);
+  out.team.push({h:'Depois',k:'',t:out.post.map(p=>p.t.split(' (')[0]).join('; ')});
+  return out;
+}
+function raceRender(){
+  const card=$('raceCard');if(!card)return;
+  const r=LAST.r;const show=S.tipo==='prova'&&r&&r.segs.some(s=>s.sport!=='natacao');
+  card.hidden=!show;$('preCard').classList.toggle('race-hid',!!(show&&isPro()));
+  if(!show)return;
+  const dtx=$('data').value?new Date($('data').value+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
+  const head=`<div class="rc-h"><h3><i class="ci"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></i>Plano de prova</h3><span class="rc-when">${dtx?dtx+' · ':''}largada ${raceClock(0)}</span></div>`;
+  if(!isPro()){
+    card.innerHTML=head+`<div class="rc-lock"><div class="rc-blur" aria-hidden="true"><div class="rc-row"><time>2 dias antes</time><span>~${fmt(Math.round(10*(LAST.inp.peso)/10)*10)} g de carbo por dia</span></div><div class="rc-row"><time>${raceClock(-180)}</time><span>Refeição pré-prova</span></div><div class="rc-row"><time>Km 5</time><span>água 300 ml + 1 gel</span></div><div class="rc-row"><time>Km 10</time><span>isotônico 300 ml</span></div></div>
+      <ul class="rc-feat"><li><b>Supercompensação</b> com meta por dia e por refeição</li><li><b>Manhã da prova</b> com horário de cada coisa</li><li><b>Cafeína</b> na dose e na hora certas</li><li><b>Postos do percurso</b>: quanto beber e quando tomar cada gel</li><li><b>Cartão da equipe de apoio</b> para mandar no WhatsApp</li></ul>
+      <button type="button" class="btn primary" data-pro="prova" style="width:100%">Liberar o modo prova ${LOCK_IC}</button></div>`;
+    return;
+  }
+  const D=raceData();if(!D){card.innerHTML=head;return;}
+  const li=a=>a.map(i=>`<div class="rc-row"><time>${i.h||''}</time><span>${i.t}</span></div>`).join('');
+  const chips=(name,opts,cur)=>`<div class="seg rc-seg" data-r="${name}">${opts.map(([v,t])=>`<button type="button" data-v="${v}" aria-pressed="${String(v)===String(cur)}">${t}</button>`).join('')}</div>`;
+  let h=head;
+  if(D.load){h+=`<section class="rc-sec"><h4>Dias antes <small>${D.load.txt}</small></h4>
+    <div class="rc-big"><b>${fmt(D.load.lo)} a ${fmt(D.load.hi)} g</b><span>de carbo por dia · ${D.load.dias.join(' e ')}</span></div>
+    <div class="rc-meals">${D.load.ref.map(([n,g])=>`<span><small>${n}</small><b>${fmt(g)} g</b></span>`).join('')}</div>
+    <details class="rc-more"><summary>Quanto é 30 g de carbo</summary><ul class="rc-eq"><li>Arroz branco cozido, 105 g (4 colheres de sopa cheias)</li><li>Pão francês, 1 unidade (50 g)</li><li>Cuscuz de milho, 120 g</li><li>Batata-doce cozida, 160 g</li><li>Banana, 115 g (1 grande)</li><li>Mel, 2 colheres de sopa rasas (36 g)</li></ul><p class="hint">Valores da Tabela TACO. Prefira pouca fibra e pouca gordura para caber o volume. Subir 1 a 2 kg na balança é esperado: o glicogênio é guardado com água.</p></details></section>`;}
+  h+=`<section class="rc-sec"><h4>Manhã da prova <small>refeição antes da largada</small></h4>${chips('preH',[[4,'4 h antes'],[3,'3 h'],[2,'2 h'],[1,'1 h']],D.preH)}${li(D.pre)}</section>`;
+  h+=`<section class="rc-sec"><h4>Cafeína</h4>${chips('caf',[['nao','Não uso'],['pre','Antes'],...(LAST.r.T>=2?[['div','Antes + durante']]:[])],RACE.caf==='div'&&LAST.r.T<2?'pre':RACE.caf)}${D.caf.length?li(D.caf):'<p class="hint">Sem cafeína no plano.</p>'}
+    ${D.cafTot?`<p class="hint${D.cafKg>6?' rc-warn':''}">Total ${fmt(D.cafTot)} mg (${fmt(D.cafKg,1)} mg/kg). Faixa eficaz 3 a 6 mg/kg; só use o que já testou em treino.</p>`:''}</section>`;
+  D.segs.forEach(sg=>{const sp=sg.s.sport,c=sg.cfg;
+    h+=`<section class="rc-sec" data-sp="${sp}"><h4>Postos ${S.formato!=='single'?(sg.bike?'do pedal':'da corrida'):'do percurso'}</h4>
+      <div class="rc-in"><label class="f">Distância (km)<input type="number" inputmode="decimal" min="1" step="0.1" data-in="km" value="${Math.round(c.km*10)/10}"></label>
+      <label class="f">Posto a cada (km)<input type="number" inputmode="decimal" min="0.5" step="0.5" data-in="cada" value="${c.cada}"></label>
+      ${sg.bike?'':`<label class="f">Copo (ml)<input type="number" inputmode="numeric" min="50" step="50" data-in="copo" value="${c.copo}"></label>`}</div>
+      ${sg.bike?'':`<label class="chk rc-iso"><input type="checkbox" data-in="iso" ${c.iso?'checked':''}> Os postos têm isotônico e vou usar</label>`}
+      ${sg.rows.length?`<div class="rc-tab">${sg.rows.map(rw=>`<div class="rc-row"><time>${sg.bike?'':'Km '}${kmTxt(rw.km)}${sg.bike?' km':''}<small>${raceClock(rw.t)}</small></time><span>${rw.txt}</span></div>`).join('')}</div>`:'<p class="hint">Nenhum posto com essa distância.</p>'}
+      ${sg.carry.length?`<p class="rc-carry"><b>Leve também:</b> ${sg.carry.join('; ')}.</p>`:''}</section>`;});
+  h+=`<section class="rc-sec"><h4>Depois da prova</h4>${li(D.post.map(p=>({h:'',t:p.t})))}</section>`;
+  h+=`<div class="rc-act"><button type="button" class="btn primary" id="raceTeam">Cartão da equipe de apoio</button></div>`;
+  card.innerHTML=h;
+}
+function teamLines(){
+  const D=raceData();if(!D)return '';
+  const L=[`PLANO DE PROVA · ${sessionTitle()||'Prova'}`];
+  if($('data').value)L.push(new Date($('data').value+'T12:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'}));
+  L.push('');D.team.forEach(i=>L.push([i.h,i.k,i.t].filter(Boolean).join(' · ')));
+  L.push('');L.push(`Gerado na Calculadora Combustível: https://${SITE}`);
+  return L.join('\n');
+}
+async function drawTeam(){
+  try{await Promise.all(['900 110px "Barlow Condensed"','800 40px "Barlow Condensed"','700 30px "Plus Jakarta Sans"','500 28px "Plus Jakarta Sans"'].map(f=>document.fonts.load(f)));}catch(e){}
+  const W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  const D='"Barlow Condensed","Arial Narrow",Impact,sans-serif',B='"Plus Jakarta Sans",system-ui,sans-serif';
+  g.fillStyle='#14100C';g.fillRect(0,0,W,H);
+  const gr=g.createLinearGradient(0,0,W,0);gr.addColorStop(0,'#A8440F');gr.addColorStop(.55,'#F26419');gr.addColorStop(1,'#F5874A');
+  g.fillStyle=gr;g.fillRect(0,0,W,16);
+  const L=72;
+  g.fillStyle='#B7ACA0';g.font=`700 28px ${B}`;g.fillText('@gabreutri · nutrição esportiva',L,110);
+  g.fillStyle='#F7F4F1';g.font=`900 104px ${D}`;g.fillText('CARTÃO DA',L,220);
+  g.fillStyle='#F26419';g.fillText('EQUIPE',L,316);
+  g.fillStyle='#F7F4F1';g.font=`700 36px ${B}`;wrapText(g,sessionTitle()||'Prova',L,384,W-L*2,46);
+  const Dt=raceData();const items=Dt?Dt.team:[];
+  const avail=1700-450;let fs=30,lh=50;
+  const lines=items.map(i=>({...i,n:1}));
+  const measure=()=>{g.font=`500 ${fs}px ${B}`;let tot=0;lines.forEach(i=>{const w=g.measureText(i.t).width;i.n=Math.min(4,Math.max(1,Math.ceil(w/(W-L*2-250))));tot+=lh*i.n+14;});return tot;};
+  while(measure()>avail&&fs>18){fs-=1;lh=Math.round(fs*1.55);}
+  let y=460;let shown=0;
+  for(const i of lines){if(y+lh*i.n>1690)break;
+    g.fillStyle='rgba(247,244,241,.05)';roundRect(g,L-16,y-fs-12,W-L*2+32,lh*i.n+10,14);g.fill();
+    g.fillStyle='#F26419';g.font=`800 ${fs+6}px ${D}`;g.fillText(i.h||'',L,y);
+    if(i.k){g.fillStyle='#B7ACA0';g.font=`700 ${Math.round(fs*0.72)}px ${B}`;g.fillText(i.k,L+Math.round(fs*3.2),y);}
+    g.fillStyle='#F3EEE8';g.font=`500 ${fs}px ${B}`;wrapText(g,i.t,L+210,y,W-L*2-250,lh);
+    y+=lh*i.n+14;shown++;}
+  if(shown<lines.length){g.fillStyle='#B7ACA0';g.font=`500 26px ${B}`;g.fillText(`+ ${lines.length-shown} itens: veja o texto completo`,L,Math.min(y+10,1690));}
+  g.fillStyle='rgba(247,244,241,.12)';g.fillRect(L,1720,W-L*2,2);
+  g.fillStyle='#F26419';g.font=`700 34px ${B}`;g.fillText(SITE,L,1790);
+  g.fillStyle='#B7ACA0';g.font=`500 24px ${B}`;g.textAlign='right';g.fillText('Gabriel Abreu · CRN 23100384',W-L,1790);g.textAlign='left';
+  return c;
+}
+function initRace(){
+  const card=$('raceCard');if(!card)return;
+  card.addEventListener('click',e=>{
+    const b=e.target.closest('.rc-seg [data-v]');
+    if(b){buzz();const k=b.parentElement.dataset.r;RACE[k]=k==='preH'?+b.dataset.v:b.dataset.v;if(k==='preH')RACE.preHu=1;raceSave();run();track('prova_ajuste',{campo:k,valor:String(RACE[k])});return;}
+    if(e.target.closest('#raceTeam')){openShare('equipe');}
+  });
+  card.addEventListener('change',e=>{
+    const el=e.target.closest('[data-in]');if(!el)return;const sec=el.closest('[data-sp]');const sp=sec.dataset.sp;
+    const c=RACE.seg[sp]||(RACE.seg[sp]={});const k=el.dataset.in;
+    if(k==='iso')c.iso=el.checked;
+    else{const v=parseFloat(String(el.value).replace(',','.'));if(!(v>0))return;
+      if(k==='km'){c.km=Math.min(400,v);c.kmFor=raceKey(sp);}else if(k==='cada')c.cada=Math.max(0.5,v);else c.copo=Math.max(50,Math.round(v));}
+    raceSave();raceRender();
+  });
+}
+
 /* ===== Avisos rápidos (toast) e toque ===== */
 let toastT=null;
 function toast(msg,kind){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
@@ -3534,7 +3939,7 @@ function navPop(tag){if(history.state&&history.state.cc===tag){NAV.silent++;hist
 function navUnwind(n){n=n|0;if(n>0&&history.state&&history.state.cc){NAV.silent++;history.go(-n);}}
 window.addEventListener('popstate',()=>{
   if(NAV.silent>0){NAV.silent--;return;}
-  for(const id of ['instPanel','proInvPanel','proPacPanel','convPanel'])if(!$(id).hidden){$(id).hidden=true;return;}
+  for(const id of ['payPanel','instPanel','proInvPanel','proPacPanel','convPanel'])if(!$(id).hidden){$(id).hidden=true;return;}
   if(!$('shPanel').hidden){$('shPanel').hidden=true;return;}
   if(!$('acctPanel').hidden){$('acctPanel').hidden=true;$('acIntro').hidden=true;$('acSkip').hidden=true;ACC.auto=false;return;}
   if(!$('lq').hidden){LQ.pushed=Math.max(0,(LQ.pushed||0)-1);if(LQ.hist.length&&LQ.cur!=='_salvo')lqBack();else{$('lq').hidden=true;document.body.classList.remove('lq-on');LQ.pushed=0;}return;}
@@ -3775,7 +4180,7 @@ const QZQ=[
     el.querySelectorAll('.qz-pre .qz-card').forEach(b=>b.addEventListener('click',()=>{$('temp').value=b.dataset.v;$('rh').value=+b.dataset.v>=26?75:65;el.querySelectorAll('.qz-pre .qz-card').forEach(x=>x.classList.toggle('on',x===b));upd();}));
     upd();}},
  {id:'gel',recap:()=>{const ids=multiIds('pGel');return ids.length?ids.map(i=>prod(i).nome.split(' (')[0].split(' ').slice(0,2).join(' ')).join(' + '):'Sem gel';},show:()=>!QZ.repeat&&qzSingle()!=='natacao'&&(LAST.r&&LAST.r.carbH>0),next:true,
-  title:()=>'Quais géis ou alimentos você vai usar?',sub:()=>'Pode escolher mais de um. A calculadora alterna entre eles.',
+  title:()=>'Quais géis ou alimentos você vai usar?',sub:()=>isPro()?'Pode escolher mais de um. A calculadora alterna entre eles.':'Escolha o principal. Alternar vários géis faz parte do Pro.',
   html:()=>{const L=['maurten100','pf30','vo2','fourlab','paceneutro','truesource','dobrohidrogel','carbup','gu','sis','banana','mel'];const sel=new Set(lsGet('gaGelPicked')==='1'?multiIds('pGel'):[]);
     const nm=id=>({maurten100:'Maurten 100',pf30:'Precision PF 30',vo2:'VO2 C30',fourlab:'FourLab',paceneutro:'Pace It',truesource:'True Source',dobrohidrogel:'Dobro Hidrogel',carbup:'Carb Up',gu:'GU',sis:'SiS GO',banana:'Banana',mel:'Mel, sachê'})[id];
     const extra=[...sel].filter(id=>!L.includes(id));
@@ -3784,20 +4189,20 @@ const QZQ=[
       <button type="button" class="qz-none${sel.size||lsGet('gaGelPicked')!=='1'?'':' on'}" id="qzGelNone">Não vou usar gel</button>`;},
   bind:el=>{const apply=ids=>{$('pGel').value=ids[0]||'';MULTI.pGel=ids.slice(1);multiSave();renderProdEdit('pGel','pGelV');renderMulti('pGel');qzApply();};
     const cur=()=>[...el.querySelectorAll('.qz-multi .qz-card.on')].map(b=>b.dataset.v);
-    el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.addEventListener('click',()=>{buzz();b.classList.toggle('on');$('qzGelNone').classList.toggle('on',!cur().length);
+    el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.addEventListener('click',()=>{buzz();if(!isPro()&&!b.classList.contains('on'))el.querySelectorAll('.qz-multi .qz-card.on').forEach(x=>x.classList.remove('on'));b.classList.toggle('on');$('qzGelNone').classList.toggle('on',!cur().length);
       // mantém a ordem de escolha: o primeiro tocado continua principal
       const prev=lsGet('gaGelPicked')==='1'?multiIds('pGel'):[];lsSet('gaGelPicked','1');const now=cur();apply([...prev.filter(i=>now.includes(i)),...now.filter(i=>!prev.includes(i))]);}));
-    $('qzGelO').addEventListener('change',e=>{const v=e.target.value;if(!v)return;const prev=lsGet('gaGelPicked')==='1'?multiIds('pGel'):[];lsSet('gaGelPicked','1');apply([...prev.filter(i=>i!==v),v]);qzRender(0);});
+    $('qzGelO').addEventListener('change',e=>{const v=e.target.value;if(!v)return;const prev=lsGet('gaGelPicked')==='1'&&isPro()?multiIds('pGel'):[];lsSet('gaGelPicked','1');apply([...prev.filter(i=>i!==v),v]);qzRender(0);});
     $('qzGelNone').addEventListener('click',()=>{buzz();lsSet('gaGelPicked','1');el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.classList.remove('on'));$('qzGelNone').classList.add('on');apply([]);});}},
  {id:'bebida',recap:()=>{const ids=multiIds('pDrink');return ids.length?ids.map(i=>prod(i).nome.split(' (')[0]).join(' + '):'Só água';},show:()=>!QZ.repeat&&segList().some(s=>s.sport==='ciclismo'),next:true,
-  title:()=>'E na caramanhola?',sub:()=>'Pode somar mais de uma: as caramanholas são divididas entre elas.',
+  title:()=>'E na caramanhola?',sub:()=>isPro()?'Pode somar mais de uma: as caramanholas são divididas entre elas.':'Escolha a principal. Somar bebidas diferentes faz parte do Pro.',
   html:()=>{const L=['gatorade','c90','dm160','dm320','pfce','malto','mix108','dextrose'];const sel=new Set(multiIds('pDrink'));
     const nm=id=>({gatorade:'Isotônico',c90:'FourLab C90',dm160:'Maurten 160',dm320:'Maurten 320',pfce:'Precision Drink Mix',malto:'Maltodextrina',mix108:'Malto + frutose',dextrose:'Dextrose'})[id];
     return `<div class="qz-cards g2 qz-sm qz-multi">${L.map(id=>{const pr=prod(id);if(!pr)return '';return `<button type="button" class="qz-card pcard${sel.has(id)?' on':''}" data-v="${id}">${picHtml(pr)}<span class="qz-ct"><b>${nm(id)}</b><span>${pr.t==='po'?'em pó':'pronto para misturar'}</span></span></button>`;}).join('')}</div>
       <button type="button" class="qz-none${sel.size?'':' on'}" id="qzDrNone">Só água</button>`;},
   bind:el=>{const apply=ids=>{$('pDrink').value=ids[0]||'';MULTI.pDrink=ids.slice(1);multiSave();renderProdEdit('pDrink','pDrinkV');renderMulti('pDrink');qzApply();};
     const cur=()=>[...el.querySelectorAll('.qz-multi .qz-card.on')].map(b=>b.dataset.v);
-    el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.addEventListener('click',()=>{buzz();b.classList.toggle('on');$('qzDrNone').classList.toggle('on',!cur().length);
+    el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.addEventListener('click',()=>{buzz();if(!isPro()&&!b.classList.contains('on'))el.querySelectorAll('.qz-multi .qz-card.on').forEach(x=>x.classList.remove('on'));b.classList.toggle('on');$('qzDrNone').classList.toggle('on',!cur().length);
       const prev=multiIds('pDrink');const now=cur();apply([...prev.filter(i=>now.includes(i)),...now.filter(i=>!prev.includes(i))]);}));
     $('qzDrNone').addEventListener('click',()=>{buzz();el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.classList.remove('on'));$('qzDrNone').classList.add('on');apply([]);});}},
  {id:'eletro',show:()=>!QZ.repeat&&qzSingle()!=='natacao'&&(LAST.r&&LAST.r.naH>0),title:()=>'E para o sódio?',sub:()=>'Para completar o sódio que a bebida e o gel não cobrem.',
@@ -4097,6 +4502,8 @@ function initMobile(){
   initWiz();
   initFolds();
   initNutri();
+  initPay();
+  initRace();
   initTheme();
   layoutDesk();MQ.addEventListener?MQ.addEventListener('change',layoutDesk):MQ.addListener(layoutDesk);
   try{localStorage.removeItem('gaLive');}catch(e){}
