@@ -33,6 +33,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
+[hidden]{display:none!important}
 /* Layout: banda escura de marca no topo com corte diagonal de combustão; abaixo, ferramenta em duas colunas (entradas | plano), empilhando no celular */
 :root{
   --bg:#F7F4F1; --surface:#FFFFFF; --sunk:#EFEAE4; --ink:#1E1914; --muted:#6B6158; --line:#E2DAD1;
@@ -1330,6 +1331,45 @@ body.locked #logCta,body.locked #fabBtn,body.locked .hc-del{display:none!importa
 .sw-res span{font-size:13px;font-weight:700;color:var(--muted)}
 .st-btn{width:100%;margin-top:10px}
 .hj-link{border:0;background:none;padding:0;color:var(--accent-ink);font:700 12.5px var(--body);cursor:pointer;align-self:flex-start}
+/* ===== Trazer treino ===== */
+.tr-tabs{display:grid!important;grid-template-columns:1fr 1.6fr 1fr;margin-bottom:12px}
+.tr-tabs button{font-size:12.5px;padding:9px 4px}
+#trBody{display:flex;flex-direction:column;gap:10px}
+#trBody textarea{width:100%;min-height:120px;font:15px/1.5 var(--body);padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--sunk);color:var(--ink);resize:vertical;box-sizing:border-box}
+#trBody .hint{margin:0}
+.tr-go{width:100%;min-height:50px}
+.tr-pick{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:150px;border-radius:16px;border:2px dashed var(--line);background:var(--sunk);color:var(--muted);font:inherit;cursor:pointer;overflow:hidden;padding:0}
+.tr-pick svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.tr-pick b{color:var(--ink);font-size:14.5px}
+.tr-pick img{width:100%;max-height:280px;object-fit:contain;display:block}
+.tr-wait{display:flex;align-items:center;gap:10px}
+.tr-wait .gt-spin{width:18px;height:18px;border-width:2px}
+.tr-res{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:var(--orange-soft);box-shadow:inset 0 0 0 1px rgba(242,100,25,.3)}
+.tr-res h4{margin:0;font-size:15px}
+.tr-sess{display:flex;gap:12px;align-items:flex-start}
+.tr-sess>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.tr-sess b{font-size:14.5px}.tr-sess span{font-size:12.5px;color:var(--muted)}
+.tr-prof{margin-top:6px;height:44px}.tr-prof svg{width:100%;height:44px}
+.tp-how ol{margin:0;padding-left:20px;font-size:14px;line-height:1.7}
+.tp-how input{width:100%;box-sizing:border-box;margin-top:4px}
+.tp-on{display:flex;flex-direction:column;gap:10px}
+.tp-day{display:flex;flex-direction:column;gap:6px}
+.tp-dt{font-size:12px;font-weight:800;color:var(--muted);text-transform:capitalize}
+.tp-ev{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.tp-ev>div{flex:1;min-width:0;display:flex;flex-direction:column}
+.tp-ev b{font-size:14px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tp-ev span{font-size:12px;color:var(--muted)}
+.tp-ev .btn{flex:0 0 auto;padding:8px 12px;min-height:38px;font-size:13px}
+.tp-ev.race{background:var(--orange-soft)}
+.tp-brick{width:100%}
+.tp-ft{display:flex;justify-content:space-between}
+.dt.tp{background:none;box-shadow:inset 0 0 0 1.5px var(--sp-run)}
+.dt.tp.ciclismo{box-shadow:inset 0 0 0 1.5px var(--sp-bike)}.dt.tp.natacao{box-shadow:inset 0 0 0 1.5px var(--sp-swim)}
+.hj-row .tp-tag{font-style:normal;font-size:10.5px;font-weight:800;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.hj-row.tp em.go{font:800 13px var(--body);color:var(--accent-ink);white-space:nowrap}
+.hj-brick{width:100%;margin-top:4px}
+.tp-sec{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-radius:14px;background:var(--sunk);flex-wrap:wrap;margin:12px 0}
+.tp-sec>div{display:flex;flex-direction:column;gap:2px;flex:1 1 170px}
 </style>
 
 <header class="band">
@@ -1786,6 +1826,13 @@ body.locked #logCta,body.locked #fabBtn,body.locked .hc-del{display:none!importa
     <p class="status" id="convMsg"></p>
   </div>
 </div>
+<div class="acctwrap" id="trPanel" hidden>
+  <div class="acct" role="dialog" aria-modal="true" aria-labelledby="trT">
+    <div class="acct-h"><h3 id="trT">Trazer treino</h3><button class="xclose" id="trX" type="button" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="seg tr-tabs" id="trTabs" role="group" aria-label="Como trazer"><button type="button" data-t="colar">Colar</button><button type="button" data-t="foto" hidden>Foto</button><button type="button" data-t="tp">TrainingPeaks</button><button type="button" data-t="arq">Arquivo</button></div>
+    <div id="trBody"></div>
+  </div>
+</div>
 <div class="acctwrap" id="wlPanel" hidden>
   <div class="acct wl" role="dialog" aria-modal="true" aria-labelledby="wlT">
     <div class="wl-ic"><svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg></div>
@@ -1813,6 +1860,7 @@ body.locked #logCta,body.locked #fabBtn,body.locked .hc-del{display:none!importa
     <div class="fab-grid">
       <button type="button" data-fab="planejar"><i><svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg></i><span><b>Planejar treino</b>Carbo, líquido e sódio por hora</span></button>
       <button type="button" data-fab="prova"><i><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></i><span><b>Planejar prova</b>Carb loading, cafeína, postos e cartão da equipe</span></button>
+      <button type="button" data-trazer="colar"><i><svg viewBox="0 0 24 24"><path d="M9 4h6"/><rect x="5" y="5" width="14" height="16" rx="2.5"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4"/></svg></i><span><b>Trazer treino do treinador</b>Colar, TrainingPeaks ou arquivo</span></button>
       <button type="button" data-fab="registrar"><i><svg viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></i><span><b>Registrar treino</b>Peso antes e depois, o que bebeu e comeu</span></button>
       <button type="button" data-fab="fit"><i><svg viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></svg></i><span><b>Importar atividade</b>Arquivo .fit do Garmin ou de outro relógio</span></button>
       <button type="button" data-fab="suor"><i><svg viewBox="0 0 24 24"><path d="M12 2.5C9 7 6 10.5 6 14.5a6 6 0 0 0 12 0c0-4-3-7.5-6-12z"/></svg></i><span><b>Teste de suor</b>Descubra quanto você sua por hora</span></button>
@@ -1904,6 +1952,7 @@ body.locked #logCta,body.locked #fabBtn,body.locked .hc-del{display:none!importa
       <div class="acct-me"><span class="av" id="acctAv" aria-hidden="true"></span><div><span class="hint">Conectado como</span><b id="acctEmail"></b><span class="hint">Diário, calibração e perfil salvos automaticamente.</span></div></div>
       <div class="vin-box" id="vinBox" hidden></div>
       <div class="pay-box" id="payBox" hidden></div>
+      <div class="tp-sec"><div><b>TrainingPeaks</b><span class="hint">Treinos do seu treinador direto no app (precisa do Premium).</span></div><button type="button" class="btn" data-trazer="tp">Conectar ou ver treinos</button></div>
       <div class="gsec" id="gSec" hidden>
         <div class="ghead"><img src="data:image/png;base64,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" alt="" width="40" height="40"><div><b>Garmin Connect™</b><span class="gst" id="gStatus">Não conectado</span></div></div>
         <p class="hint">Envia seus treinos com o plano de combustível para o relógio e traz suas atividades para o diário.</p>
@@ -3866,6 +3915,7 @@ async function payLoad(){
 }
 function payReset(){PAY.ate=null;PAY.teste=null;PAY.paciente=false;PAY.profissional=false;try{localStorage.removeItem('gaAcc');}catch(e){}payApply();}
 function payApply(){
+  if(ACC.user&&!IN_CLAUDE&&appAccess()==='ok')tpLoad(false);
   payRender();if(typeof gateRender==='function')gateRender();if($('viewHoje')&&!$('viewHoje').hidden)renderHoje();
   if(typeof applyCal==='function'&&$('calSw'))applyCal();
   ['pGel','pDrink'].forEach(s=>{if($(s+'M'))renderMulti(s);});
@@ -4219,6 +4269,7 @@ function renderHoje(){
   const logs=logsSorted();
   const byDay={};logs.forEach(l=>{(byDay[l.data]=byDay[l.data]||[]).push(l);});
   const planDay=$('data').value||'';const hasPlan=!!(LAST.r&&lsGet('gaFlow')==='1');
+  const tpBy={};(TP.on?TP.ev:[]).filter(e=>!e.feito&&e.esporte&&e.data>=today).forEach(e=>{(tpBy[e.data]=tpBy[e.data]||[]).push(e);});
   if(!HJ.day)HJ.day=today;
   const hr=now.getHours();const nm=hjName();
   const dtx=now.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
@@ -4227,7 +4278,7 @@ function renderHoje(){
   // semana (segunda a domingo), estilo calendário de treino
   const ws=weekStart(now);let wk='';
   for(let k=0;k<7;k++){const d=new Date(ws);d.setDate(ws.getDate()+k);const id=isoD(d);const L=byDay[id]||[];
-    const dots=L.slice(0,3).map(l=>`<i class="dt ${l.sport}"></i>`).join('')+(planDay===id&&hasPlan?'<i class="dt plan"></i>':'');
+    const dots=L.slice(0,3).map(l=>`<i class="dt ${l.sport}"></i>`).join('')+(planDay===id&&hasPlan?'<i class="dt plan"></i>':'')+(L.length?'':(tpBy[id]||[]).slice(0,3).map(e=>`<i class="dt tp ${e.esporte}"></i>`).join(''));
     wk+=`<button type="button" class="hj-d${id===today?' today':''}${id===HJ.day?' sel':''}" data-day="${id}"><small>${['S','T','Q','Q','S','S','D'][k]}</small><b>${d.getDate()}</b><span>${dots}</span></button>`;}
   h+=`<div class="hj-week" role="group" aria-label="Semana">${wk}</div>`;
   // o dia escolhido
@@ -4236,7 +4287,9 @@ function renderHoje(){
   h+=`<div class="hj-dayl"><span class="hj-dn">${dName.charAt(0).toUpperCase()+dName.slice(1)}</span>`;
   if(dl.length)h+=dl.map(l=>{const f=fuelScore(l);const t=hm(f.d.h);return `<button type="button" class="hj-row" data-log="${l.id}"><i class="hc-ic ${l.sport}">${SP_IC[l.sport]||SP_IC.corrida}</i><span><b>${SPORT_NOME[l.sport]} · ${t.h}h${String(t.m).padStart(2,'0')}</b><small>${fmt(f.d.choH)} g/h · ${f.d.ganhou?'+':'−'}${fmt(Math.abs(f.d.perdaPct),1)}% peso · GI ${l.gi||0}</small></span><em class="sc${f.s>=85?' s3':f.s>=70?' s2':f.s>=50?' s1':' s0'}">${f.s}</em></button>`;}).join('');
   else if(planDay===HJ.day&&hasPlan)h+=`<button type="button" class="hj-row" data-hj="plano"><i class="hc-ic plan">${SP_IC[(LAST.r.segs[0]||{}).sport]||SP_IC.corrida}</i><span><b>${qzEsc(sessionTitle()||'Sessão planejada')}</b><small>${fmt(LAST.r.carbH)} g/h · ${fmt(LAST.r.flH)} ml/h · ${fmt(LAST.r.naH)} mg/h</small></span><em class="go">›</em></button>`;
-  else h+=`<p class="hj-none">${HJ.day>today?'Nada planejado.':'Nenhum treino registrado.'} <button type="button" class="linkbtn" data-hj="${HJ.day>today?'planejar':'registrar'}">${HJ.day>today?'Planejar':'Registrar'}</button></p>`;
+  else if(!(tpBy[HJ.day]||[]).length)h+=`<p class="hj-none">${HJ.day>today?'Nada planejado.':'Nenhum treino registrado.'} <button type="button" class="linkbtn" data-hj="${HJ.day>today?'planejar':'registrar'}">${HJ.day>today?'Planejar':'Registrar'}</button></p>`;
+  {const T=tpBy[HJ.day]||[];if(T.length&&!dl.length){h+=T.map(e=>{const ok=e.esporte==='ciclismo'||e.esporte==='corrida'||e.esporte==='triathlon';return `<button type="button" class="hj-row tp"${ok?` data-tpe="${e.uid}"`:''}><i class="hc-ic ${e.esporte}">${SP_IC[e.esporte]||SP_IC.corrida}</i><span><b>${qzEsc(e.titulo||'Treino')}</b><small><i class="tp-tag">TrainingPeaks</i>${[e.min_plan?durTxt(e.min_plan/60):'',e.km_plan?fmt(e.km_plan,e.km_plan%1?1:0)+' km':''].filter(Boolean).map(x=>' · '+x).join('')}</small></span>${ok?'<em class="go">Gerar plano ›</em>':''}</button>`;}).join('');
+    if(tpBrick(T))h+=`<button type="button" class="btn primary hj-brick" data-tpb="${HJ.day}">Gerar plano de brick (pedal + corrida)</button>`;}}
   h+=`</div>`;
   // placar do último treino (anéis)
   const last=logs[0];let sc='';
@@ -4252,7 +4305,9 @@ function renderHoje(){
     <p class="hj-et">Registre o próximo treino (peso antes e depois, o que bebeu e comeu) e veja quanto o seu abastecimento acertou.</p></div>
     <button type="button" class="btn primary" data-hj="registrar">Registrar treino</button></section>`;
   // próxima sessão / prova
-  let nx='';
+  let nx='';let rcard='';
+  {const rp=(TP.on?TP.ev:[]).find(e=>e.prova&&e.data>=today);if(rp&&!(hasPlan&&S.tipo==='prova'&&planDay===rp.data)){const dd=Math.round((new Date(rp.data+'T12:00')-new Date(today+'T12:00'))/864e5);
+    rcard=`<section class="card hj-next race"><div class="hj-sh"><h3>Próxima prova</h3><span>TrainingPeaks · prova ${qzEsc(rp.prova.prioridade||'')}</span></div><p class="hj-nt">${qzEsc(rp.prova.nome)}</p><div class="hj-cd"><b>${dd}</b><span>dia${dd===1?'':'s'} para a largada · ${new Date(rp.data+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</span></div><div class="hj-act"><button type="button" class="btn primary" data-tpr="${rp.uid}">Planejar esta prova</button></div></section>`;}}
   if(hasPlan){const r=LAST.r;const pd=planDay?new Date(planDay+'T12:00'):null;const dias=pd?Math.round((pd-new Date(today+'T12:00'))/864e5):null;
     const prova=S.tipo==='prova';const when=dias==null?'':dias===0?'hoje':dias===1?'amanhã':dias>1?`em ${dias} dias`:'';
     const rg=(v,mx,u,l,cl)=>`<div class="hj-mr">${ringSvg(v/mx,64,6,cl)}<div><b>${fmt(v)}</b><small>${u}</small></div><span>${l}</span></div>`;
@@ -4273,7 +4328,7 @@ function renderHoje(){
   const cw=logs.filter(l=>inW(l,ws)),pw=logs.filter(l=>inW(l,ws2));const hrs=a=>a.reduce((s,l)=>s+(l.durMin||0),0)/60;
   const dh=hrs(cw)-hrs(pw);
   const rec6=logs.slice(0,6).map(derive);const pAvg=rec6.length?rec6.reduce((a,d)=>a+(d.ganhou?0:d.perdaPct),0)/rec6.length:null;
-  h+=`<div class="hj-grid">${sc}${nx}
+  h+=`<div class="hj-grid">${sc}${rcard}${nx}
     <section class="card hj-t"><div class="hj-sh"><h3>Taxa de suor</h3><span>média ponderada</span></div>${sw||'<p class="hj-et">Aparece com o primeiro registro.</p>'}<button type="button" class="hj-link" data-st="1">Fazer teste de suor ›</button></section>
     <section class="card hj-t"><div class="hj-sh"><h3>Tolerância a carbo</h3><span>sem desconforto</span></div>${tol||'<p class="hj-et">Registre um treino de 45 min ou mais com o carbo consumido.</p>'}</section>
     <section class="card hj-t"><div class="hj-sh"><h3>Esta semana</h3></div><div class="hj-wk"><div><b>${cw.length}</b><small>treino${cw.length!==1?'s':''}</small></div><div><b>${fmt(hrs(cw),1)}</b><small>horas</small></div></div>${pw.length||cw.length?`<span class="hj-tn">${dh>=0?'+':'−'}${fmt(Math.abs(dh),1)} h que a semana passada</span>`:''}</section>
@@ -4310,11 +4365,14 @@ function initHoje(){
   $('viewHoje').addEventListener('click',e=>{
     const d=e.target.closest('[data-day]');if(d){buzz();HJ.day=d.dataset.day;renderHoje();return;}
     const lg=e.target.closest('[data-log]');if(lg){buzz();hdOpen(lg.dataset.log);return;}
+    const te=e.target.closest('[data-tpe]');if(te){buzz();if(gateBlock())return;const x=TP.ev.find(z=>z.uid===te.dataset.tpe);if(x){toast('Montando o plano...');tpUse([x],{data:x.data,hora:x.hora,via:'tp_hoje'});}return;}
+    const tb=e.target.closest('[data-tpb]');if(tb){buzz();if(gateBlock())return;const L=TP.ev.filter(z=>z.data===tb.dataset.tpb&&!z.feito&&(z.esporte==='ciclismo'||z.esporte==='corrida'));toast('Montando o plano...');tpUse(L,{data:tb.dataset.tpb,via:'tp_brick'});return;}
+    const tr=e.target.closest('[data-tpr]');if(tr){buzz();if(gateBlock())return;const x=TP.ev.find(z=>z.uid===tr.dataset.tpr);if(x)tpRace(x);return;}
     const b=e.target.closest('[data-hj]');if(b)hjAct(b.dataset.hj);
   });
   $('fabBtn').addEventListener('click',()=>{buzz();if(gateBlock())return;fabOpen();});
   $('fabX').addEventListener('click',fabClose);
-  $('fabPanel').addEventListener('click',e=>{if(e.target===$('fabPanel')){fabClose();return;}const b=e.target.closest('[data-fab]');if(!b)return;fabClose();setTimeout(()=>hjAct(b.dataset.fab),80);});
+  $('fabPanel').addEventListener('click',e=>{if(e.target===$('fabPanel')){fabClose();return;}const tz=e.target.closest('[data-trazer]');if(tz){e.stopPropagation();fabClose();setTimeout(()=>trOpen(tz.dataset.trazer),80);return;}const b=e.target.closest('[data-fab]');if(!b)return;fabClose();setTimeout(()=>hjAct(b.dataset.fab),80);});
 }
 
 /* ===== Calendário do mês no diário ===== */
@@ -4635,6 +4693,231 @@ function initSweat(){
   document.addEventListener('click',e=>{if(e.target.closest('[data-st]')){e.preventDefault();swOpen();}});
 }
 
+/* ===== TRAZER TREINO: colar texto, foto, TrainingPeaks e arquivo ===== */
+const TR={tab:'colar',res:null,busy:false,img:null,meta:null};
+const TP=(()=>{let o=null;try{o=JSON.parse(lsGet('gaTP')||'null');}catch(e){}return o||{on:false,at:0,ev:[]};})();
+function tpSave(){lsSet('gaTP',JSON.stringify(TP));}
+/* leitura por IA desligada por enquanto (custo). Para religar: TR_IA=true, tirar hidden da aba Foto e pôr ANTHROPIC_API_KEY no Supabase */
+const TR_IA=false;
+async function trCall(body){
+  if(!SB)return {error:'sem_conta'};
+  const {data,error}=await SB.functions.invoke('treinos',{body});
+  if(error){let d=null;try{d=await error.context.json();}catch(e){}return {error:(d&&d.error)||'rede'};}
+  return data||{};
+}
+/* leitura por regras (sem IA): modalidade, duração total e intensidade */
+function trInt(t){t=(t||'').toLowerCase();
+  if(/(9\d|1[01]\d)\s?%|\bz\s?[45]\b|zona\s?[45]|limiar|forte|vo2|\btiros?\b|sprint|m[aá]xim/.test(t))return 3;
+  if(/\b8\d\s?%|\bz\s?3\b|zona\s?3|race pace|ritmo de prova|ritmad|tempo run|sweet ?spot|moderad|progressiv/.test(t))return 2;
+  if(/regener|recupera|solt|\bz\s?[12]\b|zona\s?[12]|leve|easy|rodagem|f[aá]cil/.test(t))return 1;
+  return 2;}
+function trSport(t){t=(t||'').toLowerCase();
+  if(/bike|pedal|cicl|rolo|zwift|bicicleta|\bftp\b|watts?\b/.test(t))return 'ciclismo';
+  if(/swim|nata|piscina|\bnado|crawl|pulboy|palmar/.test(t))return 'natacao';
+  if(/\brun\b|corrid|trote|pace|\/km|rodagem/.test(t))return 'corrida';return null;}
+function trMin(t){t=(t||'').toLowerCase().replace(/(\d)\s*['’]/g,'$1min');
+  let m=t.match(/(\d{1,2})\s*h\s*(\d{1,2})?\b/);if(m)return +m[1]*60+(+m[2]||0);
+  m=t.match(/\b(\d{1,2}):(\d{2})\b/);if(m)return +m[1]*60+ +m[2];
+  let tot=0;const rx=/(\d+)\s*x\s*\(?\s*(\d+)\s*min[^,+\n]*?(?:com|c\/|\br\b|rec\w*|interv\w*)\s*(\d+)\s*min/g;
+  t=t.replace(rx,(a,n,x,y)=>{tot+= +n*(+x+ +y);return ' ';});
+  t=t.replace(/(\d+)\s*x\s*\(?\s*(\d+)\s*min/g,(a,n,x)=>{tot+= +n* +x;return ' ';});
+  (t.match(/(\d+)\s*min/g)||[]).forEach(x=>{tot+=parseInt(x,10);});
+  return tot||null;}
+function trRules(txt){const sp=trSport(txt);const min=trMin(txt);if(!sp||!min)return null;
+  return [{sport:sp,min,int:trInt(txt),name:txt.split('\n')[0].slice(0,60),indoor:/indoor|rolo|zwift|esteira/i.test(txt)}];}
+/* resposta da IA vira o formato de treino do app (o mesmo dos arquivos .zwo e .fit) */
+const TR_TIPO={aquecimento:'warmup',ritmo:'active',tiro:'interval',recuperacao:'rest',desaquecimento:'cooldown'};
+const TR_GER={leve:1,moderado:2,forte:3,prova:4},TR_PCT={leve:.65,moderado:.78,forte:.9,prova:.95};
+function trFromIA(r){
+  return (r.sessoes||[]).map(s=>{const sp=s.esporte;const items=[];
+    (s.blocos||[]).forEach(b=>{const n=Math.max(1,Math.min(40,b.repeticoes||1));
+      for(let k=0;k<n;k++){const it={int:TR_TIPO[b.tipo]||'active'};
+        if(b.duracao_min)it.sec=b.duracao_min*60;else if(b.distancia_km){if(sp==='ciclismo')it.sec=b.distancia_km/30*3600;else it.m=b.distancia_km*1000;}else return;
+        if(b.pct_limiar)it.pwr={pct:b.pct_limiar};else if(b.zona)it.hzone=b.zona;else it.pwr={pct:{warmup:.6,cooldown:.55,rest:.5,interval:.92,active:.75}[it.int]};
+        items.push(it);}});
+    // a série dentro de um treino em blocos que é intervalada (tiro + recuperação) intercala na ordem certa
+    return {sport:sp,min:s.duracao_min||null,int:TR_GER[s.intensidade_geral]||2,name:s.nome||'',indoor:!!s.indoor,items:sp==='natacao'?[]:items,pct:TR_PCT[s.intensidade_geral]||.78};
+  }).filter(s=>s.sport);
+}
+/* tiro e recuperação vêm em blocos separados com repetições: intercala para ficar tiro, rec, tiro, rec */
+function trInterleave(r){(r.sessoes||[]).forEach(s=>{const bl=s.blocos||[];const out=[];
+  for(let i=0;i<bl.length;i++){const a=bl[i],b=bl[i+1];
+    if(a&&b&&a.tipo==='tiro'&&b.tipo==='recuperacao'&&(a.repeticoes||1)>1&&(a.repeticoes||1)===(b.repeticoes||1)){
+      for(let k=0;k<a.repeticoes;k++){out.push({...a,repeticoes:1});out.push({...b,repeticoes:1});}i++;}
+    else out.push(a);}
+  s.blocos=out;});return r;}
+function trApply(sess,meta){
+  sess=(sess||[]).filter(s=>s.sport&&(s.min>0||(s.items&&s.items.length)));
+  if(!sess.length)return false;
+  const prof=wkProfile();
+  const mk=s=>{const seg={sport:s.sport,h:(s.min||60)/60,int:s.int||2,tss:0};
+    if(s.items&&s.items.length&&s.sport!=='natacao'){const r=toBlocks({kind:'treino',sport:s.sport,name:s.name,items:s.items},prof);
+      if(r.T>0){seg.blocks=r.blocks;seg.h=r.T/3600;seg.tss=r.tss;seg.wkName=s.name||'Treino importado';}}
+    return seg;};
+  const has=x=>sess.find(s=>s.sport===x);
+  S.tipo='treino';pressSeg('tipo','treino');
+  if(has('natacao')&&has('ciclismo')&&has('corrida')){S.formato='tri';S.dist.tri='custom';S.segs.tri=['natacao','ciclismo','corrida'].map(x=>mk(has(x)));}
+  else if(has('ciclismo')&&has('corrida')&&sess.length>1){S.formato='brick';S.segs.brick=[mk(has('ciclismo')),mk(has('corrida'))];}
+  else{const s=sess.find(x=>x.sport!=='natacao')||sess[0];S.formato='single';$('sport').value=s.sport;S.dist.single='livre';S.segs.single=[mk(s)];$('indoor').value=s.indoor?'1':'0';}
+  pressSeg('formato',S.formato);
+  const blk=S.segs[S.formato].some(x=>x.blocks);S.modo=blk?'tss':'simples';pressSeg('modo',S.modo);
+  if(meta&&meta.data)$('data').value=meta.data;if(meta&&meta.hora)$('hora').value=meta.hora;
+  $('bottle').dataset.ctx='';renderSegs();run();
+  track('treino_trazido',{via:(meta&&meta.via)||'?',formato:S.formato});
+  return true;
+}
+function trDone(){
+  trClose();
+  if(FLOW.mode==='quiz'&&QZ.cur==='dur'){qzRender(0);toast('Treino aplicado','ok');return;}
+  navTo('calc');
+  if(lsGet('gaFlow')==='1'){flowGo('summary');setTimeout(()=>{qzEdit(4);toast('Treino aplicado. Confira o dia e o clima.','ok');},250);}
+  else{QZ.skipNext=['repetir','tipo','mod','dur','int'];setTimeout(()=>qzStart(),80);}
+}
+/* ---- tela ---- */
+function trOpen(tab){if(gateBlock())return;TR.tab=tab||TR.tab||'colar';TR.res=null;trRender();if($('trPanel').hidden){navPush('sheet');$('trPanel').hidden=false;}track('trazer_aberto',{aba:TR.tab});
+  if(TR.tab==='tp')tpLoad(true);}
+function trClose(){if(!$('trPanel').hidden){$('trPanel').hidden=true;navPop('sheet');}}
+const TR_SP={ciclismo:'Pedal',corrida:'Corrida',natacao:'Natação'};
+function trResHtml(){
+  const r=TR.res;if(!r)return '';
+  const prof=wkProfile();
+  const rows=r.sess.map(s=>{let svg='',det='';
+    if(s.items&&s.items.length&&s.sport!=='natacao'){const b=toBlocks({kind:'treino',sport:s.sport,items:s.items},prof);if(b.T>0){svg=profileSvg(b.blocks,[]);det=`${durTxt(b.T/3600)} · ${b.blocks.filter(x=>x.int==='interval').length||b.blocks.length} ${b.blocks.some(x=>x.int==='interval')?'tiros':'trechos'}`;}}
+    if(!det)det=`${s.min?durTxt(s.min/60):'duração não encontrada'} · ${INT_NOME[(s.int||2)-1].split(' (')[0].toLowerCase()}`;
+    return `<div class="tr-sess"><i class="hc-ic ${s.sport}">${SP_IC[s.sport]||SP_IC.corrida}</i><div><b>${TR_SP[s.sport]}${s.name?' · '+qzEsc(s.name):''}</b><span>${det}</span>${svg?`<div class="tr-prof">${svg}</div>`:''}</div></div>`;}).join('');
+  return `<div class="tr-res"><h4>${r.via==='regras'?'Entendi assim':'Treino lido'}</h4>${rows}
+    ${r.via==='regras'?'<p class="hint">Leitura simples, sem a estrutura dos tiros. Confira a duração e a intensidade depois.</p>':''}
+    <button type="button" class="btn primary" data-tr="usar" style="width:100%">Usar no plano</button></div>`;
+}
+function trRender(){
+  const b=$('trBody');if(!b)return;
+  $('trTabs').querySelectorAll('[data-t]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.t===TR.tab)));
+  let h='';
+  if(TR.tab==='colar')h=`<p class="hint">Cole o treino como o seu treinador mandou. O app pega a modalidade, a duração e a intensidade. Ex.: "Pedal 2h em Z2" ou "Corrida 1h10 com 5x 1km forte".</p>
+    <textarea id="trTxt" rows="5" placeholder="Ex.: 15' aquecimento + 5x 1 km em Z4 com 2' trote + 10' solto">${qzEsc(TR.txt||'')}</textarea>
+    <button type="button" class="btn primary tr-go" data-tr="ler">Ler treino</button>`;
+  else if(TR.tab==='foto')h=`<p class="hint">Tire uma foto do treino ou escolha um print da tela (TrainingPeaks, planilha, quadro).</p>
+    <input type="file" id="trImg" accept="image/*" hidden>
+    <button type="button" class="tr-pick" data-tr="foto">${TR.img?`<img src="data:${TR.img.tipo};base64,${TR.img.dados}" alt="Foto do treino">`:`<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Tirar foto ou escolher print</b>`}</button>
+    ${TR.img?'<button type="button" class="btn primary tr-go" data-tr="ler">Ler treino</button>':''}`;
+  else if(TR.tab==='tp')h=tpHtml();
+  else h=`<p class="hint">Arquivo de treino estruturado exportado do TrainingPeaks, Garmin, Zwift ou TrainerRoad: .fit, .zwo, .erg ou .mrc.</p>
+    <button type="button" class="btn primary tr-go" data-tr="arq">Escolher arquivo</button>`;
+  b.innerHTML=h+(TR.busy?'<p class="status ok tr-wait"><i class="gt-spin"></i> Lendo o treino...</p>':'')+`<p class="status" id="trMsg"></p>`+trResHtml();
+}
+async function trImgPick(f){
+  try{const bmp=await createImageBitmap(f);const M=1568;const k=Math.min(1,M/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const u=c.toDataURL('image/jpeg',.85);TR.img={tipo:'image/jpeg',dados:u.split(',')[1]};TR.res=null;trRender();}
+  catch(e){toast('Não consegui abrir essa imagem');}
+}
+async function trLer(){
+  if(TR.busy)return;
+  const txt=TR.tab==='colar'?($('trTxt').value||'').trim():'';TR.txt=txt;
+  if(TR.tab==='colar'&&txt.length<4){toast('Cole o treino primeiro');return;}
+  TR.busy=true;TR.res=null;trRender();
+  const r=(IN_CLAUDE||!TR_IA)?{error:'ia_desligada'}:await trCall({action:'ia_ler',texto:txt,imagem:TR.tab==='foto'?TR.img:null});
+  TR.busy=false;
+  let sess=null,via='ia';
+  if(!r.error&&r.sessoes){sess=trFromIA(trInterleave(r));}
+  if(!sess||!sess.length){if(txt){sess=trRules(txt);via='regras';}}
+  if(sess&&sess.length){TR.res={sess,via};trRender();track('treino_lido',{via,aba:TR.tab});return;}
+  trRender();const m=$('trMsg');m.className='status bad';
+  m.textContent=r.error==='limite'?'Você chegou ao limite de leituras de hoje. Amanhã libera de novo.':r.error==='login'||r.error==='sem_conta'?'Entre na sua conta para ler treinos.':TR.tab==='foto'?'Não achei um treino nessa imagem. Tente um print mais de perto ou cole o texto.':'Não entendi esse treino. Escreva a modalidade e a duração, por exemplo: "pedal 1h30 em Z2".';
+}
+/* ---- TrainingPeaks pelo link de calendário ---- */
+function tpHtml(){
+  if(!TP.on)return `<div class="tp-how"><p class="hint"><b>Para quem tem TrainingPeaks Premium.</b> Seus treinos planejados aparecem no Hoje, prontos para virar plano.</p>
+    <ol><li>No TrainingPeaks pelo computador: <b>Settings → Account → Calendar</b>.</li><li>Copie o link de <b>Calendar Sync</b> (começa com webcal://).</li><li>Cole aqui embaixo.</li></ol>
+    <input id="tpUrl" type="url" inputmode="url" placeholder="webcal://www.trainingpeaks.com/ical/..." autocomplete="off">
+    <button type="button" class="btn primary tr-go" data-tr="tpcon">Conectar</button>
+    <p class="hint">O link mostra 14 dias à frente, e mudanças do treinador podem levar até 24 h para aparecer.</p></div>`;
+  const today=isoD(new Date());const ev=(TP.ev||[]).filter(e=>e.data>=today);
+  if(TP.loading&&!ev.length)return '<p class="status ok tr-wait"><i class="gt-spin"></i> Buscando seus treinos...</p>';
+  const by={};ev.forEach(e=>{(by[e.data]=by[e.data]||[]).push(e);});
+  const days=Object.keys(by).sort().slice(0,14);
+  const list=days.map(d=>{const L=by[d];const dt=new Date(d+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');
+    const brick=tpBrick(L);
+    return `<div class="tp-day"><span class="tp-dt">${d===today?'Hoje':dt}</span>${L.map(e=>e.prova?`<div class="tp-ev race"><i class="hc-ic plan">${FS_IC[0]}</i><div><b>${qzEsc(e.prova.nome)}</b><span>Prova ${e.prova.prioridade}</span></div><button type="button" class="btn" data-tpr="${e.uid}">Planejar prova</button></div>`
+      :`<div class="tp-ev"><i class="hc-ic ${e.esporte}">${SP_IC[e.esporte]||SP_IC.corrida}</i><div><b>${qzEsc(e.titulo||TR_SP[e.esporte]||'Treino')}</b><span>${[e.min_plan?durTxt(e.min_plan/60):'',e.km_plan?fmt(e.km_plan,e.km_plan%1?1:0)+' km':'',e.feito?'feito':''].filter(Boolean).join(' · ')}</span></div>${e.esporte==='natacao'||e.esporte==='outro'?'':`<button type="button" class="btn" data-tpe="${e.uid}">Usar</button>`}</div>`).join('')}
+      ${brick?`<button type="button" class="btn primary tp-brick" data-tpb="${d}">Usar como brick (pedal + corrida)</button>`:''}</div>`;}).join('');
+  return `<div class="tp-on"><p class="hint">Conectado ao TrainingPeaks${TP.at?` · atualizado ${new Date(TP.at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`:''}.</p>
+    ${list||'<p class="hint">Nenhum treino planejado nos próximos dias.</p>'}
+    <div class="tp-ft"><button type="button" class="linkbtn" data-tr="tpup">Atualizar</button><button type="button" class="linkbtn" data-tr="tpoff">Desconectar</button></div></div>`;
+}
+function tpBrick(L){const b=L.find(e=>e.esporte==='ciclismo'&&!e.feito),r=L.find(e=>e.esporte==='corrida'&&!e.feito);return !!(b&&r&&/ap[oó]s|logo depois|depois do (pedal|ciclismo|bike)|brick|transi|\bt2\b/i.test(r.titulo+' '+r.notas));}
+async function tpLoad(force){
+  if(IN_CLAUDE||!SB||!ACC.user)return;
+  if(!force&&TP.at&&Date.now()-TP.at<3600e3)return;
+  TP.loading=true;if(!$('trPanel').hidden&&TR.tab==='tp')trRender();
+  const r=await trCall({action:'cal_eventos'});TP.loading=false;
+  if(!r.error||r.conectado!==undefined){TP.on=!!r.conectado;if(r.eventos)TP.ev=r.eventos;TP.at=Date.now();tpSave();}
+  if(!$('trPanel').hidden&&TR.tab==='tp')trRender();
+  if($('viewHoje')&&!$('viewHoje').hidden)renderHoje();
+}
+function tpDemo(){const d=n=>{const x=new Date();x.setDate(x.getDate()+n);return isoD(x);};const E=(n,esporte,titulo,min,km,notas,prova)=>({uid:'demo'+n+esporte,data:d(n),hora:'',esporte,titulo,notas:notas||'',min_plan:min,min_real:null,km_plan:km||null,feito:false,prova:prova||null});
+  return [E(1,'ciclismo','Pedal leve em zona 2 indoor',120),E(1,'natacao','2000m direto com pulboy',30,2),E(2,'corrida','Corrida leve em terreno variado',71,15),
+    E(3,'ciclismo','Pedal longo em zona 2 terreno variado',190),E(3,'corrida','Corrida logo após o pedal 7km ritmado + 3km solto',42,10),
+    E(4,'ciclismo','5x 15min 85% com 5min fácil',130),E(32,null,'CHALLENGE FLORIPA HALF',null,null,'',{prioridade:'A',nome:'CHALLENGE FLORIPA HALF'})];}
+function tpSession(e){const txt=`${e.titulo} ${e.notas}`;
+  return {sport:e.esporte,min:e.min_plan||e.min_real||null,int:trInt(txt),name:e.titulo,indoor:/indoor|rolo|zwift|esteira/i.test(txt),items:null,txt};}
+/* treino com estrutura no título ("5x 15min 85%") passa pela IA para virar tiros; o resto vai direto */
+async function tpUse(list,meta){
+  const sess=list.map(tpSession);
+  const estrut=sess.some(s=>/\d+\s*x\s*\d|\d\s*%|\bz\s?[1-5]\b.*\+|\+.*\bz\s?[1-5]\b/i.test(s.txt));
+  if(estrut&&TR_IA&&!IN_CLAUDE){TR.busy=true;if(!$('trPanel').hidden)trRender();
+    const txt=list.map(e=>`${TR_SP[e.esporte]}: ${e.titulo}${e.min_plan?` (duração total planejada ${e.min_plan} min)`:''}${e.notas?'\n'+e.notas:''}`).join('\n\n');
+    const r=await trCall({action:'ia_ler',texto:txt});TR.busy=false;
+    if(!r.error&&r.sessoes&&r.sessoes.length){const ia=trFromIA(trInterleave(r));
+      ia.forEach(s=>{const o=sess.find(x=>x.sport===s.sport);if(o&&s.items&&s.items.length){o.items=s.items;}});}}
+  if(!trApply(sess,meta)){toast('Esse treino não tem duração planejada');return;}
+  trDone();
+}
+function tpRaceDist(nome){const n=(nome||'').toLowerCase();
+  if(/iron ?man(?!.*70)|140\.6|full\b/.test(n)&&!/70\.3|half/.test(n))return {f:'tri',d:'im'};
+  if(/70\.3|half|meio/.test(n)&&/challenge|iron|tri|70\.3/.test(n))return {f:'tri',d:'703'};
+  if(/ol[ií]mpic|olympic|standard/.test(n))return {f:'tri',d:'olimpico'};
+  if(/sprint/.test(n))return {f:'tri',d:'sprint'};
+  if(/meia|half|21\s?k|21 km/.test(n))return {f:'single',d:'21'};
+  if(/maratona|marathon|42\s?k/.test(n))return {f:'single',d:'42'};
+  if(/15\s?k/.test(n))return {f:'single',d:'15'};if(/10\s?k/.test(n))return {f:'single',d:'10'};if(/\b5\s?k/.test(n))return {f:'single',d:'5'};
+  return null;}
+function tpRace(e){
+  const g=tpRaceDist(e.prova.nome);$('data').value=e.data;
+  if(g&&g.f==='tri'){S.formato='tri';S.dist.tri=g.d;S.segs.tri=PRESETS[g.d].map((p,k)=>({sport:['natacao','ciclismo','corrida'][k],h:p[0],int:p[1],tss:0}));pressSeg('formato','tri');}
+  else if(g){S.formato='single';$('sport').value='corrida';S.dist.single=g.d;pressSeg('formato','single');}
+  trClose();if(g)QZ.skipNext=['repetir','mod','dist'];planejarProva();track('prova_tp',{dist:g?g.d:'?'});
+}
+function initTrazer(){
+  $('trX').addEventListener('click',trClose);
+  $('trTabs').addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(!t)return;buzz();if(TR.tab==='colar'&&$('trTxt'))TR.txt=$('trTxt').value;TR.tab=t.dataset.t;TR.res=null;trRender();if(TR.tab==='tp')tpLoad(false);});
+  $('trPanel').addEventListener('click',async e=>{
+    if(e.target===$('trPanel')){trClose();return;}
+    const a=e.target.closest('[data-tr]');
+    if(a){const k=a.dataset.tr;buzz();
+      if(k==='ler')trLer();
+      else if(k==='foto')$('trImg').click();
+      else if(k==='usar'){if(trApply(TR.res.sess,{via:TR.tab}))trDone();}
+      else if(k==='arq'){trClose();if(!(FLOW.mode==='quiz'&&QZ.cur==='dur')){navTo('calc');qzEdit(2);}setTimeout(()=>{const q=$('qzImp');if(q){QZ.fileNow=true;q.click();}},300);}
+      else if(k==='tpcon'){const u=($('tpUrl').value||'').trim();const m=$('trMsg');
+        if(!/trainingpeaks\.com\/ical\//i.test(u)){m.className='status bad';m.textContent='Esse não parece o link de Calendar Sync do TrainingPeaks.';return;}
+        if(IN_CLAUDE){TP.on=true;TP.ev=tpDemo();TP.at=Date.now();trRender();renderHoje();toast('Prévia: treinos de exemplo','ok');return;}
+        a.disabled=true;m.className='status ok';m.textContent='Conectando...';
+        const r=await trCall({action:'cal_salvar',url:u});a.disabled=false;
+        if(r.ok){TP.on=true;TP.at=0;tpSave();track('tp_conectado');await tpLoad(true);toast('TrainingPeaks conectado','ok');}
+        else{m.className='status bad';m.textContent=r.error==='link_nao_abre'?'O TrainingPeaks não respondeu a esse link. Confira se copiou o link inteiro.':r.error==='acesso'?'Seu acesso ao app expirou.':'Link inválido. Copie o link de Calendar Sync em Settings → Account → Calendar.';}}
+      else if(k==='tpup')tpLoad(true);
+      else if(k==='tpoff'){await trCall({action:'cal_remover'});TP.on=false;TP.ev=[];TP.at=0;tpSave();trRender();renderHoje();toast('TrainingPeaks desconectado');}
+      return;}
+    const ev=e.target.closest('[data-tpe]');if(ev){buzz();const x=TP.ev.find(z=>z.uid===ev.dataset.tpe);if(x)tpUse([x],{data:x.data,hora:x.hora,via:'tp'});return;}
+    const bk=e.target.closest('[data-tpb]');if(bk){buzz();const L=TP.ev.filter(z=>z.data===bk.dataset.tpb&&!z.feito&&(z.esporte==='ciclismo'||z.esporte==='corrida'));tpUse(L,{data:bk.dataset.tpb,via:'tp_brick'});return;}
+    const rc=e.target.closest('[data-tpr]');if(rc){buzz();const x=TP.ev.find(z=>z.uid===rc.dataset.tpr);if(x)tpRace(x);}
+  });
+  $('trPanel').addEventListener('change',e=>{if(e.target.id==='trImg'&&e.target.files[0])trImgPick(e.target.files[0]);});
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-trazer]');if(t){e.preventDefault();buzz();trOpen(t.dataset.trazer||'colar');}});
+  if(TP.on)setTimeout(()=>tpLoad(false),2500);
+}
+
 /* ===== Avisos rápidos (toast) e toque ===== */
 let toastT=null;
 function toast(msg,kind){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
@@ -4787,7 +5070,7 @@ function navPop(tag){if(history.state&&history.state.cc===tag){NAV.silent++;hist
 function navUnwind(n){n=n|0;if(n>0&&history.state&&history.state.cc){NAV.silent++;history.go(-n);}}
 window.addEventListener('popstate',()=>{
   if(NAV.silent>0){NAV.silent--;return;}
-  for(const id of ['wlPanel','swPanel','hdPanel','fabPanel','payPanel','instPanel','proInvPanel','proPacPanel','convPanel'])if(!$(id).hidden){$(id).hidden=true;return;}
+  for(const id of ['trPanel','wlPanel','swPanel','hdPanel','fabPanel','payPanel','instPanel','proInvPanel','proPacPanel','convPanel'])if(!$(id).hidden){$(id).hidden=true;return;}
   if(!$('shPanel').hidden){$('shPanel').hidden=true;return;}
   if(!$('acctPanel').hidden){$('acctPanel').hidden=true;$('acIntro').hidden=true;$('acSkip').hidden=true;ACC.auto=false;return;}
   if(!$('lq').hidden){LQ.pushed=Math.max(0,(LQ.pushed||0)-1);if(LQ.hist.length&&LQ.cur!=='_salvo')lqBack();else{$('lq').hidden=true;document.body.classList.remove('lq-on');LQ.pushed=0;}return;}
@@ -4933,7 +5216,7 @@ const QZQ=[
     const tabs=sg.length>1?`<div class="qz-tabs" role="tablist">${sg.map((s,k)=>`<button type="button" role="tab" class="qz-tab${k===QZ.dk?' on':''}" data-k="${k}"><span>${S.formato==='brick'&&s.sport==='corrida'?'Corrida T2':SPORT_NOME[s.sport]}</span><b>${durTxt(s.h)}</b></button>`).join('')}</div>`:'';
     const quick=S.formato==='single'&&!(S.tipo==='prova'&&S.dist.single!=='livre')?`<div class="qz-chips c">${[45,60,90,120,150,180].map(m=>`<button type="button" class="qz-chip" data-m="${m}">${durTxt(m/60)}</button>`).join('')}</div>`:'';
     const H=Array.from({length:18},(_,h)=>[h,String(h)]),M=Array.from({length:60},(_,m)=>[m,String(m).padStart(2,'0')]);
-    return `<button type="button" class="qz-impc" id="qzImp"><i class="qz-ic sm"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg></i><span><b>Importar o treino estruturado</b><span>Arquivo do TrainingPeaks ou Garmin (.fit, .zwo, .erg, .mrc)</span></span></button>`+tabs+`<div class="qz-read"><output id="qzDurBig" class="qz-big">${durTxt(sg[QZ.dk].h)}</output><span id="qzPace" class="qz-pace"></span></div>
+    return `<button type="button" class="qz-impc" id="qzImp"><i class="qz-ic sm"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg></i><span><b>Trazer o treino do treinador</b><span>Colar o texto, TrainingPeaks ou arquivo</span></span></button>`+tabs+`<div class="qz-read"><output id="qzDurBig" class="qz-big">${durTxt(sg[QZ.dk].h)}</output><span id="qzPace" class="qz-pace"></span></div>
       <div class="wh"><div class="wh-band" aria-hidden="true"></div>${whHtml('whH',H,'Horas')}<span class="wh-u">h</span>${whHtml('whM',M,'Minutos')}<span class="wh-u">min</span></div>`+quick;},
   bind:el=>{
     const sg=()=>segList()[QZ.dk];
@@ -4948,7 +5231,7 @@ const QZQ=[
     el.querySelectorAll('.qz-chip[data-m]').forEach(c=>c.addEventListener('click',()=>{const m=+c.dataset.m;hv=Math.floor(m/60);mv=m%60;wH.set(hv);wM.set(mv);upd();}));
     el.querySelectorAll('.qz-tab').forEach(t=>t.addEventListener('click',()=>{QZ.dk=+t.dataset.k;el.querySelectorAll('.qz-tab').forEach(x=>x.classList.toggle('on',x===t));
       hv=Math.floor(Math.round(sg().h*60)/60);mv=Math.round(sg().h*60)%60;wH.set(hv);wM.set(mv);show();}));
-    $('qzImp').addEventListener('click',()=>{QZ.importing=true;$('qzImp').hidden=true;el.querySelector('.qz-a').prepend($('wkDrop'));$('wkPick').click();});},
+    $('qzImp').addEventListener('click',()=>{if(QZ.fileNow){QZ.fileNow=false;QZ.importing=true;$('qzImp').hidden=true;el.querySelector('.qz-a').prepend($('wkDrop'));$('wkPick').click();return;}trOpen('colar');});},
   after:()=>{if(S.tipo==='prova'&&S.formato!=='tri')segList().forEach(s=>{if(!s.blocks)s.int=s.h<=1.75?4:3;});qzApply();}},
  {id:'int',show:()=>!QZ.repeat&&S.tipo==='treino'&&S.formato!=='tri'&&!segList().some(s=>s.blocks),title:()=>'Qual a intensidade?',sub:()=>'Pense no trecho principal do treino.',
   recap:()=>INT_NOME[segList()[0].int-1].split(' (')[0],
@@ -5105,26 +5388,30 @@ async function qzNext(){
   if(q&&q.before){const g=$('qzGo');if(g){g.disabled=true;g.textContent='Buscando previsão...';}try{await q.before();}catch(e){}if(g)g.disabled=false;}
   const order=QZQ.map(x=>x.id);let k=order.indexOf(QZ.cur)+1;
   while(k<QZQ.length&&!qzOk(QZQ[k]))k++;
+  if(k<QZQ.length&&QZ.skip&&QZ.skip.includes(QZQ[k].id)){QZ.hist.push(QZ.cur);QZ.cur=QZQ[k].id;qzSkipFwd();if(QZ.skip.includes(QZ.cur)){k=QZQ.length;}else{navPush('qz');QZ.pushed=(QZ.pushed||0)+1;qzRender(1);qzTop();return;}}
   if(k>=QZQ.length&&QZ.only){qzEditDone();return;}
   if(k>=QZQ.length){QZ.hist.push(QZ.cur);QZ.cur='_fim';navPush('qz');QZ.pushed=(QZ.pushed||0)+1;qzReveal();return;}
   QZ.hist.push(QZ.cur);QZ.cur=QZQ[k].id;navPush('qz');QZ.pushed=(QZ.pushed||0)+1;qzRender(1);qzTop();
 }
 function qzBackFn(){if(!QZ.hist.length){if(QZ.only)qzEditDone(true);return;}if(QZ.cur==='_fim'){QZ.cur=QZ.hist.pop();qzRender(-1);return;}QZ.cur=QZ.hist.pop();if(QZ.cur==='repetir')QZ.repeat=false;qzRender(-1);qzTop();}
 function qzTop(){try{const y=$('qz').getBoundingClientRect().top+window.scrollY-(MQ.matches?0:8);if(Math.abs(window.scrollY-y)>40&&window.scrollY>y)window.scrollTo({top:y,behavior:QZ_RM?'auto':'smooth'});}catch(e){}}
+/* perguntas já respondidas por outro caminho (treino trazido do treinador, prova do TrainingPeaks) */
+function qzSkipFwd(){if(!QZ.skip)return;const order=QZQ.map(x=>x.id);
+  while(QZ.skip.includes(QZ.cur)){let k=order.indexOf(QZ.cur)+1;while(k<QZQ.length&&!qzOk(QZQ[k]))k++;if(k>=QZQ.length)break;QZ.hist.push(QZ.cur);QZ.cur=QZQ[k].id;}}
 function qzStart(){
-  QZ.hist=[];QZ.repeat=false;QZ.wx=null;QZ.only=null;QZ.prova=!!QZ.provaNext;QZ.provaNext=false;
+  QZ.hist=[];QZ.repeat=false;QZ.wx=null;QZ.only=null;QZ.prova=!!QZ.provaNext;QZ.provaNext=false;QZ.skip=QZ.skipNext||null;QZ.skipNext=null;
   QZ.known=lsGet('gaFlow')==='1'||lsGet('gaHadAccount')==='1'||!!(ACC&&ACC.user);
   FLOW.mode='quiz';document.body.classList.add('qz-on');document.body.classList.remove('flow-on','flow-guided','flow-sum');
   $('qz').hidden=false;$('flowBar').hidden=true;$('flowSum').hidden=true;
   flowSecs().forEach(s=>s.classList.remove('fcur'));
-  QZ.cur=qzVisible()[0].id;qzRender(1);mbarVisibility();track('quiz_iniciado',{conhecido:QZ.known,conta:!!(ACC&&ACC.user)});
+  QZ.cur=qzVisible()[0].id;qzSkipFwd();qzRender(1);mbarVisibility();track('quiz_iniciado',{conhecido:QZ.known,conta:!!(ACC&&ACC.user)});
   if(typeof gateRender==='function')gateRender();
 }
 function qzDone(){qzFinish();}
 /* editar uma parte da sessão no próprio quiz */
 const QZ_EDIT={1:['tipo','mod','onde','fan','dist','objetivo','pre'],2:['dur','int'],3:['peso','sal','gut'],4:['quando','clima'],5:['gel','bebida','eletro']};
 function qzEdit(n){
-  QZ.hist=[];QZ.repeat=false;QZ.known=false;QZ.wx=null;QZ.only=QZ_EDIT[n];
+  QZ.skip=null;QZ.hist=[];QZ.repeat=false;QZ.known=false;QZ.wx=null;QZ.only=QZ_EDIT[n];
   FLOW.mode='quiz';document.body.classList.add('qz-on');document.body.classList.remove('flow-on','flow-guided','flow-sum');
   $('qz').hidden=false;$('flowBar').hidden=true;$('flowSum').hidden=true;
   const v=qzVisible();if(!v.length){QZ.only=null;flowGo('summary');return;}
@@ -5367,7 +5654,7 @@ function initMobile(){
   initMobile();
   initConta();
   initDiario();
-  initHoje();initDCal();renderDCal();initPNav();initHist2();initSweat();initGate();
+  initHoje();initDCal();renderDCal();initPNav();initHist2();initSweat();initGate();initTrazer();
   $('wlGo').addEventListener('click',()=>{buzz();wlClose();});
   if(!flowDue()&&!/^#(diario|registrar)$/.test(location.hash)&&FLOW.mode!=='quiz')showView('hoje');
 })();
