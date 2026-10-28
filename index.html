@@ -2122,9 +2122,29 @@ const PRODUTOS=[
  {id:'pacecapu',t:'gel',g:'Géis',nome:'Pace It Hidrogel Cappuccino (cafeína)',cho:30,na:300,caf:150,multi:true},
  {id:'truesource',t:'gel',g:'Géis',nome:'True Source Gel Intra-treino (35 g)',cho:25,na:110,caf:0,multi:true},
  {id:'truesourcecaf',t:'gel',g:'Géis',nome:'True Source Gel Intra-treino com Cafeína',cho:25,na:110,caf:80,multi:true},
- {id:'z2gel',t:'gel',g:'Géis',nome:'Z2 Gel Original',cho:25,na:0,caf:0,multi:true,est:true},
+ {id:'z2gel',t:'gel',g:'Géis',nome:'Z2 Energy Gel Everyday (Pink Lemonade, Tangerine, Choco)',cho:25,na:200,caf:0,multi:true},
+ {id:'z2tropical',t:'gel',g:'Géis',nome:'Z2 Energy Gel Everyday Tropical Fruit',cho:25,na:100,caf:0,multi:true},
+ {id:'z2pitaya',t:'gel',g:'Géis',nome:'Z2 Energy Gel Everyday Pitaya',cho:25,na:300,caf:0,multi:true},
+ {id:'z2lime',t:'gel',g:'Géis',nome:'Z2 Energy Gel Gameday Lime (cafeína)',cho:25,na:200,caf:100,multi:true},
+ {id:'z2iced',t:'gel',g:'Géis',nome:'Z2 Energy Gel Gameday Iced Coffee (cafeína)',cho:25,na:200,caf:150,multi:true},
+ {id:'z2mint',t:'gel',g:'Géis',nome:'Z2 Energy Gel Gameday Choco Mint (cafeína)',cho:25,na:100,caf:150,multi:true},
+ {id:'z2cola',t:'gel',g:'Géis',nome:"Z2 Energy Gel Gameday Freezin' Cola (cafeína)",cho:25,na:300,caf:200,multi:true},
+ {id:'z2expresso',t:'gel',g:'Géis',nome:'Z2 Energy Gel Gameday Double Expresso (cafeína)',cho:25,na:100,caf:200,multi:true},
+ {id:'z240',t:'gel',g:'Géis',nome:'Z2 LoadUp 40 (40 g de carbo)',cho:40,na:100,caf:0,multi:true},
+ {id:'z240na',t:'gel',g:'Géis',nome:'Z2 LoadUp 40 + 300 sódio',cho:40,na:300,caf:0,multi:true},
+ {id:'z240caf',t:'gel',g:'Géis',nome:'Z2+ LoadUp 40 (cafeína)',cho:40,na:100,caf:100,multi:true},
  {id:'dobrohidrogel',t:'gel',g:'Géis',nome:'Dobro Hidrogel Tech (40 g)',cho:25,na:0,caf:0,multi:true,est:true},
  {id:'gu',t:'gel',g:'Géis',nome:'GU Energy Gel',cho:22,na:60,caf:0,multi:true,est:true},
+ {id:'roctane',t:'gel',g:'Géis',nome:'GU Roctane Energy Gel',cho:21,na:125,caf:0,multi:true},
+ {id:'roctanecaf',t:'gel',g:'Géis',nome:'GU Roctane Energy Gel (cafeína 35 mg)',cho:21,na:125,caf:35,multi:true},
+ {id:'carboaction',t:'gel',g:'Géis',nome:'Essential Nutrition Carbo Action (50 g)',cho:27,na:250,caf:0,multi:true},
+ {id:'carboactioncaf',t:'gel',g:'Géis',nome:'Essential Nutrition Carbo Action com Cafeína (50 g)',cho:27,na:250,caf:80,multi:true},
+ {id:'duxgel',t:'gel',g:'Géis',nome:'Dux Nutrition Energy Gel (30 g)',cho:22,na:153,caf:0,multi:true},
+ {id:'duxgelcaf',t:'gel',g:'Géis',nome:'Dux Nutrition Energy Gel com Cafeína (30 g)',cho:22,na:150,caf:85,multi:true},
+ {id:'ironman',t:'gel',g:'Géis',nome:'New Millen Iron Man Gel Fire (cafeína, 30 g)',cho:20,na:60,caf:100,multi:true},
+ {id:'energel',t:'gel',g:'Géis',nome:'Bodyaction Energel Black (30 g)',cho:19,na:57,caf:11,multi:true},
+ {id:'gorecovery',t:'gel',g:'Géis',nome:'Atlhetica Go! Recovery Gel (30 g)',cho:19,na:85,caf:0,multi:false,est:true},
+ {id:'betafuelgel',t:'gel',g:'Géis',nome:'SiS Beta Fuel + Electrolytes Gel (40 g de carbo)',cho:40,na:200,caf:0,multi:true},
  {id:'sis',t:'gel',g:'Géis',nome:'SiS GO Isotonic Gel',cho:22,na:10,caf:0,multi:false,est:true},
  {id:'banana',t:'gel',g:'Alimentos',nome:'Banana prata média (70 g)',cho:18,na:0,caf:0,multi:true,est:true},
  {id:'mel',t:'gel',g:'Alimentos',nome:'Mel, sachê 15 g',cho:12,na:0,caf:0,multi:true,est:true},
@@ -2133,10 +2153,19 @@ const PRODUTOS=[
  {id:'dm320',t:'bebida',g:'Bebidas prontas para misturar',nome:'Maurten Drink Mix 320 (500 ml)',cho:79,na:200,caf:0,ml:500,multi:true},
  {id:'c90',t:'bebida',g:'Bebidas prontas para misturar',nome:'FourLab C90 Isotônico (94 g em 500 ml)',cho:90,na:0,caf:0,ml:500,multi:true,est:true},
  {id:'pfce',t:'bebida',g:'Bebidas prontas para misturar',nome:'PF Carb & Electrolyte Drink Mix (500 ml)',cho:30,na:500,caf:0,ml:500,multi:true,est:true},
+ {id:'tailwind',t:'bebida',g:'Bebidas prontas para misturar',nome:'Tailwind Endurance Fuel (1 scoop em 350 ml)',cho:25,na:303,caf:0,ml:350,multi:true},
+ {id:'betafuel',t:'bebida',g:'Bebidas prontas para misturar',nome:'SiS Beta Fuel Drink (1 sachê em 500 ml)',cho:80,na:228,caf:0,ml:500,multi:true},
+ {id:'duxhydrolite',t:'bebida',g:'Bebidas prontas para misturar',nome:'Dux Hydrolite (1 dosador de 23 g em 250 ml)',cho:20,na:200,caf:0,ml:250,multi:true,est:true},
+ {id:'duxkick',t:'bebida',g:'Bebidas prontas para misturar',nome:'Dux Energy Kick + Caffeine (35 g em 300 ml)',cho:32,na:152,caf:120,ml:300,multi:true,est:true},
+ {id:'duxintra',t:'bebida',g:'Bebidas prontas para misturar',nome:'Dux Intra Workout (34 g em 500 ml, palatinose)',cho:22,na:330,caf:0,ml:500,multi:false},
  {id:'gatorade',t:'bebida',g:'Bebidas prontas para misturar',nome:'Isotônico tipo Gatorade (500 ml)',cho:30,na:225,caf:0,ml:500,multi:true,est:true},
  {id:'malto',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Maltodextrina pura',choG:0.95,multi:false},
  {id:'mix108',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Mix caseiro malto + frutose (1:0,8)',choG:0.97,multi:true},
  {id:'dextrose',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Dextrose',choG:0.91,multi:false},
+ {id:'ciclodextrina',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Ciclodextrina (cluster dextrin)',choG:0.95,multi:false,est:true},
+ {id:'palatinose',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Palatinose (isomaltulose, absorção lenta)',choG:0.95,multi:false,est:true},
+ {id:'waxy',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Waxy maize (amilopectina)',choG:0.93,multi:false,est:true},
+ {id:'frutose',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Frutose (para somar à malto)',choG:1.0,multi:false},
  {id:'acucar',t:'po',g:'Pó de carboidrato (dose livre)',nome:'Açúcar refinado (sacarose)',choG:1.0,multi:true},
  {id:'saltz500',t:'eletrolito',g:'Sachês e tabletes',nome:'Saltz 500 (Z2 Foods), sachê',na:500,un:'sachê',half:true},
  {id:'saltz1000',t:'eletrolito',g:'Sachês e tabletes',nome:'Saltz 1000 (Z2 Foods), sachê',na:1000,un:'sachê',half:true},
@@ -2144,9 +2173,18 @@ const PRODUTOS=[
  {id:'ph1000',t:'eletrolito',g:'Sachês e tabletes',nome:'Precision PH 1000, tablete (500 ml)',na:500,un:'tablete',half:true},
  {id:'ph500',t:'eletrolito',g:'Sachês e tabletes',nome:'Precision PH 500, tablete (500 ml)',na:250,un:'tablete',half:true},
  {id:'hidraiso',t:'eletrolito',g:'Sachês e tabletes',nome:'Dobro Hidra Iso, tablete',na:400,un:'tablete',half:true},
+ {id:'liquidz',t:'eletrolito',g:'Sachês e tabletes',nome:'Liquidz, sachê (500 ml)',na:353,un:'sachê',half:true},
+ {id:'hydrolift',t:'eletrolito',g:'Sachês e tabletes',nome:'Essential Hydrolift Sport, stick (500 ml)',na:520,un:'stick',half:true},
+ {id:'lmnt',t:'eletrolito',g:'Sachês e tabletes',nome:'LMNT, sachê',na:1000,un:'sachê',half:true},
+ {id:'liquidiv',t:'eletrolito',g:'Sachês e tabletes',nome:'Liquid I.V. Hydration Multiplier, sachê (11 g de carbo)',na:500,un:'sachê',half:true},
+ {id:'saltstickmix',t:'eletrolito',g:'Sachês e tabletes',nome:'SaltStick DrinkMix, stick',na:430,un:'stick',half:true},
+ {id:'nuun',t:'eletrolito',g:'Sachês e tabletes',nome:'Nuun Sport, tablete (500 ml)',na:300,un:'tablete',half:true},
+ {id:'fastchews',t:'eletrolito',g:'Sachês e tabletes',nome:'SaltStick FastChews, pastilha',na:50,un:'pastilha'},
  {id:'saltreload',t:'eletrolito',g:'Cápsulas',nome:'Body Action Salt Reload, cápsula',na:380,un:'cápsula'},
  {id:'phcap',t:'eletrolito',g:'Cápsulas',nome:'Precision Electrolyte Capsule',na:250,un:'cápsula',est:true},
- {id:'saltstick',t:'eletrolito',g:'Cápsulas',nome:'SaltStick Caps',na:215,un:'cápsula',est:true},
+ {id:'saltstick',t:'eletrolito',g:'Cápsulas',nome:'SaltStick Caps',na:215,un:'cápsula'},
+ {id:'roctanecap',t:'eletrolito',g:'Cápsulas',nome:'GU Roctane Electrolyte Capsule',na:140,un:'cápsula'},
+ {id:'endurolytes',t:'eletrolito',g:'Cápsulas',nome:'Hammer Endurolytes, cápsula',na:40,un:'cápsula'},
  {id:'sal',t:'eletrolito',g:'Caseiro',nome:'Sal de cozinha',na:393,un:'g',gram:true}
 ];
 
@@ -2286,7 +2324,7 @@ function plano(r,inp){
       const bk=s.sport==='ciclismo';
       if(bk&&drs.length&&F>0){const n=drs.length;
         drs.forEach(d=>{const Fi=F/n,ci=s.carb/n;let serv=0,g=0,cho=0,na=0;
-          if(d.t==='bebida'){serv=Math.min(Fi/d.ml,ci/(d.cho||1));cho=serv*d.cho;na=serv*(d.na||0);}
+          if(d.t==='bebida'){serv=Math.min(Fi/d.ml,ci/(d.cho||1));cho=serv*d.cho;na=serv*(d.na||0);if(d.caf)tot.caf+=d.caf*serv*s.h;}
           else if(d.t==='po'){cho=Math.min(ci,Fi/1000*90);g=cho/d.choG;}
           x.drs.push({d,serv,g});x.dServ+=serv;x.poG+=g;x.dCho+=cho;x.dNa+=na;
           const k=d.id;tot.byDr[k]=tot.byDr[k]||{d,serv:0,g:0};tot.byDr[k].serv+=serv*s.h;tot.byDr[k].g+=g*s.h;});}
@@ -2421,7 +2459,7 @@ function run(){
   const has=sp=>r.segs.some(s=>s.sport===sp);const gb=has('ciclismo')&&inp.gut.ciclismo===0,gr=has('corrida')&&inp.gut.corrida===0;
   if((gb||gr)&&r.T>=2)al('i',`<b>Tolerância iniciante ${gb&&gr?'no pedal e na corrida':gb?'no pedal':'na corrida'}.</b> A meta foi limitada para conforto. Treinar o intestino (aumentar gradualmente o carboidrato nos treinos longos) libera metas maiores e melhor desempenho.`);
   const cafT=P.tot.caf+cafPre+cafDur;
-  if(cafT>0){const mgkg=cafT/inp.peso;al(mgkg>6?'w':'i',`<b>Cafeína total ${fmt(cafT)} mg (${fmt(mgkg,1)} mg/kg${cafPre?', somando a dose pré':''}).</b> Faixa eficaz 3 a 6 mg/kg; acima disso aumentam tremor, taquicardia e desconforto gástrico.`);}
+  if(cafT>0){const mgkg=cafT/inp.peso;al(mgkg>9?'c':mgkg>6?'w':'i',`<b>Cafeína total ${fmt(cafT)} mg (${fmt(mgkg,1)} mg/kg${cafPre?', somando a dose pré':''}).</b> Faixa eficaz 3 a 6 mg/kg; acima disso aumentam tremor, taquicardia e desconforto gástrico.${mgkg>9?' <b>Acima de 9 mg/kg o risco de efeitos adversos sobe muito: alterne com uma versão sem cafeína.</b>':''}`);}
   if(S.formato==='brick'){const rn=r.segs.find(s=>s.sport==='corrida');
     if(rn&&rn.shifted)al('i',`<b>Brick:</b> com T2 de até 45 min, os ${rn.shifted} g de carboidrato da corrida foram antecipados para o pedal. O último gel entra nos 15 a 20 min finais da bike. Na corrida, só água e sódio, porque o esvaziamento gástrico piora com o impacto.`);
     else al('i',`<b>Brick:</b> tome o último gel nos 15 a 20 min finais do pedal. Na corrida o esvaziamento gástrico piora, então chegue à T2 já abastecido.`);}
@@ -3608,6 +3646,9 @@ function picOf(p){if(!p)return {k:'nada',c:'#8F857B'};
   if(p.t==='gel')return /banana|mel|rapadura/.test(p.id)?{k:'comida',c:'#F5C26B'}:{k:'gel',c:'#F5874A'};
   if(p.t==='bebida')return {k:'bebida',c:'#7AABF2'};
   if(p.t==='po')return {k:'po',c:'#BFD6FA'};
+  if(p.un==='cápsula')return {k:'capsula',c:'#F7F4F1'};
+  if(p.un==='tablete'||p.un==='pastilha')return {k:'tablete',c:'#F7F4F1'};
+  if(p.un==='stick'||p.un==='sachê')return {k:'sache',c:'#F7F4F1'};
   if(/cap|stick|reload/.test(p.id))return {k:'capsula',c:'#F7F4F1'};
   if(/^ph|hidra/.test(p.id))return {k:'tablete',c:'#F7F4F1'};
   if(p.id==='sal')return {k:'sal',c:'#F7F4F1'};
@@ -4988,8 +5029,8 @@ const QZQ=[
     upd();}},
  {id:'gel',recap:()=>{const ids=multiIds('pGel');return ids.length?ids.map(i=>prod(i).nome.split(' (')[0].split(' ').slice(0,2).join(' ')).join(' + '):'Sem gel';},show:()=>!QZ.repeat&&qzSingle()!=='natacao'&&(LAST.r&&LAST.r.carbH>0),next:true,
   title:()=>'Quais géis ou alimentos você vai usar?',sub:()=>isPro()?'Pode escolher mais de um. A calculadora alterna entre eles.':'Escolha o principal. Alternar vários géis faz parte do Pro.',
-  html:()=>{const L=['maurten100','pf30','vo2','fourlab','paceneutro','truesource','dobrohidrogel','carbup','gu','sis','banana','mel'];const sel=new Set(lsGet('gaGelPicked')==='1'?multiIds('pGel'):[]);
-    const nm=id=>({maurten100:'Maurten 100',pf30:'Precision PF 30',vo2:'VO2 C30',fourlab:'FourLab',paceneutro:'Pace It',truesource:'True Source',dobrohidrogel:'Dobro Hidrogel',carbup:'Carb Up',gu:'GU',sis:'SiS GO',banana:'Banana',mel:'Mel, sachê'})[id];
+  html:()=>{const L=['maurten100','pf30','carboaction','z2gel','vo2','fourlab','paceneutro','truesource','duxgel','carbup','gu','dobrohidrogel','sis','betafuelgel','banana'];const sel=new Set(lsGet('gaGelPicked')==='1'?multiIds('pGel'):[]);
+    const nm=id=>({maurten100:'Maurten 100',pf30:'Precision PF 30',carboaction:'Carbo Action',z2gel:'Z2 Energy',vo2:'VO2 C30',fourlab:'FourLab',paceneutro:'Pace It',truesource:'True Source',duxgel:'Dux Energy',dobrohidrogel:'Dobro Hidrogel',carbup:'Carb Up',gu:'GU',sis:'SiS GO',betafuelgel:'SiS Beta Fuel',banana:'Banana',mel:'Mel, sachê'})[id];
     const extra=[...sel].filter(id=>!L.includes(id));
     return `<div class="qz-cards g3 qz-sm qz-multi">${[...L,...extra].map(id=>{const pr=prod(id);if(!pr)return '';return `<button type="button" class="qz-card pcard${sel.has(id)?' on':''}" data-v="${id}">${picHtml(pr)}<span class="qz-ct"><b>${qzEsc(nm(id)||pr.nome.split(' (')[0])}</b><span>${fmt(pr.cho)} g</span></span></button>`;}).join('')}</div>
       <label class="f qz-other">Outro gel ou alimento<select id="qzGelO"><option value="">Escolher na lista completa...</option>${PRODUTOS.filter(x=>x.t==='gel'&&!L.includes(x.id)).map(x=>`<option value="${x.id}">${qzEsc(x.nome)}</option>`).join('')}</select></label>
@@ -5003,8 +5044,8 @@ const QZQ=[
     $('qzGelNone').addEventListener('click',()=>{buzz();lsSet('gaGelPicked','1');el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.classList.remove('on'));$('qzGelNone').classList.add('on');apply([]);});}},
  {id:'bebida',recap:()=>{const ids=multiIds('pDrink');return ids.length?ids.map(i=>prod(i).nome.split(' (')[0]).join(' + '):'Só água';},show:()=>!QZ.repeat&&segList().some(s=>s.sport==='ciclismo'),next:true,
   title:()=>'E na caramanhola?',sub:()=>isPro()?'Pode somar mais de uma: as caramanholas são divididas entre elas.':'Escolha a principal. Somar bebidas diferentes faz parte do Pro.',
-  html:()=>{const L=['gatorade','c90','dm160','dm320','pfce','malto','mix108','dextrose'];const sel=new Set(multiIds('pDrink'));
-    const nm=id=>({gatorade:'Isotônico',c90:'FourLab C90',dm160:'Maurten 160',dm320:'Maurten 320',pfce:'Precision Drink Mix',malto:'Maltodextrina',mix108:'Malto + frutose',dextrose:'Dextrose'})[id];
+  html:()=>{const L=['gatorade','c90','dm160','dm320','pfce','tailwind','betafuel','duxhydrolite','duxkick','malto','mix108','dextrose'];const sel=new Set(multiIds('pDrink'));
+    const nm=id=>({gatorade:'Isotônico',c90:'FourLab C90',dm160:'Maurten 160',dm320:'Maurten 320',pfce:'Precision Drink Mix',tailwind:'Tailwind',betafuel:'SiS Beta Fuel',duxhydrolite:'Dux Hydrolite',duxkick:'Dux Energy Kick',malto:'Maltodextrina',mix108:'Malto + frutose',dextrose:'Dextrose'})[id];
     return `<div class="qz-cards g2 qz-sm qz-multi">${L.map(id=>{const pr=prod(id);if(!pr)return '';return `<button type="button" class="qz-card pcard${sel.has(id)?' on':''}" data-v="${id}">${picHtml(pr)}<span class="qz-ct"><b>${nm(id)}</b><span>${pr.t==='po'?'em pó':'pronto para misturar'}</span></span></button>`;}).join('')}</div>
       <button type="button" class="qz-none${sel.size?'':' on'}" id="qzDrNone">Só água</button>`;},
   bind:el=>{const apply=ids=>{$('pDrink').value=ids[0]||'';MULTI.pDrink=ids.slice(1);multiSave();renderProdEdit('pDrink','pDrinkV');renderMulti('pDrink');qzApply();};
@@ -5013,8 +5054,10 @@ const QZQ=[
       const prev=multiIds('pDrink');const now=cur();apply([...prev.filter(i=>now.includes(i)),...now.filter(i=>!prev.includes(i))]);}));
     $('qzDrNone').addEventListener('click',()=>{buzz();el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.classList.remove('on'));$('qzDrNone').classList.add('on');apply([]);});}},
  {id:'eletro',show:()=>!QZ.repeat&&qzSingle()!=='natacao'&&(LAST.r&&LAST.r.naH>0),title:()=>'E para o sódio?',sub:()=>'Para completar o sódio que a bebida e o gel não cobrem.',
-  html:()=>qzCards([{v:'saltz500',t:'Saltz 500',d:'sachê'},{v:'ph1000',t:'Precision PH 1000',d:'tablete'},{v:'hidraiso',t:'Dobro Hidra Iso',d:'tablete'},{v:'saltstick',t:'Cápsula',d:'SaltStick ou similar'},{v:'sal',t:'Sal de cozinha',d:'¼ colher de chá'},{v:'',t:'Nenhum'}].map(o=>({...o,ic:picHtml(prod(o.v))})),$('pElec').value,'g2 qz-sm qz-pics'),
-  pick:v=>qzSet('pElec',v)},
+  html:()=>qzCards([{v:'saltz500',t:'Saltz 500',d:'sachê'},{v:'liquidz',t:'Liquidz',d:'sachê'},{v:'hydrolift',t:'Hydrolift Sport',d:'stick'},{v:'ph1000',t:'Precision PH 1000',d:'tablete'},{v:'hidraiso',t:'Dobro Hidra Iso',d:'tablete'},{v:'lmnt',t:'LMNT',d:'sachê'},{v:'saltstick',t:'Cápsula',d:'SaltStick ou similar'},{v:'sal',t:'Sal de cozinha',d:'¼ colher de chá'},{v:'',t:'Nenhum'}].map(o=>({...o,ic:picHtml(prod(o.v))})),$('pElec').value,'g2 qz-sm qz-pics')+
+    `<label class="f qz-other">Outro eletrólito<select id="qzElO"><option value="">Escolher na lista completa...</option>${PRODUTOS.filter(x=>x.t==='eletrolito'&&!['saltz500','liquidz','hydrolift','ph1000','hidraiso','lmnt','saltstick','sal'].includes(x.id)).map(x=>`<option value="${x.id}"${$('pElec').value===x.id?' selected':''}>${qzEsc(x.nome)}</option>`).join('')}</select></label>`,
+  pick:v=>qzSet('pElec',v),
+  bind:el=>{$('qzElO').addEventListener('change',e=>{const v=e.target.value;if(!v)return;buzz();qzSet('pElec',v);el.querySelectorAll('.qz-a > .qz-cards .qz-card').forEach(x=>x.classList.remove('on'));qzApply();track('quiz_resposta',{q:'eletro'});setTimeout(qzNext,QZ_RM&&QZ_RM.matches?0:220);});}},
 ];
 function qzOk(q){return (!QZ.only||QZ.only.includes(q.id))&&q.show();}
 function qzVisible(){return QZQ.filter(qzOk);}
