@@ -183,6 +183,7 @@ td.note{white-space:normal;color:var(--muted);font-size:12px;text-align:left;pad
 .lgcta{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .tabs .wrap{align-items:center}
 .acctbtn{margin-left:auto;font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:6px 14px;cursor:pointer;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0}
+#payPanel{z-index:52}
 .acctwrap{position:fixed;inset:0;z-index:50;background:rgba(20,16,12,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
 .acct{background:var(--surface);color:var(--ink);border-radius:16px;border:1px solid var(--line);width:min(480px,100%);padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .acct>div{display:flex;flex-direction:column;gap:12px}
@@ -3849,7 +3850,11 @@ function payOpen(motivo){
   document.querySelectorAll('#payList li').forEach(li=>li.classList.toggle('hl',li.dataset.k===motivo));
   payPlan(PAY.plano);$('payMsg').textContent='';$('payGo').disabled=false;
   $('payGo').textContent=ACC.user||IN_CLAUDE?'Pagar com Pix ou cartão':'Criar conta e testar 3 dias grátis';
-  if($('payPanel').hidden){navPush('sheet');$('payPanel').hidden=false;}
+  // aberto de dentro da Conta: a Conta sai e a tela de planos ocupa o mesmo lugar no histórico (o voltar continua funcionando)
+  if(!$('acctPanel').hidden){$('acctPanel').hidden=true;$('acIntro').hidden=true;$('acSkip').hidden=true;ACC.auto=false;
+    try{history.replaceState({cc:'sheet'},'');}catch(e){}$('payPanel').hidden=false;}
+  else if($('payPanel').hidden){navPush('sheet');$('payPanel').hidden=false;}
+  if(typeof mbarVisibility==='function')mbarVisibility();
   track('pro_paywall',{motivo:motivo||'conta'});
 }
 function payClose(){if($('payPanel').hidden)return;$('payPanel').hidden=true;navPop('sheet');}
