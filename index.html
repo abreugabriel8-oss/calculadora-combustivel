@@ -1541,7 +1541,7 @@ main.pview[hidden]{display:none!important}
       <ul class="ac-ben">
         <li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>Diário de treinos salvo em qualquer aparelho</li>
         <li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>Sua taxa de suor e sua tolerância a carbo medidas a cada registro</li>
-        <li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>No Pro: plano calibrado, modo prova e envio para o relógio Garmin</li>
+        <li><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>3 dias de Pro grátis: plano calibrado, modo prova e Garmin</li>
       </ul>
     </div>
 
@@ -2256,7 +2256,7 @@ async function enterAccount(){
   if(typeof nutriLoad==='function')nutriLoad();
   gStatus();gFinish();
   payLoad().then(payConfirm);
-  if(PAY.after){PAY.after=false;setTimeout(()=>{closeAcct();payOpen(PAY.motivo);},500);}
+  if(PAY.after){PAY.after=false;setTimeout(()=>{closeAcct();if(!isPro())payOpen(PAY.motivo);},900);}
 }
 function applyConfig(cfg){
   if(!cfg)return;
@@ -3472,8 +3472,9 @@ function initNutri(){
 }
 
 /* ===== PLANO PRO (Mercado Pago) ===== */
-const PAY={ready:lsGet('gaPayReady')==='1',ate:null,paciente:false,profissional:false,after:false,plano:'anual',motivo:''};
-try{const c=JSON.parse(lsGet('gaAcc')||'null');if(c){PAY.ate=c.ate||null;PAY.paciente=!!c.paciente;PAY.profissional=!!c.profissional;}}catch(e){}
+const PAY={ready:lsGet('gaPayReady')==='1',ate:null,teste:null,paciente:false,profissional:false,after:false,plano:'anual',motivo:''};
+try{const c=JSON.parse(lsGet('gaAcc')||'null');if(c){PAY.ate=c.ate||null;PAY.teste=c.teste||null;PAY.paciente=!!c.paciente;PAY.profissional=!!c.profissional;}}catch(e){}
+const fut=d=>!!(d&&new Date(d)>new Date());
 const LOCK_IC='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 function proTag(){return `<span class="pro-tag">${LOCK_IC}Pro</span>`;}
 /* sem as tabelas de pagamento no banco (ready=false), tudo fica liberado, como antes do Pro */
@@ -3482,15 +3483,15 @@ function isPro(){
   if(!PAY.ready)return true;
   if(!ACC.user)return false;
   if(ACC.pro||(ACC.vin&&ACC.vin.status==='ativo'))return true;
-  return PAY.paciente||PAY.profissional||!!(PAY.ate&&new Date(PAY.ate)>new Date());
+  return PAY.paciente||PAY.profissional||fut(PAY.ate)||fut(PAY.teste);
 }
 function proSrc(){
   if(ACC.pro||PAY.profissional)return 'profissional';
   if((ACC.vin&&ACC.vin.status==='ativo')||PAY.paciente)return 'paciente';
-  return PAY.ate&&new Date(PAY.ate)>new Date()?'pago':null;
+  return fut(PAY.ate)?'pago':fut(PAY.teste)?'teste':null;
 }
 function dBr(d){return new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});}
-function proDaysLeft(){return PAY.ate?Math.max(0,Math.ceil((new Date(PAY.ate)-new Date())/864e5)):0;}
+function proDaysLeft(d){d=d||PAY.ate;return d?Math.max(0,Math.ceil((new Date(d)-new Date())/864e5)):0;}
 async function payLoad(){
   if(!SB||IN_CLAUDE){payApply();return;}
   try{
@@ -3498,13 +3499,13 @@ async function payLoad(){
     if(error){const t=(error.code||'')+' '+(error.message||'');if(/PGRST202|42883|meu_acesso/i.test(t)){PAY.ready=false;lsSet('gaPayReady','0');}}
     else if(data){
       PAY.ready=!!data.ready;lsSet('gaPayReady',PAY.ready?'1':'0');
-      if(ACC.user){PAY.ate=data.ate||null;PAY.paciente=!!data.paciente;PAY.profissional=!!data.profissional;
-        lsSet('gaAcc',JSON.stringify({ate:PAY.ate,paciente:PAY.paciente,profissional:PAY.profissional}));}
+      if(ACC.user){PAY.ate=data.ate||null;PAY.teste=data.teste_ate||null;PAY.paciente=!!data.paciente;PAY.profissional=!!data.profissional;
+        lsSet('gaAcc',JSON.stringify({ate:PAY.ate,teste:PAY.teste,paciente:PAY.paciente,profissional:PAY.profissional}));}
     }
   }catch(e){}
   payApply();payRemind();
 }
-function payReset(){PAY.ate=null;PAY.paciente=false;PAY.profissional=false;try{localStorage.removeItem('gaAcc');}catch(e){}payApply();}
+function payReset(){PAY.ate=null;PAY.teste=null;PAY.paciente=false;PAY.profissional=false;try{localStorage.removeItem('gaAcc');}catch(e){}payApply();}
 function payApply(){
   payRender();
   if(typeof applyCal==='function'&&$('calSw'))applyCal();
@@ -3512,17 +3513,25 @@ function payApply(){
   run();
 }
 function payRemind(){
-  if(proSrc()!=='pago')return;const n=proDaysLeft();if(n>5)return;
-  const k=new Date().toLocaleDateString('sv-SE');if(lsGet('gaPayRem')===k)return;lsSet('gaPayRem',k);
-  setTimeout(()=>toast(n<=0?'Seu Pro acaba hoje. Renove em Conta.':`Seu Pro acaba em ${n} dia${n>1?'s':''}. Renove em Conta.`),1500);
+  if(!ACC.user||!PAY.ready)return;
+  const src=proSrc(),k=new Date().toLocaleDateString('sv-SE');
+  if(src==='teste'){
+    const n=proDaysLeft(PAY.teste);
+    if(lsGet('gaTrialHi')!==PAY.teste){lsSet('gaTrialHi',PAY.teste);setTimeout(()=>toast(`Você ganhou ${n} dia${n>1?'s':''} de Pro grátis: modo prova, calibração e Garmin liberados`,'ok'),1200);track('pro_teste_inicio');return;}
+    if(n<=1&&lsGet('gaPayRem')!==k){lsSet('gaPayRem',k);setTimeout(()=>toast(n<=0?'Seu teste do Pro acaba hoje. Assine em Conta.':'Seu teste do Pro acaba amanhã. Assine em Conta.'),1500);}
+    return;}
+  if(src==='pago'){const n=proDaysLeft();if(n>5||lsGet('gaPayRem')===k)return;lsSet('gaPayRem',k);
+    setTimeout(()=>toast(n<=0?'Seu Pro acaba hoje. Renove em Conta.':`Seu Pro acaba em ${n} dia${n>1?'s':''}. Renove em Conta.`),1500);return;}
+  // teste acabou e a pessoa não assinou: mostra o Pro uma vez
+  if(!src&&PAY.teste&&!fut(PAY.teste)&&lsGet('gaTrialEnd')!==PAY.teste){lsSet('gaTrialEnd',PAY.teste);setTimeout(()=>payOpen('fim_teste'),1500);}
 }
-const PAY_WHY={prova:'O modo prova faz parte do Pro.',cal:'Usar a calibração do diário no plano faz parte do Pro.',garmin:'A integração com o Garmin Connect faz parte do Pro.',multi:'Alternar géis e somar bebidas faz parte do Pro.'};
+const PAY_WHY={fim_teste:'Seu teste de 3 dias acabou. Calcular e registrar no diário continuam grátis.',prova:'O modo prova faz parte do Pro.',cal:'Usar a calibração do diário no plano faz parte do Pro.',garmin:'A integração com o Garmin Connect faz parte do Pro.',multi:'Alternar géis e somar bebidas faz parte do Pro.'};
 function payOpen(motivo){
   PAY.motivo=motivo||'';
   $('payWhy').textContent=PAY_WHY[motivo]||'Tudo para treinar e competir com o plano certo.';
   document.querySelectorAll('#payList li').forEach(li=>li.classList.toggle('hl',li.dataset.k===motivo));
   payPlan(PAY.plano);$('payMsg').textContent='';$('payGo').disabled=false;
-  $('payGo').textContent=ACC.user||IN_CLAUDE?'Pagar com Pix ou cartão':'Criar conta e assinar';
+  $('payGo').textContent=ACC.user||IN_CLAUDE?'Pagar com Pix ou cartão':'Criar conta e testar 3 dias grátis';
   if($('payPanel').hidden){navPush('sheet');$('payPanel').hidden=false;}
   track('pro_paywall',{motivo:motivo||'conta'});
 }
@@ -3537,7 +3546,7 @@ async function payGo(){
   const m=$('payMsg');
   if(IN_CLAUDE){m.className='status ok';m.textContent='Na prévia não há cobrança. No site, este botão abre o Mercado Pago.';return;}
   if(!SB)return;
-  if(!ACC.user){PAY.after=true;payClose();openAcct(false);if(ACC.setMode)ACC.setMode('criar');$('acctMsg').textContent='Crie sua conta (ou entre) para assinar o Pro.';return;}
+  if(!ACC.user){PAY.after=true;payClose();openAcct(false);if(ACC.setMode)ACC.setMode('criar');$('acctMsg').textContent='Crie sua conta e ganhe 3 dias de Pro grátis.';return;}
   const b=$('payGo');b.disabled=true;m.className='status ok';m.textContent='Abrindo o Mercado Pago...';
   const r=await payCall({action:'criar',plano:PAY.plano});
   if(r.url){track('pro_checkout',{plano:PAY.plano,motivo:PAY.motivo||'conta'});lsSet('gaPayPlano',PAY.plano);location.href=r.url;return;}
@@ -3573,6 +3582,8 @@ function payRender(){
       <div class="seg pay-demo"><button type="button" data-demo="0" aria-pressed="${!pro}">Grátis</button><button type="button" data-demo="1" aria-pressed="${pro}">Pro</button></div></div>`;}
   else if(src==='profissional')h=`<div class="pay-st pro"><div><span class="hint">Seu plano</span><b>Pro, como nutricionista</b></div></div>`;
   else if(src==='paciente')h=`<div class="pay-st pro"><div><span class="hint">Seu plano</span><b>Pro incluso no acompanhamento</b><span class="hint">Vale enquanto o acompanhamento estiver ativo.</span></div></div>`;
+  else if(src==='teste'){const n=proDaysLeft(PAY.teste);
+    h=`<div class="pay-st pro"><div><span class="hint">Seu plano</span><b>Teste grátis do Pro</b><span class="hint">${n<=0?'Acaba hoje':`Falta${n>1?'m':''} ${n} dia${n>1?'s':''}`} (até ${dBr(PAY.teste)}). Depois, calcular e registrar seguem grátis.</span></div><button type="button" class="btn primary" data-pro="conta">Assinar</button></div>`;}
   else if(src==='pago'){const n=proDaysLeft();
     h=`<div class="pay-st pro"><div><span class="hint">Seu plano</span><b>Pro até ${dBr(PAY.ate)}</b><span class="hint">${n<=7?`Falta${n>1?'m':''} ${n} dia${n>1?'s':''}. Renovando agora, os dias se somam.`:'Pagamento único, não renova sozinho.'}</span></div><button type="button" class="btn" data-pro="conta">${n<=7?'Renovar':'Estender'}</button></div>`;}
   else h=`<div class="pay-st"><div><span class="hint">Seu plano</span><b>Grátis</b><span class="hint">Modo prova, calibração pelo diário, Garmin e vários produtos ficam no Pro.</span></div><button type="button" class="btn primary" data-pro="conta">Conhecer o Pro</button></div>`;
@@ -3706,7 +3717,7 @@ function raceRender(){
   if(!isPro()){
     card.innerHTML=head+`<div class="rc-lock"><div class="rc-blur" aria-hidden="true"><div class="rc-row"><time>2 dias antes</time><span>~${fmt(Math.round(10*(LAST.inp.peso)/10)*10)} g de carbo por dia</span></div><div class="rc-row"><time>${raceClock(-180)}</time><span>Refeição pré-prova</span></div><div class="rc-row"><time>Km 5</time><span>água 300 ml + 1 gel</span></div><div class="rc-row"><time>Km 10</time><span>isotônico 300 ml</span></div></div>
       <ul class="rc-feat"><li><b>Supercompensação</b> com meta por dia e por refeição</li><li><b>Manhã da prova</b> com horário de cada coisa</li><li><b>Cafeína</b> na dose e na hora certas</li><li><b>Postos do percurso</b>: quanto beber e quando tomar cada gel</li><li><b>Cartão da equipe de apoio</b> para mandar no WhatsApp</li></ul>
-      <button type="button" class="btn primary" data-pro="prova" style="width:100%">Liberar o modo prova ${LOCK_IC}</button></div>`;
+      <button type="button" class="btn primary" data-pro="prova" style="width:100%">${ACC.user?'Liberar o modo prova':'Testar 3 dias grátis'} ${LOCK_IC}</button></div>`;
     return;
   }
   const D=raceData();if(!D){card.innerHTML=head;return;}
