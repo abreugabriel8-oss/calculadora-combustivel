@@ -1473,6 +1473,28 @@ main.dview .results{position:static!important}
 .fs-del,.hj-del{align-self:center;font-size:13px;font-weight:700;color:var(--muted);background:none;border:0;padding:8px 10px;cursor:pointer}
 .hj-del{display:block;margin:8px auto 0}
 .fs-del.armed,.hj-del.armed{color:#E5484D}
+/* ===== Sugestões e tutorial ===== */
+.fb-body{display:flex;flex-direction:column;gap:10px}
+.fb-tipos{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))}.fb-tipos button{font-size:12.5px;padding:9px 4px}
+#sgTxt{width:100%;min-height:130px;box-sizing:border-box;font:15px/1.5 var(--body);padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--sunk);color:var(--ink);resize:vertical}
+.fb-go{width:100%;min-height:48px}
+.help-sec{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.hj-fb{display:block;margin:18px auto 8px;background:none;border:0;color:var(--muted);font:600 13.5px var(--body);cursor:pointer;padding:10px}
+.hj-fb b{color:var(--accent-ink)}
+.hj-inst{grid-column:1/-1;border:1px solid rgba(242,100,25,.35)}
+.hj-inst .hj-sh{display:flex;align-items:center;justify-content:space-between}.hj-inst .xclose.sm{width:30px;height:30px}
+.hj-inst .btn{width:100%}
+.acct.tut{text-align:center}
+.tut-body{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 4px 6px}
+.tut-ic{width:76px;height:76px;border-radius:24px;display:grid;place-items:center;background:var(--orange-soft);color:var(--accent-ink);margin-top:-10px}
+.tut-ic svg{width:38px;height:38px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tut-body h3{margin:4px 0 0;font:900 26px/1.1 var(--display)}
+.tut-body p{margin:0;font-size:15px;line-height:1.55;color:var(--muted);max-width:340px}
+.tut-body p b{color:var(--ink)}
+.tut-sec{min-width:200px}
+.tut-ok{color:#3FB37F!important;font-weight:800}
+.tut-dots{display:flex;gap:6px;margin-top:6px}.tut-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.tut-dots i.on{width:20px;border-radius:4px;background:var(--accent)}
+.tut-nav{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;width:100%;margin-top:6px}.tut-nav .btn{min-height:48px}
 </style>
 
 <header class="band">
@@ -1940,6 +1962,18 @@ main.dview .results{position:static!important}
     <div id="trBody"></div>
   </div>
 </div>
+<div class="acctwrap" id="fbPanel" hidden>
+  <div class="acct" role="dialog" aria-modal="true" aria-labelledby="fbT">
+    <div class="acct-h"><h3 id="fbT">Fale com o Gabriel</h3><button class="xclose" id="fbX" type="button" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="fbBody" class="fb-body"></div>
+  </div>
+</div>
+<div class="acctwrap" id="tutPanel" hidden>
+  <div class="acct tut" role="dialog" aria-modal="true" aria-label="Como usar o app">
+    <div class="acct-h"><span></span><button class="xclose" id="tutX" type="button" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="tutBody" class="tut-body"></div>
+  </div>
+</div>
 <div class="acctwrap" id="wlPanel" hidden>
   <div class="acct wl" role="dialog" aria-modal="true" aria-labelledby="wlT">
     <div class="wl-ic"><svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg></div>
@@ -2070,6 +2104,7 @@ main.dview .results{position:static!important}
         <div class="row"><button class="btn primary" id="gConnect" type="button">Conectar com Garmin Connect™</button><button class="btn" id="gDisc" type="button" hidden>Desconectar</button></div>
         <p class="status" id="gMsg" aria-live="polite"></p>
       </div>
+      <div class="help-sec"><button type="button" class="btn" data-fb="ideia">Mandar sugestão ou problema</button><button type="button" class="btn" data-tutorial="1">Ver o tutorial de novo</button></div>
       <div class="row"><button class="btn" id="acOut" type="button">Sair</button></div>
       <details class="danger">
         <summary>Excluir minha conta</summary>
@@ -4566,7 +4601,7 @@ function renderHoje(){
   const cw=logs.filter(l=>inW(l,ws)),pw=logs.filter(l=>inW(l,ws2));const hrs=a=>a.reduce((s,l)=>s+(l.durMin||0),0)/60;
   const dh=hrs(cw)-hrs(pw);
   const rec6=logs.slice(0,6).map(derive);const pAvg=rec6.length?rec6.reduce((a,d)=>a+(d.ganhou?0:d.perdaPct),0)/rec6.length:null;
-  h+=`<div class="hj-grid">${typeof svCard==='function'?svCard():''}${sc}${rcard}${nx}${typeof ntCard==='function'?ntCard():''}
+  h+=`<div class="hj-grid">${typeof svCard==='function'?svCard():''}${typeof instHjCard==='function'?instHjCard():''}${sc}${rcard}${nx}${typeof ntCard==='function'?ntCard():''}
     <section class="card hj-t"><div class="hj-sh"><h3>Taxa de suor</h3><span>média ponderada</span></div>${sw||'<p class="hj-et">Aparece com o primeiro registro.</p>'}<button type="button" class="hj-link" data-st="1">Fazer teste de suor ›</button></section>
     <section class="card hj-t"><div class="hj-sh"><h3>Tolerância a carbo</h3><span>sem desconforto</span></div>${tol||'<p class="hj-et">Registre um treino de 45 min ou mais com o carbo consumido.</p>'}</section>
     <section class="card hj-t"><div class="hj-sh"><h3>Esta semana</h3></div><div class="hj-wk"><div><b>${cw.length}</b><small>treino${cw.length!==1?'s':''}</small></div><div><b>${fmt(hrs(cw),1)}</b><small>horas</small></div></div>${pw.length||cw.length?`<span class="hj-tn">${dh>=0?'+':'−'}${fmt(Math.abs(dh),1)} h que a semana passada</span>`:''}</section>
@@ -4575,7 +4610,9 @@ function renderHoje(){
   const ins=hjInsights(logs);
   if(ins.length)h+=`<section class="hj-ins"><h3>Para você</h3>${ins.map(x=>`<div class="hj-in ${x.k}"><b>${x.t}</b><p>${x.b}</p></div>`).join('')}</section>`;
   if(PAY.ready&&!isPro()&&!IN_CLAUDE)h+=`<button type="button" class="hj-pro" data-pro="conta"><b>Combustível Pro</b><span>${ACC.user?'Modo prova, calibração pelo diário e Garmin':'Crie sua conta e teste 3 dias grátis'}</span><em>›</em></button>`;
+  h+=`<button type="button" class="hj-fb" data-fb="ideia">Sugestão, dúvida ou problema? <b>Fale comigo</b></button>`;
   box.innerHTML=h;
+  if(typeof tutMaybe==='function')tutMaybe();
 }
 function hjAct(a){
   buzz();
@@ -5346,6 +5383,92 @@ function initStrava(){
   $('svSync').addEventListener('click',svSync);
   svRender();}
 
+/* ===== SUGESTÕES ===== */
+const FB={tipo:'ideia',busy:false};
+const FB_T={ideia:['Ideia','O que faria o app ser mais útil para você?'],problema:['Problema','O que aconteceu? Em qual tela? Se der, diga o que você esperava.'],duvida:['Dúvida','Qual a sua dúvida? Eu respondo pelo seu e-mail.'],elogio:['Elogio','O que você mais gostou?']};
+function fbOpen(tipo){if(tipo)FB.tipo=tipo;fbRender();sheetShow('fbPanel');setTimeout(()=>{const t=$('sgTxt');if(t)t.focus();},250);track('sugestao_aberta');}
+function fbClose(){if(!$('fbPanel').hidden){$('fbPanel').hidden=true;navPop('sheet');}}
+function fbRender(){
+  $('fbBody').innerHTML=`<div class="seg fb-tipos" role="group" aria-label="Tipo">${Object.entries(FB_T).map(([k,v])=>`<button type="button" data-fbt="${k}" aria-pressed="${FB.tipo===k}">${v[0]}</button>`).join('')}</div>
+    <textarea id="sgTxt" maxlength="2000" placeholder="${FB_T[FB.tipo][1]}">${qzEsc(FB.txt||'')}</textarea>
+    <button type="button" class="btn primary fb-go" id="sgGo"${FB.busy?' disabled':''}>${FB.busy?'Enviando...':'Enviar'}</button>
+    <p class="status" id="sgMsg" aria-live="polite"></p>
+    <p class="hint">Vai direto para o Gabriel. Se precisar de resposta, ela chega no e-mail da sua conta.</p>`;}
+async function fbSend(){
+  const t=($('sgTxt').value||'').trim();const m=$('sgMsg');FB.txt=t;
+  if(t.length<3){m.className='status bad';m.textContent='Escreva um pouco mais.';return;}
+  if(IN_CLAUDE){m.className='status ok';m.textContent='Prévia: no site, a mensagem é enviada.';return;}
+  if(!SB||!ACC.user){location.href='mailto:contato@gabreutri.com.br?subject='+encodeURIComponent('Combustível: '+FB_T[FB.tipo][0])+'&body='+encodeURIComponent(t);return;}
+  FB.busy=true;fbRender();
+  const ua=navigator.userAgent;const ap=/iphone|ipad/i.test(ua)?'iPhone':/android/i.test(ua)?'Android':/mac/i.test(ua)?'Mac':/windows/i.test(ua)?'Windows':'outro';
+  const {error}=await SB.from('sugestoes').insert({user_id:ACC.user.id,email:ACC.user.email||null,tipo:FB.tipo,texto:t.slice(0,2000),tela:curView(),aparelho:ap+(IS_STANDALONE?' (app)':' (navegador)'),versao:(document.querySelector('meta[name="cc-ver"]')||{}).content||''});
+  FB.busy=false;
+  if(error){fbRender();const m2=$('sgMsg');m2.className='status bad';m2.textContent='Não deu para enviar agora. Tente de novo em instantes.';return;}
+  FB.txt='';track('sugestao_enviada',{tipo:FB.tipo});fbClose();toast('Mensagem enviada. Obrigado!','ok');}
+function initFb(){
+  $('fbX').addEventListener('click',fbClose);
+  $('fbPanel').addEventListener('click',e=>{if(e.target===$('fbPanel')){fbClose();return;}
+    const t=e.target.closest('[data-fbt]');if(t){buzz();FB.txt=$('sgTxt').value;FB.tipo=t.dataset.fbt;fbRender();return;}
+    if(e.target.closest('#sgGo')){buzz();fbSend();}});
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-fb]');if(b){e.preventDefault();buzz();fbOpen(b.dataset.fb||'ideia');}});}
+
+/* ===== TUTORIAL DE PRIMEIRO ACESSO ===== */
+const IN_APPNAV=/Instagram|FBAN|FBAV|Line\/|TikTok|WhatsApp/i.test(navigator.userAgent);
+const TUT={i:0};
+function tutSteps(){
+  const S=[
+    {ic:'<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',t:'Bem-vindo ao Combustível',b:'Carbo, líquido e sódio por hora, calculados para você: seu peso, seu suor, seu intestino e o clima do dia.'},
+    {ic:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>',t:'Hoje',b:'Sua próxima sessão com as metas por hora e o que levar. Treinos do TrainingPeaks e do Strava também aparecem aqui.'},
+    {ic:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',t:'O botão +',b:'Planeje um treino ou uma prova, traga o treino do seu treinador ou faça o teste de suor guiado.'},
+    {ic:'<svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="3"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>',t:'Diário',b:'Depois do treino, pese-se e registre o que consumiu. Cada registro calibra o seu suor e o seu intestino: o plano fica cada vez mais seu.'}];
+  if(!IS_STANDALONE)S.push({k:'inst',ic:'<svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M12 7v7m0 0l-3-3m3 3l3-3M10 18.5h4"/></svg>',t:'Instale o app no celular',b:tutInstTxt()});
+  S.push({k:'nt',ic:'<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',t:'Ative os lembretes',b:IS_IOS&&!IS_STANDALONE?'No iPhone, os lembretes funcionam depois de instalar: abra pelo ícone na Tela de Início e ative em Conta, Notificações.':'Na véspera do treino longo, o que separar. Depois do treino, a hora de pesar. No máximo 2 por dia.'});
+  return S;}
+function tutInstTxt(){
+  if(IN_APPNAV)return 'Você está no navegador do Instagram ou do WhatsApp. Abra este link no '+(IS_IOS?'Safari':'Chrome')+' (menu ••• → Abrir no navegador) para instalar.';
+  if(IS_IOS)return 'No Safari: toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>. O app abre em tela cheia, funciona sem internet e recebe os lembretes.';
+  if(instEvt)return 'Um toque e ele fica na tela inicial: abre em tela cheia, funciona sem internet e recebe os lembretes.';
+  return 'No menu do navegador (⋮), toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>. O app abre em tela cheia e recebe os lembretes.';}
+function tutRender(){
+  const S=tutSteps();TUT.i=Math.max(0,Math.min(TUT.i,S.length-1));const s=S[TUT.i];const last=TUT.i===S.length-1;
+  let extra='';
+  if(s.k==='inst'&&!IN_APPNAV&&instEvt)extra=`<button type="button" class="btn tut-sec" data-tut="instalar">Instalar agora</button>`;
+  if(s.k==='inst'&&IS_IOS&&!IN_APPNAV)extra=`<button type="button" class="btn tut-sec" data-tut="comoios">Ver passo a passo</button>`;
+  if(s.k==='nt'&&!(IS_IOS&&!IS_STANDALONE)&&!NT.on&&NT.sup)extra=`<button type="button" class="btn tut-sec" data-tut="notif">Ativar lembretes</button>`;
+  if(s.k==='nt'&&NT.on)extra=`<p class="tut-ok">Lembretes ativos neste aparelho.</p>`;
+  $('tutBody').innerHTML=`<div class="tut-ic">${s.ic}</div><h3>${s.t}</h3><p>${s.b}</p>${extra}
+    <div class="tut-dots">${S.map((_,k)=>`<i class="${k===TUT.i?'on':''}"></i>`).join('')}</div>
+    <div class="tut-nav">${TUT.i?'<button type="button" class="btn" data-tut="voltar">Voltar</button>':'<button type="button" class="btn" data-tut="pular">Pular</button>'}<button type="button" class="btn primary" data-tut="${last?'fim':'prox'}">${last?'Começar':'Próximo'}</button></div>`;}
+function tutOpen(at){TUT.i=0;if(at==='inst'){const k=tutSteps().findIndex(x=>x.k==='inst');if(k>=0)TUT.i=k;}tutRender();sheetShow('tutPanel');track('tutorial_aberto',{em:at||'inicio'});}
+function tutClose(fim){try{localStorage.setItem('gaTut','1');}catch(e){}if(!$('tutPanel').hidden){$('tutPanel').hidden=true;navPop('sheet');}track(fim?'tutorial_fim':'tutorial_pulado',{passo:TUT.i});if($('viewHoje')&&!$('viewHoje').hidden)renderHoje();}
+/* mostra uma vez, quando a pessoa já tem conta e chega ao Hoje sem nada aberto por cima */
+function tutMaybe(){
+  if(lsGet('gaTut')==='1'||IN_CLAUDE&&lsGet('gaTutDemo')!=='1')return;
+  if(!ACC.user&&!IN_CLAUDE)return;
+  setTimeout(()=>{if(lsGet('gaTut')==='1'||curView()!=='hoje')return;
+    const open=[...document.querySelectorAll('.acctwrap')].some(x=>!x.hidden)||($('gate')&&!$('gate').hidden);if(open)return;tutOpen();},1200);}
+/* card no Hoje: instalar o app (volta a aparecer 3 dias depois de "Agora não") */
+function instHjCard(){
+  if(IS_STANDALONE||lsGet('gaInstalled')==='1')return '';
+  if(!(window.matchMedia&&matchMedia('(pointer: coarse)').matches))return '';   // só no celular
+  const dis=+(lsGet('gaInstDisH')||0);if(Date.now()-dis<3*864e5)return '';
+  return `<section class="card hj-inst"><div class="hj-sh"><h3>Instale o app</h3><button type="button" class="xclose sm" data-inst="x" aria-label="Agora não"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="hj-et">Abre em tela cheia pelo ícone, funciona sem internet e recebe os lembretes de véspera e de pós-treino.</p>
+    <button type="button" class="btn primary" data-inst="go">${instEvt&&!IN_APPNAV?'Instalar agora':'Como instalar'}</button></section>`;}
+function initTut(){
+  $('tutX').addEventListener('click',()=>tutClose(false));
+  $('tutPanel').addEventListener('click',async e=>{if(e.target===$('tutPanel')){tutClose(false);return;}
+    const b=e.target.closest('[data-tut]');if(!b)return;buzz();const k=b.dataset.tut;
+    if(k==='prox'){TUT.i++;tutRender();}else if(k==='voltar'){TUT.i--;tutRender();}
+    else if(k==='pular')tutClose(false);else if(k==='fim')tutClose(true);
+    else if(k==='instalar'){await instGo();tutRender();}
+    else if(k==='comoios'){try{localStorage.setItem('gaTut','1');}catch(e){}$('tutPanel').hidden=true;$('instPanel').hidden=false;}
+    else if(k==='notif'){await ntAtivar();tutRender();}});
+  document.addEventListener('click',async e=>{const b=e.target.closest('[data-inst]');if(!b)return;buzz();
+    if(b.dataset.inst==='x'){lsSet('gaInstDisH',String(Date.now()));renderHoje();return;}
+    if(instEvt&&!IN_APPNAV){await instGo();renderHoje();}else tutOpen('inst');});
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-tutorial]');if(b){e.preventDefault();buzz();closeAcct();setTimeout(()=>tutOpen(),120);}});}
+
 /* ===== Avisos rápidos (toast) e toque ===== */
 let toastT=null;
 function toast(msg,kind){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
@@ -5498,7 +5621,7 @@ function navPop(tag){if(history.state&&history.state.cc===tag){NAV.silent++;hist
 function navUnwind(n){n=n|0;if(n>0&&history.state&&history.state.cc){NAV.silent++;history.go(-n);}}
 window.addEventListener('popstate',()=>{
   if(NAV.silent>0){NAV.silent--;return;}
-  for(const id of ['trPanel','wlPanel','swPanel','hdPanel','fabPanel','payPanel','instPanel','proInvPanel','proPacPanel','convPanel'])if(!$(id).hidden){$(id).hidden=true;return;}
+  for(const id of ['fbPanel','tutPanel','trPanel','wlPanel','swPanel','hdPanel','fabPanel','payPanel','instPanel','proInvPanel','proPacPanel','convPanel'])if(!$(id).hidden){$(id).hidden=true;return;}
   if(!$('shPanel').hidden){$('shPanel').hidden=true;return;}
   if(!$('acctPanel').hidden){$('acctPanel').hidden=true;$('acIntro').hidden=true;$('acSkip').hidden=true;ACC.auto=false;return;}
   if(!$('lq').hidden){LQ.pushed=Math.max(0,(LQ.pushed||0)-1);if(LQ.hist.length&&LQ.cur!=='_salvo')lqBack();else{$('lq').hidden=true;document.body.classList.remove('lq-on');LQ.pushed=0;}return;}
@@ -6147,7 +6270,7 @@ async function planDelete(){
   initMobile();
   initConta();
   initDiario();
-  initHoje();initDCal();renderDCal();initPNav();initHist2();initSweat();initGate();initTrazer();initNt();initStrava();initStickyFit();
+  initHoje();initDCal();renderDCal();initPNav();initHist2();initSweat();initGate();initTrazer();initNt();initStrava();initFb();initTut();initStickyFit();
   $('wlGo').addEventListener('click',()=>{buzz();wlClose();});
   if(!flowDue()&&!/^#(diario|registrar)$/.test(location.hash)&&FLOW.mode!=='quiz')showView('hoje');
 })();
