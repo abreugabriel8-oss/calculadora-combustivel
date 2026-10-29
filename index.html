@@ -2580,7 +2580,7 @@ function run(){
   if(typeof flowRefresh==='function')flowRefresh();
   if(typeof renderMulti==='function'&&$('pGelM'))['pGel','pDrink'].forEach(renderMulti);
   raceRender();
-  afterRender();planSync();
+  afterRender();planSync();planSave();
   if(typeof renderHoje==='function'&&$('viewHoje')&&!$('viewHoje').hidden)renderHoje();
 }
 
@@ -5882,6 +5882,33 @@ function initMobile(){
   mbarVisibility();
 }
 
+/* ===== O plano atual fica guardado no aparelho: fechar e abrir o app não perde o planejamento ===== */
+const PLAN_KEY='gaPlan';
+function planFields(){return [...document.querySelectorAll('#viewCalc input[id],#viewCalc select[id],#viewCalc textarea[id]')].filter(e=>e.type!=='file'&&e.type!=='button'&&e.type!=='submit'&&!/^(qz|tr|tp|sw|lg|c[A-Z]|t[A-D]$|tS$|tOut$)/.test(e.id));}
+let PLS_T=null;
+function planSave(now){
+  clearTimeout(PLS_T);
+  const f=()=>{if(lsGet('gaFlow')!=='1'||!LAST.r)return;const v={},u=[];
+    planFields().forEach(e=>{v[e.id]=e.type==='checkbox'?(e.checked?'1':''):e.value;if(e.dataset.user)u.push(e.id);});
+    try{lsSet(PLAN_KEY,JSON.stringify({v:1,at:Date.now(),S:{tipo:S.tipo,formato:S.formato,modo:S.modo,dist:S.dist,segs:S.segs,prodOver:S.prodOver},f:v,u}));}catch(e){}};
+  if(now)f();else PLS_T=setTimeout(f,500);}
+function planRestore(){
+  let p=null;try{p=JSON.parse(localStorage.getItem(PLAN_KEY)||'null');}catch(e){}
+  if(!p||p.v!==1||!p.S||Date.now()-(p.at||0)>60*864e5)return false;
+  try{
+    S.tipo=p.S.tipo||S.tipo;S.formato=p.S.formato||S.formato;S.modo=p.S.modo||S.modo;if(p.S.dist)S.dist=p.S.dist;S.prodOver=p.S.prodOver||{};
+    ['single','brick','tri'].forEach(k=>{if(p.S.segs&&Array.isArray(p.S.segs[k])&&p.S.segs[k].length)S.segs[k]=p.S.segs[k];});
+    pressSeg('tipo',S.tipo);pressSeg('formato',S.formato);pressSeg('modo',S.modo);
+    $('bottle').dataset.ctx='';renderBottle();
+    Object.entries(p.f||{}).forEach(([id,val])=>{const e=$(id);if(!e)return;
+      if(e.type==='checkbox')e.checked=!!val;
+      else if(e.tagName==='SELECT'){if([...e.options].some(o=>o.value===val))e.value=val;}
+      else e.value=val;});
+    (p.u||[]).forEach(id=>{const e=$(id);if(e)e.dataset.user='1';});
+    ['pGel','pDrink','pElec'].forEach(id=>renderProdEdit(id,id+'V'));
+    return true;
+  }catch(e){return false;}}
+
 /* ===== INICIALIZAÇÃO ===== */
 (function init(){
   const today=new Date();today.setDate(today.getDate()+1);$('data').value=today.toLocaleDateString('sv-SE');
@@ -5908,7 +5935,9 @@ function initMobile(){
     PRODUTOS.push(p);try{const c=JSON.parse(localStorage.getItem('gaCustom')||'[]');c.push(p);localStorage.setItem('gaCustom',JSON.stringify(c));}catch(e){}
     fillSelect('pGel',['gel'],'Nenhum');fillSelect('pDrink',['bebida','po'],'Só água');fillSelect('pElec',['eletrolito'],'Nenhum');
     const sel=t==='gel'?'pGel':t==='bebida'?'pDrink':'pElec';$(sel).value=p.id;renderProdEdit(sel,sel+'V');$('cNome').value='';run();});
+  if(lsGet('gaFlow')==='1')planRestore();
   renderSegs();run();
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')planSave(true);});window.addEventListener('pagehide',()=>planSave(true));
   initWorkout();
   initGarmin();
   initShare();
