@@ -1470,6 +1470,9 @@ html[data-theme="light"] .fsum .fs-row .v .pic.mini{filter:saturate(1.4) brightn
 @media (min-width:961px){.dcal{position:static!important}main.dview>.col:first-child{position:sticky;align-self:start}}
 main.dview .results{position:static!important}
 @media (max-width:960px){.results{position:static}}
+.fs-del,.hj-del{align-self:center;font-size:13px;font-weight:700;color:var(--muted);background:none;border:0;padding:8px 10px;cursor:pointer}
+.hj-del{display:block;margin:8px auto 0}
+.fs-del.armed,.hj-del.armed{color:#E5484D}
 </style>
 
 <header class="band">
@@ -1516,6 +1519,7 @@ main.dview .results{position:static!important}
       <div class="vin-chip" id="vinChip" hidden></div>
       <div class="fs-list" id="fsList"></div>
       <div class="fs-acts"><button type="button" class="btn" id="fsRestart">Nova sessão</button><button type="button" class="btn" id="fsAdv">Ajustes</button></div>
+      <button type="button" class="linkbtn fs-del" id="fsDel">Excluir este planejamento</button>
     </section>
     <section class="step" data-fs="1">
       <div class="sh"><b>1</b><h2>Sessão</h2></div>
@@ -4549,7 +4553,7 @@ function renderHoje(){
       <p class="hj-nt">${qzEsc(sessionTitle()||'Sessão')}</p>
       ${prova&&dias>0?`<div class="hj-cd"><b>${dias}</b><span>dia${dias>1?'s':''} para a largada</span></div>`:''}
       <div class="hj-mrs">${rg(r.carbH,120,'g/h','Carbo','rg-c')}${rg(r.flH,1000,'ml/h','Líquido','rg-b')}${rg(r.naH,1200,'mg/h','Sódio','rg-n')}</div>
-      <div class="hj-act"><button type="button" class="btn primary" data-hj="plano">${prova?'Ver plano de prova':'Ver plano completo'}</button><button type="button" class="btn" data-hj="${prova?'planejar':'prova'}">${prova?'Nova sessão':'Planejar prova'}</button></div></section>`;}
+      <div class="hj-act"><button type="button" class="btn primary" data-hj="plano">${prova?'Ver plano de prova':'Ver plano completo'}</button><button type="button" class="btn" data-hj="${prova?'planejar':'prova'}">${prova?'Nova sessão':'Planejar prova'}</button></div><button type="button" class="linkbtn hj-del" data-hjdel="1">Excluir este planejamento</button></section>`;}
   else nx=`<section class="card hj-next"><div class="hj-sh"><h3>Próxima sessão</h3></div><p class="hj-et">Diga o treino ou a prova, o clima e os seus produtos. Em 1 minuto você tem carbo, líquido e sódio por hora.</p><div class="hj-act"><button type="button" class="btn primary" data-hj="planejar">Planejar treino</button><button type="button" class="btn" data-hj="prova">Planejar prova</button></div></section>`;
   // tendências
   const sw=['ciclismo','corrida'].filter(sp=>CAL.detail[sp]&&CAL.detail[sp].n).map(sp=>{const d=CAL.detail[sp];
@@ -4592,12 +4596,15 @@ function navTo(v){
   if(cur==='hoje'&&v!=='hoje')navPush('tab');
   if(v==='hoje'&&history.state&&history.state.cc==='tab'){NAV.silent++;history.back();}
   showView(v);
+  // sem plano montado (excluído ou nunca terminado): o Plano abre o passo a passo, não um resumo de valores padrão
+  if(v==='calc'&&(window.PLAN_DEL||lsGet('gaFlow')!=='1')&&FLOW.mode!=='quiz'){window.PLAN_DEL=false;qzStart();}
 }
 function fabOpen(){if($('fabPanel').hidden){navPush('sheet');$('fabPanel').hidden=false;track('novo_aberto');}}
 function fabClose(){if(!$('fabPanel').hidden){$('fabPanel').hidden=true;navPop('sheet');}}
 function initHoje(){
   $('viewHoje').addEventListener('click',e=>{
     const d=e.target.closest('[data-day]');if(d){buzz();HJ.day=d.dataset.day;renderHoje();return;}
+    const dl=e.target.closest('[data-hjdel]');if(dl){buzz();planArm(dl);return;}
     const lg=e.target.closest('[data-log]');if(lg){buzz();hdOpen(lg.dataset.log);return;}
     const ac=e.target.closest('[data-act]');if(ac){buzz();if(gateBlock())return;svUse(ac.dataset.act);return;}
     const te=e.target.closest('[data-tpe]');if(te){buzz();if(gateBlock())return;const x=TP.ev.find(z=>z.uid===te.dataset.tpe);if(x){toast('Montando o plano...');tpUse([x],{data:x.data,hora:x.hora,via:'tp_hoje'});}return;}
@@ -5952,6 +5959,7 @@ function initFlow(){
   $('fbDots').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;flowShow(+b.dataset.fd);});
   $('fsList').addEventListener('click',e=>{const b=e.target.closest('[data-fe]');if(!b)return;qzEdit(+b.dataset.fe);});
   $('fsAdv').addEventListener('click',()=>{flowGo('edit',1);flowTop();});
+  $('fsDel').addEventListener('click',e=>{buzz();planArm(e.currentTarget);});
   $('fbAll').addEventListener('click',()=>{flowGo('summary');flowTop();});
   $('fsRestart').addEventListener('click',()=>{qzStart();qzTop();});
   initQuiz();
@@ -6077,6 +6085,20 @@ function initStickyFit(){
   stickyFit();addEventListener('resize',stickyFit);
   try{const ro=new ResizeObserver(()=>stickyFit());['#viewCalc>.col:first-child','#resultsCol','main.dview>.col:first-child'].forEach(sel=>{const el=document.querySelector(sel);if(el)ro.observe(el);});}catch(e){}
 }
+
+
+/* ===== Excluir o planejamento atual (feito sem querer) ===== */
+function planArm(btn){
+  if(btn.dataset.armed){planDelete();return;}
+  btn.dataset.armed='1';const t=btn.textContent;btn.textContent='Toque de novo para excluir';btn.classList.add('armed');
+  setTimeout(()=>{if(btn.isConnected){delete btn.dataset.armed;btn.textContent=t;btn.classList.remove('armed');}},4000);}
+async function planDelete(){
+  const d=$('data').value;
+  try{localStorage.removeItem(PLAN_KEY);localStorage.removeItem('gaFlow');}catch(e){}
+  PS_LAST='';clearTimeout(PS_T);clearTimeout(PLS_T);
+  if(SB&&ACC.user&&d){try{await SB.from('sessoes_plan').delete().eq('user_id',ACC.user.id).eq('data',d);}catch(e){}}
+  track('plano_excluido');
+  window.PLAN_DEL=true;navTo('hoje');renderHoje();toast('Planejamento excluído','ok');}
 
 /* ===== INICIALIZAÇÃO ===== */
 (function init(){
