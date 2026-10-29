@@ -1423,6 +1423,37 @@ html:not([data-theme="light"]) .nr-glow-w,#resultsCol .nr-glow-w{filter:drop-sha
 .fs-cap .lg.gel{width:10px!important;height:10px!important;border-radius:50%!important;background:#F26419!important}
 .fs-cap .lg.h2o{width:5px!important;height:5px!important;border-radius:50%!important}
 .fs-cap .lg.salt{transform:rotate(45deg)}
+/* ===== Resumo da sessão (Plano): lista limpa, uma linha por item ===== */
+.fsum{gap:14px!important}
+.fs-head{gap:14px;padding-bottom:4px}
+.fs-head .hc-ic{width:52px;height:52px;border-radius:16px}
+.fs-head .hc-ic svg{width:26px;height:26px}
+.fs-head h2{margin:0 0 6px;font:900 30px/1 var(--display)}
+.fs-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.fs-tags em{font-style:normal;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:99px;background:var(--sunk);color:var(--ink)}
+.fs-tags em.pv{background:var(--orange-soft);color:var(--accent-ink)}
+.fs-tags b{font-size:12.5px;font-weight:700;color:var(--muted);margin-left:2px}
+.fsum .fs-list{display:flex!important;flex-direction:column!important;gap:0!important;border-radius:18px;background:var(--sunk);padding:2px 14px!important}
+.fsum .fs-row{display:flex!important;align-items:center;gap:12px;width:100%;padding:13px 0!important;border-radius:0!important;background:none!important;border:0!important;border-bottom:1px solid var(--line)!important;grid-column:auto!important}
+.fsum .fs-row:last-child{border-bottom:0!important}
+.fsum .fs-row>i{flex:0 0 auto;width:auto!important;height:auto!important;background:none!important;color:var(--muted)!important}
+.fsum .fs-row>i svg{width:18px!important;height:18px!important}
+.fsum .fs-row .k{flex:0 0 auto;font-size:14px!important;font-weight:600!important;color:var(--muted)!important;letter-spacing:0!important;text-transform:none!important}
+.fsum .fs-row .k::after{content:none!important}
+.fsum .fs-row .v{flex:1 1 auto;min-width:0;display:block!important;text-align:right!important;font-size:14.5px!important;font-weight:700!important;line-height:1.2!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:unset!important}
+.fsum .fs-row:hover{background:none!important}.fsum .fs-row:hover .v{color:var(--accent-ink)}
+.fs-chev{flex:0 0 auto;width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.fs-p{display:inline}.fs-p+.fs-p::before{content:" · ";color:var(--muted)}
+.fs-p .pic.mini{width:16px;height:16px;display:inline-block;vertical-align:-3px;margin-right:4px}.fs-p .pic.mini svg{width:16px;height:16px}
+.fs-acts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fs-acts .btn{min-height:46px;border-radius:14px;font-size:14px}
+#fsRestart{background:var(--orange-soft)!important;color:var(--accent-ink)!important;border:0!important}
+#fsAdv{background:var(--sunk);color:var(--ink);border:0}
+.fsum .fs-row .v .pic.mini{width:16px;height:16px;display:inline-block;vertical-align:-3px;margin-right:4px}.fsum .fs-row .v .pic.mini svg{width:16px;height:16px}
+.fsum .fs-row{width:100%!important;max-width:none!important;flex:none!important;scroll-snap-align:none!important}
+html[data-theme="light"] .fsum .fs-row .v .pic.mini{filter:saturate(1.4) brightness(.8)}
+.fs-more{font-size:12px;font-weight:800;color:var(--muted);margin-left:2px}
+@media (max-width:600px){.fsum .fs-row>i{display:none!important}.fsum .fs-row{gap:10px}.fsum .fs-row .k{font-size:13.5px!important}.fsum .fs-row .v{font-size:14px!important}}
 </style>
 
 <header class="band">
@@ -1468,8 +1499,7 @@ html:not([data-theme="light"]) .nr-glow-w,#resultsCol .nr-glow-w{filter:drop-sha
       <div class="fs-head" id="fsHead"></div>
       <div class="vin-chip" id="vinChip" hidden></div>
       <div class="fs-list" id="fsList"></div>
-      <button type="button" class="btn" id="fsRestart">Planejar outra sessão</button>
-      <button type="button" class="linkbtn fs-adv" id="fsAdv">Ajustes avançados</button>
+      <div class="fs-acts"><button type="button" class="btn" id="fsRestart">Nova sessão</button><button type="button" class="btn" id="fsAdv">Ajustes</button></div>
     </section>
     <section class="step" data-fs="1">
       <div class="sh"><b>1</b><h2>Sessão</h2></div>
@@ -4587,7 +4617,8 @@ function fsHeadRender(){
   const d=$('data').value?new Date($('data').value+'T12:00'):null;const today=isoD(new Date());
   const dl=!d?'':$('data').value===today?'Hoje':d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');
   const sp=(LAST.r.segs[0]||{}).sport||'corrida';const multi=S.formato!=='single';
-  h.innerHTML=`<i class="hc-ic ${multi?'plan':sp}">${multi?FS_IC[0]:SP_IC[sp]||SP_IC.corrida}</i><div><span>${[S.tipo==='prova'?'Prova':'Treino',dl,$('hora').value].filter(Boolean).join(' · ')}</span><h2>${qzEsc(sessionTitle().split(' · ').filter(x=>!/^(treino|prova)$/i.test(x)).join(' · ')||'Sua sessão')}</h2></div>`;
+  const tags=[S.tipo==='prova'?'Prova':'Treino'];if(S.formato==='single'&&$('indoor').value==='1')tags.push('Indoor');
+  h.innerHTML=`<i class="hc-ic ${multi?'plan':sp}">${multi?FS_IC[0]:SP_IC[sp]||SP_IC.corrida}</i><div><h2>${qzEsc(sessionTitle().split(' · ').filter(x=>!/^(treino|prova)$/i.test(x)).join(' · ')||'Sua sessão')}</h2><span class="fs-tags">${tags.map((t,i)=>`<em${i===0&&S.tipo==='prova'?' class="pv"':''}>${t}</em>`).join('')}</span></div>`;
 }
 /* depois da sessão: reposição pelo déficit projetado (125 a 150%, Shirreffs 1996; ACSM 2016) */
 function afterRender(){
@@ -5780,8 +5811,15 @@ function flowRefresh(){
   const dur=`${durTxt(r.T)} · ${wk?'treino importado: '+wk:S.modo==='tss'?'por TSS':ints}`;
   const wb=wbgt(+$('temp').value,+$('rh').value,readInputs().cond==='indoor'?'nublado':$('cond').value);
   const nd=v=>fmt(v,v%1?1:0);const cli=`${nd(+$('temp').value)} °C · ${fmt(+$('rh').value)}% · ${(readInputs().cond==='indoor'?'indoor':opt('cond').split(' ')[0].toLowerCase())}${readInputs().cond==='indoor'?($('fan').value==='0'?' sem ventilador':' com ventilador'):''} · WBGT ${fmt(wb)}°`;
-  const rows=[['Sessão',ses.join(' · ')],['Duração e intensidade',dur],['Atleta',sectionSummary('Atleta')],['Clima',cli],['Produtos',sectionSummary('Produtos')]];
-  $('fsList').innerHTML=rows.map((x,k)=>`<button type="button" class="fs-row" data-fe="${k+1}"><i>${FS_IC[k]}</i><span class="k">${x[0]}</span><span class="v">${x[1]}</span><span class="e">Editar</span></button>`).join('');
+  const shortNm=n=>{const w=String(n||'').replace(' · estimado','').split(' (')[0].split(' ');let o='';for(const x of w){if((o+' '+x).trim().length>16&&o)break;o=(o+' '+x).trim();}return o;};
+  const pIds=[...multiIds('pGel'),...($('drinkWrap').hidden?[]:multiIds('pDrink')),$('pElec').value].filter(Boolean);
+  const pOs=pIds.map(prod).filter(Boolean);const pVal=pOs.length?`${pOs.map(o=>picHtml(o,'mini')).join('')}${qzEsc(shortNm(pOs[0].nome))}${pOs.length>1?` <small class="fs-more">+${pOs.length-1}</small>`:''}`:'Nenhum';
+  const d0=$('data').value?new Date($('data').value+'T12:00'):null;const dTx=!d0?'':($('data').value===isoD(new Date())?'Hoje':d0.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','').replace(',',''));
+  const tipoTx=(S.formato==='brick'?'Brick':S.formato==='tri'?'Triathlon':opt('sport'))+(S.formato==='single'&&$('indoor').value==='1'?' indoor':'')+(S.tipo==='treino'&&$('objetivo').value!=='perf'?' · '+opt('objetivo').split(' (')[0].toLowerCase():'');
+  const cliTx=`${nd(+$('temp').value)} °C · ${fmt(+$('rh').value)}%`+(readInputs().cond==='indoor'&&$('fan').value==='0'?' · sem vent.':'');
+  const pw=+$('peso').value||0;const youTx=`${fmt(pw,pw%1?1:0)} kg · ${['suor pouco salgado','suor médio','suor salgado'][+$('sal').value]}`;
+  const rows=[[4,3,'Quando',[dTx,$('hora').value].filter(Boolean).join(' · ')||'Escolher'],[1,0,'Sessão',tipoTx],[2,1,'Duração',`${durTxt(r.T)} · ${wk?'importado':S.modo==='tss'?'por TSS':ints}`],[4,3,'Clima',cliTx],[5,4,'Produtos',pVal],[3,2,'Você',youTx]];
+  $('fsList').innerHTML=rows.map(([fe,ic,k,v])=>`<button type="button" class="fs-row" data-fe="${fe}"><i>${FS_IC[ic]}</i><span class="k">${k}</span><span class="v">${v}</span><svg class="fs-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`).join('');
   // resumos dos ajustes avançados
   $('advObj').textContent=$('objetivo').value==='perf'&&$('pre').value==='refeicao'?'':`· ${opt('objetivo').split(' (')[0]}`;
   fsHeadRender();
