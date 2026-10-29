@@ -5220,10 +5220,10 @@ async function ntCall(body){
 function ntKey(s){s=s.replace(/-/g,'+').replace(/_/g,'/');s+='='.repeat((4-s.length%4)%4);const r=atob(s);return Uint8Array.from(r,c=>c.charCodeAt(0));}
 async function ntSub(){try{const reg=await navigator.serviceWorker.getRegistration();return reg?await reg.pushManager.getSubscription():null;}catch(e){return null;}}
 async function ntLoad(){
-  if(IN_CLAUDE){NT.on=lsGet('gaDemoNt')==='1';NT.prefs=NT.prefs||{vespera:true,pos:true,assinatura:true,hora_vespera:20};ntRender();return;}
+  if(IN_CLAUDE){NT.on=lsGet('gaDemoNt')==='1';NT.prefs=NT.prefs||{vespera:true,pre:true,pre_min:60,pos:true,assinatura:true,hora_vespera:20};ntRender();return;}
   if(!SB||!ACC.user){NT.on=false;NT.prefs=null;ntRender();return;}
   if(NT.sup)NT.on=Notification.permission==='granted'&&!!(await ntSub());
-  try{const {data}=await SB.from('notif_prefs').select('vespera,pos,assinatura,hora_vespera').eq('user_id',ACC.user.id).maybeSingle();NT.prefs=data||null;}catch(e){}
+  try{const {data}=await SB.from('notif_prefs').select('vespera,pre,pre_min,pos,assinatura,hora_vespera').eq('user_id',ACC.user.id).maybeSingle();NT.prefs=data||null;}catch(e){}
   ntRender();if(NT.prefs)planSync();}
 async function ntAtivar(){
   if(NT.busy)return;
@@ -5242,7 +5242,7 @@ async function ntAtivar(){
     const r=await ntCall({action:'inscrever',sub:sub.toJSON()});
     if(!r.ok){NT.msg='Não deu para ativar agora. Tente de novo em instantes.';return;}
     NT.on=true;track('notif_ativou');
-    try{const {data}=await SB.from('notif_prefs').select('vespera,pos,assinatura,hora_vespera').eq('user_id',ACC.user.id).maybeSingle();NT.prefs=data||{vespera:true,pos:true,assinatura:true,hora_vespera:20};}catch(e){}
+    try{const {data}=await SB.from('notif_prefs').select('vespera,pre,pre_min,pos,assinatura,hora_vespera').eq('user_id',ACC.user.id).maybeSingle();NT.prefs=data||{vespera:true,pre:true,pre_min:60,pos:true,assinatura:true,hora_vespera:20};}catch(e){}
     ntCall({action:'teste'});planSync(true);toast('Notificações ativadas','ok');
   }catch(e){NT.msg='Não deu para ativar neste aparelho.';}
   finally{NT.busy=false;ntRender();if($('viewHoje')&&!$('viewHoje').hidden)renderHoje();}}
@@ -5257,14 +5257,16 @@ async function ntPref(k,v){
   if(error)toast('Não deu para salvar. Tente de novo.');}
 function ntRender(){
   const el=$('ntSec');if(!el)return;
-  const p=NT.prefs||{vespera:true,pos:true,assinatura:true,hora_vespera:20};
+  const p=NT.prefs||{vespera:true,pre:true,pre_min:60,pos:true,assinatura:true,hora_vespera:20};
   const sw=(k,t,d)=>`<label class="nt-row"><span><b>${t}</b><small>${d}</small></span><input type="checkbox" class="nt-sw" data-np="${k}"${p[k]!==false?' checked':''}></label>`;
-  let h=`<div class="nt-h"><div><b>Notificações</b><span class="hint">${NT.on?'Ativas neste aparelho':'Lembretes no celular, no máximo 2 por dia'}</span></div>`+
+  let h=`<div class="nt-h"><div><b>Notificações</b><span class="hint">${NT.on?'Ativas neste aparelho':'Lembretes no celular, no máximo 3 por dia'}</span></div>`+
     (NT.on?`<button type="button" class="linkbtn" data-nt="off">Desativar</button>`:`<button type="button" class="btn primary" data-nt="on"${NT.busy?' disabled':''}>${NT.busy?'Ativando...':'Ativar'}</button>`)+`</div>`;
   if(NT.msg==='ios')h+=`<p class="nt-ios">No iPhone, as notificações só funcionam com o app na Tela de Início:<br>1. Toque em <b>Compartilhar</b> no Safari.<br>2. <b>Adicionar à Tela de Início</b>.<br>3. Abra o app por lá e toque em Ativar.</p>`;
   else if(NT.msg)h+=`<p class="hint nt-msg">${qzEsc(NT.msg)}</p>`;
-  if(NT.on)h+=sw('vespera','Véspera do treino longo','Na noite anterior, o que separar (treino de 1h15 ou mais e prova)')+
+  if(NT.on)h+=sw('vespera','Véspera do treino','Na noite anterior, o treino de amanhã e o que separar')+
     `<label class="nt-row sub"><span><small>Horário da véspera</small></span><select data-np="hora_vespera">${[17,18,19,20,21,22].map(x=>`<option value="${x}"${+p.hora_vespera===x?' selected':''}>${x}h</option>`).join('')}</select></label>`+
+    sw('pre','Antes do treino','As metas e o que levar, antes de sair (precisa do horário no plano)')+
+    `<label class="nt-row sub"><span><small>Quanto tempo antes</small></span><select data-np="pre_min">${[[30,'30 min'],[60,'1 h'],[90,'1h30'],[120,'2 h']].map(([x,t])=>`<option value="${x}"${+(p.pre_min||60)===x?' selected':''}>${t}</option>`).join('')}</select></label>`+
     sw('pos','Depois do treino','Lembrete para pesar e registrar')+sw('assinatura','Assinatura','Quando o teste ou o Pro estiver acabando');
   el.innerHTML=h;}
 /* card no Hoje para quem ainda não ativou */
@@ -5273,7 +5275,7 @@ function ntCard(){
   if(NT.on||lsGet('gaNtDis')||(!NT.sup&&!NT_IOS&&!IN_CLAUDE))return '';
   if(NT.sup&&!IN_CLAUDE&&Notification.permission==='denied')return '';
   return `<section class="card hj-nt"><div class="hj-sh"><h3>Lembretes no celular</h3><button type="button" class="xclose sm" data-ntc="x" aria-label="Agora não"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <p class="hj-et">Na véspera do treino longo, o que separar. Depois do treino, a hora de pesar. Nunca mais que 2 por dia.</p>
+    <p class="hj-et">Na véspera, o treino de amanhã. Antes de sair, as metas e o que levar. Depois, a hora de pesar. Nunca mais que 3 por dia.</p>
     <button type="button" class="btn primary" data-ntc="on">Ativar lembretes</button></section>`;}
 /* a sessão planejada vai para o servidor: é a base da véspera e do lembrete pós-treino */
 let PS_T=null,PS_LAST='';
@@ -5301,7 +5303,7 @@ function ntLink(){
   },700);}
 function initNt(){
   $('ntSec').addEventListener('click',e=>{const b=e.target.closest('[data-nt]');if(!b)return;buzz();if(b.dataset.nt==='on')ntAtivar();else ntDesativar();});
-  $('ntSec').addEventListener('change',e=>{const k=e.target.dataset.np;if(!k)return;ntPref(k,k==='hora_vespera'?+e.target.value:e.target.checked);});
+  $('ntSec').addEventListener('change',e=>{const k=e.target.dataset.np;if(!k)return;ntPref(k,k==='hora_vespera'||k==='pre_min'?+e.target.value:e.target.checked);});
   document.addEventListener('click',e=>{const c=e.target.closest('[data-ntc]');if(!c)return;buzz();
     if(c.dataset.ntc==='x'){try{localStorage.setItem('gaNtDis',String(Date.now()));}catch(e){}renderHoje();return;}
     ntAtivar().then(()=>{if(NT.msg){openAcct();}});});
@@ -5422,7 +5424,7 @@ function tutSteps(){
     {ic:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',t:'O botão +',b:'Planeje um treino ou uma prova, traga o treino do seu treinador ou faça o teste de suor guiado.'},
     {ic:'<svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="3"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>',t:'Diário',b:'Depois do treino, pese-se e registre o que consumiu. Cada registro calibra o seu suor e o seu intestino: o plano fica cada vez mais seu.'}];
   if(!IS_STANDALONE)S.push({k:'inst',ic:'<svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M12 7v7m0 0l-3-3m3 3l3-3M10 18.5h4"/></svg>',t:'Instale o app no celular',b:tutInstTxt()});
-  S.push({k:'nt',ic:'<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',t:'Ative os lembretes',b:IS_IOS&&!IS_STANDALONE?'No iPhone, os lembretes funcionam depois de instalar: abra pelo ícone na Tela de Início e ative em Conta, Notificações.':'Na véspera do treino longo, o que separar. Depois do treino, a hora de pesar. No máximo 2 por dia.'});
+  S.push({k:'nt',ic:'<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',t:'Ative os lembretes',b:IS_IOS&&!IS_STANDALONE?'No iPhone, os lembretes funcionam depois de instalar: abra pelo ícone na Tela de Início e ative em Conta, Notificações.':'Na véspera, o treino de amanhã. Antes de sair, as metas e o que levar. Depois, a hora de pesar. No máximo 3 por dia.'});
   return S;}
 function tutInstTxt(){
   if(IN_APPNAV)return 'Você está no navegador do Instagram ou do WhatsApp. Abra este link no '+(IS_IOS?'Safari':'Chrome')+' (menu ••• → Abrir no navegador) para instalar.';

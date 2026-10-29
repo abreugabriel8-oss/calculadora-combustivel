@@ -13,8 +13,9 @@ import webpush from "npm:web-push@3.6.7";
 const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 const ORIGINS = ["https://app.gabreutri.com.br", "https://gabreutri.netlify.app"];
 const SITE = "https://app.gabreutri.com.br";
-const LONGO_MIN = 75; // véspera só para treino de 1h15 ou mais (ou prova)
-const MAX_DIA = 2;   // no máximo 2 notificações por pessoa em 24 h
+const MIN_TREINO = 30; // véspera para todo treino de 30 min ou mais (natação fora: não tem abastecimento)
+const LONGO_MIN = 75;  // a partir de 1h15 a véspera fala em separar géis e garrafas
+const MAX_DIA = 3;    // no máximo 3 notificações por pessoa em 24 h (véspera, antes e depois do treino)
 
 function cors(req: Request) {
   const o = req.headers.get("origin") ?? "";
@@ -135,7 +136,7 @@ async function eventosTP(url: string, dia: string): Promise<Ev[]> {
 }
 
 async function rodar() {
-  const out = { vespera: 0, pos: 0, assinatura: 0 };
+  const out = { vespera: 0, pre: 0, pos: 0, assinatura: 0 };
   const feito = new Set<string>();
 
   // 1. véspera do treino longo ou da prova
@@ -148,24 +149,41 @@ async function rodar() {
     const prova = tp.find((e) => e.prova);
     const treinos = tp.filter((e) => e.esporte && !e.feito && e.esporte !== "natacao" && (e.min_plan ?? 0) > 0);
     const tpMin = treinos.reduce((a, e) => a + (e.min_plan ?? 0), 0);
-    if (p && (p.prova || p.dur_min >= LONGO_MIN)) {
+    if (p && (p.prova || p.dur_min >= MIN_TREINO)) {
+      const longo = p.prova || p.dur_min >= LONGO_MIN;
+      const semCarbo = /^0 g\/h/.test(p.resumo || "");
       m = {
         t: p.prova ? `Amanhã é dia de prova: ${p.titulo}` : `Amanhã: ${p.titulo || "treino"}${/\d\s*h|\d\s*min/i.test(p.titulo) ? "" : ` (${durTxt(p.dur_min)})`}`,
-        b: (p.resumo ? p.resumo + ". " : "") + (p.prova ? "Separe tudo hoje e confira o café da manhã." : "Deixe géis e garrafas separados hoje."),
+        b: longo ? (p.resumo ? p.resumo + ". " : "") + (p.prova ? "Separe tudo hoje e confira o café da manhã." : "Deixe géis e garrafas separados hoje.")
+          : semCarbo || !p.resumo ? "Treino curto: chegue alimentado e hidratado, sem precisar de carbo durante." : p.resumo + ".",
         u: `${SITE}/?n=plano`, tag: "vespera",
       };
     } else if (prova) {
       m = { t: `Amanhã é dia de prova: ${prova.prova!.nome}`, b: "Abra o plano de prova e confira café da manhã, géis e garrafas.", u: `${SITE}/?n=dia&d=${dia}`, tag: "vespera" };
-    } else if (tpMin >= LONGO_MIN) {
+    } else if (tpMin >= MIN_TREINO) {
       const nome = treinos.length > 1 ? treinos.map((e) => `${SPN[e.esporte!]} ${durTxt(e.min_plan!)}`).join(" + ") : `${cap(treinos[0].titulo || SPN[treinos[0].esporte!])} (${durTxt(tpMin)})`;
-      m = { t: `Amanhã: ${nome}`.slice(0, 90), b: "Monte o abastecimento agora e deixe géis e garrafas separados.", u: `${SITE}/?n=dia&d=${dia}`, tag: "vespera" };
+      m = { t: `Amanhã: ${nome}`.slice(0, 90), b: tpMin >= LONGO_MIN ? "Monte o abastecimento agora e deixe géis e garrafas separados." : "Toque para montar o plano: carbo, líquido e sódio em 1 minuto.", u: `${SITE}/?n=dia&d=${dia}`, tag: "vespera" };
     }
     if (!m || await jaNoLimite(v.user_id)) continue;
     if (!(await marcar(v.user_id, "vespera:" + dia))) continue;
     if (await enviar(v.user_id, m)) out.vespera++;
   }
 
-  // 2. pós-treino: pesar e registrar
+  // 2. antes do treino: no horário escolhido (30 a 120 min antes do início planejado)
+  const { data: pr } = await admin.rpc("notif_alvos_pre");
+  for (const p of pr ?? []) {
+    const k = "pre:" + p.dia;
+    if (await jaNoLimite(p.user_id)) continue;
+    if (!(await marcar(p.user_id, k))) continue;
+    const quando = p.pre_min >= 60 ? `${p.pre_min / 60 === 1 ? "1 h" : durTxt(p.pre_min)}` : `${p.pre_min} min`;
+    const semCarbo = /^0 g\/h/.test(p.resumo || "");
+    const b = p.dur_min < LONGO_MIN && (semCarbo || !p.resumo)
+      ? "Treino curto: água pela sede. Se não comeu nada, um lanche leve agora (banana, mel ou pão)."
+      : (p.resumo ? p.resumo + "." : "Confira o plano no app.");
+    if (await enviar(p.user_id, { t: `Treino em ${quando}: ${p.titulo || "treino"}`.slice(0, 90), b: b.slice(0, 220), u: `${SITE}/?n=plano`, tag: "pre" })) out.pre++;
+  }
+
+  // 3. pós-treino: pesar e registrar
   const { data: ps } = await admin.rpc("notif_alvos_pos");
   for (const p of ps ?? []) {
     const k = "pos:" + p.dia;
@@ -176,7 +194,7 @@ async function rodar() {
     if (await enviar(p.user_id, { t: "Treino feito? Pese-se agora", b: "O peso logo depois do treino, antes de beber, mostra quanto você suou. Leva 30 segundos.", u: `${SITE}/?n=registrar`, tag: "pos" })) out.pos++;
   }
 
-  // 3. assinatura
+  // 4. assinatura
   const { data: as } = await admin.rpc("notif_alvos_assinatura");
   for (const a of as ?? []) {
     let k: string, m: Msg;
@@ -250,7 +268,7 @@ Deno.serve(async (req) => {
       return json(req, { ok: true });
     }
     if (action === "teste") {
-      const n = await enviar(u.id, { t: "Notificações ativadas", b: "Você vai receber a véspera dos treinos longos, o lembrete de pesar depois do treino e o aviso da assinatura.", u: `${SITE}/?n=hoje`, tag: "teste" });
+      const n = await enviar(u.id, { t: "Notificações ativadas", b: "Você vai receber a véspera dos treinos, o lembrete antes de começar, a hora de pesar depois e o aviso da assinatura.", u: `${SITE}/?n=hoje`, tag: "teste" });
       return json(req, { ok: n > 0, enviados: n });
     }
     return json(req, { error: "acao" }, 400);

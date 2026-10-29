@@ -1,4 +1,4 @@
--- Calculadora Combustível: notificações (véspera do treino longo, pós-treino e assinatura)
+-- Calculadora Combustível: notificações (véspera, antes do treino, pós-treino e assinatura)
 -- Rode DEPOIS de pagamentos.sql e treinos.sql: SQL Editor > New query > colar tudo > Run. Pode rodar de novo.
 -- Antes, crie a função "notificar" (Edge Functions), com Verify JWT DESLIGADO.
 
@@ -24,6 +24,11 @@ create table if not exists public.notif_prefs (
   tz text not null default 'America/Sao_Paulo',
   atualizado_em timestamptz not null default now()
 );
+-- antes do treino (aviso X min antes do início planejado)
+alter table public.notif_prefs add column if not exists pre boolean not null default true;
+alter table public.notif_prefs add column if not exists pre_min int not null default 60;
+alter table public.notif_prefs drop constraint if exists notif_prefs_pre_min_check;
+alter table public.notif_prefs add constraint notif_prefs_pre_min_check check (pre_min in (30, 60, 90, 120));
 alter table public.notif_prefs enable row level security;
 drop policy if exists "notif_prefs: o próprio" on public.notif_prefs;
 create policy "notif_prefs: o próprio" on public.notif_prefs for all to authenticated
@@ -97,6 +102,22 @@ language sql security definer set search_path = '' stable as $$
     and public.notif_tem_acesso(p.user_id);
 $$;
 
+-- antes do treino: do horário escolhido (30 a 120 min antes do início) até 10 min antes
+create or replace function public.notif_alvos_pre()
+returns table (user_id uuid, dia date, titulo text, resumo text, dur_min int, pre_min int)
+language sql security definer set search_path = '' stable as $$
+  select s.user_id, s.data, s.titulo, s.resumo, s.dur_min, p.pre_min
+  from public.sessoes_plan s
+  join public.notif_prefs p on p.user_id = s.user_id
+  where p.pre and s.hora is not null and s.dur_min >= 30
+    and s.data between (now() at time zone p.tz)::date and (now() at time zone p.tz)::date + 1
+    and now() between ((s.data + s.hora) at time zone p.tz) - make_interval(mins => p.pre_min)
+                  and ((s.data + s.hora) at time zone p.tz) - interval '10 minutes'
+    and exists (select 1 from public.push_subs ps where ps.user_id = s.user_id)
+    and not exists (select 1 from public.notif_log n where n.user_id = s.user_id and n.chave = 'pre:' || s.data)
+    and public.notif_tem_acesso(s.user_id);
+$$;
+
 -- pós-treino: de 10 min a 4 h depois do fim previsto (ou de uma atividade nova do Garmin) e sem registro no dia
 create or replace function public.notif_alvos_pos()
 returns table (user_id uuid, dia date, titulo text)
@@ -153,10 +174,12 @@ $$;
 revoke all on function public.notif_tem_acesso(uuid) from public, anon, authenticated;
 revoke all on function public.notif_alvos_vespera() from public, anon, authenticated;
 revoke all on function public.notif_alvos_pos() from public, anon, authenticated;
+revoke all on function public.notif_alvos_pre() from public, anon, authenticated;
 revoke all on function public.notif_alvos_assinatura() from public, anon, authenticated;
 grant execute on function public.notif_tem_acesso(uuid) to service_role;
 grant execute on function public.notif_alvos_vespera() to service_role;
 grant execute on function public.notif_alvos_pos() to service_role;
+grant execute on function public.notif_alvos_pre() to service_role;
 grant execute on function public.notif_alvos_assinatura() to service_role;
 
 -- 7. Agendador: chama a função "notificar" a cada 15 minutos
