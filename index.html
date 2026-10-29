@@ -1390,6 +1390,39 @@ body.locked #logCta,body.locked #fabBtn,body.locked .hc-del{display:none!importa
 .hj-nt .hj-et{font-weight:400}
 .hj-nt .xclose.sm{width:30px;height:30px;flex:0 0 auto}
 .hj-nt .btn{width:100%}
+/* ===== Anéis temáticos ===== */
+:root{--nr-ink:var(--ink);--nr-off:var(--line);--nr-blue:var(--sp-bike)}
+#resultsCol{--nr-ink:#F4EFE9;--nr-off:rgba(244,239,233,.12);--nr-blue:#A9CBFF}
+#resultsCol .nrw>i{position:absolute;inset:0;display:block}
+svg.nr{display:block;width:100%;height:100%;overflow:visible}
+.nr-glow-o{filter:drop-shadow(0 0 3px rgba(242,100,25,.5))}
+html:not([data-theme="light"]) .nr-glow-w,#resultsCol .nr-glow-w{filter:drop-shadow(0 0 2px rgba(255,255,255,.35))}
+@media (prefers-reduced-motion:no-preference){.nr-wv{animation:nrw 5s linear infinite}.nr-wv2{animation:nrw 8s linear infinite reverse}}
+@keyframes nrw{from{transform:translateX(0)}to{transform:translateX(50px)}}
+#resultsCol .m{align-items:center;text-align:center}
+#resultsCol .m .nrw{position:relative;width:min(100%,132px);aspect-ratio:1;margin:8px auto 6px}
+#resultsCol .m .nrw .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(22px,6.6vw,38px)!important;line-height:1;color:#F4EFE9!important;text-shadow:0 1px 6px rgba(0,0,0,.35)}
+#resultsCol .m .nrw .val small{display:block;margin:4px 0 0;font:800 10.5px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+#resultsCol .m.cho .nrw .val small{color:#F5874A}#resultsCol .m.flu .nrw .val small{color:#A9CBFF}#resultsCol .m.na .nrw .val small{color:#B7ACA0}
+.hj-mr .nrw{position:relative;width:78px;height:78px}
+.hj-mr>.nrw>div{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hj-mr>.nrw>div b{font:900 21px/1 var(--display)}.hj-mr>.nrw>div small{font-size:9px;color:var(--muted);font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+/* ===== Linha do tempo minimalista (igual à imagem de compartilhar) ===== */
+.fs-track{height:58px;background:none;border-radius:0;margin:26px 10px 0}
+.fs-b{top:50%;bottom:auto;height:6px;transform:translateY(-50%);border-radius:3px!important;background-clip:padding-box!important}
+.fs-b+.fs-b{border-left:5px solid transparent}
+.fs-b.rn{background:rgba(242,100,25,.8)}.fs-b.bk{background:rgba(77,142,240,.85)}.fs-b.sw{background:rgba(51,179,184,.6)}
+.fs-b span{top:-30px;left:0;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.fs-b.rn span{color:#F5874A}.fs-b.bk span{color:#7AABF2}.fs-b.sw span{color:#33B3B8}
+.fs-b:only-of-type span{display:none}
+.fs-m.gel{top:50%;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#A8440F,#F26419 55%,#FFB07A);box-shadow:0 0 0 3px #17120E,0 0 12px rgba(242,100,25,.7)}
+.fs-m.h2o{top:calc(50% + 20px);width:5px;height:5px;border-radius:50%;background:#7AABF2}
+.fs-m.salt{top:calc(50% + 20px);width:9px;height:9px;border-radius:2px;background:#F4EFE9;box-shadow:none;transform:translate(-50%,-50%) rotate(45deg)}
+.fs-m.on{outline:2px solid #F7F4F1;outline-offset:3px}
+.fs-ticks{margin:2px 10px 0}
+.fs-cap .lg.gel{width:10px!important;height:10px!important;border-radius:50%!important;background:#F26419!important}
+.fs-cap .lg.h2o{width:5px!important;height:5px!important;border-radius:50%!important}
+.fs-cap .lg.salt{transform:rotate(45deg)}
 </style>
 
 <header class="band">
@@ -1610,9 +1643,9 @@ body.locked #logCta,body.locked #fabBtn,body.locked .hc-del{display:none!importa
   <div class="col results" id="resultsCol" aria-live="polite">
     <div class="metrics">
       <div class="hero-h"><span class="hero-eb" id="heroEb"></span><b>Seu plano</b></div>
-      <div class="m cho"><span class="lbl">Carboidrato</span><span class="val" id="vCho">0<small>g/h</small></span><span class="tot" id="tCho"></span></div>
-      <div class="m flu"><span class="lbl">Líquido</span><span class="val" id="vFl">0<small>ml/h</small></span><span class="tot" id="tFl"></span></div>
-      <div class="m na"><span class="lbl">Sódio</span><span class="val" id="vNa">0<small>mg/h</small></span><span class="tot" id="tNa"></span></div>
+      <div class="m cho"><span class="lbl">Carboidrato</span><div class="nrw"><i id="nrCho"></i><span class="val" id="vCho">0<small>g/h</small></span></div><span class="tot" id="tCho"></span></div>
+      <div class="m flu"><span class="lbl">Líquido</span><div class="nrw"><i id="nrFl"></i><span class="val" id="vFl">0<small>ml/h</small></span></div><span class="tot" id="tFl"></span></div>
+      <div class="m na"><span class="lbl">Sódio</span><div class="nrw"><i id="nrNa"></i><span class="val" id="vNa">0<small>mg/h</small></span></div><span class="tot" id="tNa"></span></div>
       <div class="fstrip" id="fStrip"></div>
     </div>
     <div class="inst-card" id="instCard" hidden>
@@ -2425,6 +2458,7 @@ function run(){
   const feeding=r.segs.some(s=>s.sport!=='natacao');
   [['vCho',feeding?r.carbH:0,'g/h'],['vFl',feeding?r.flH:0,'ml/h'],['vNa',feeding?r.naH:0,'mg/h']].forEach(([id,v,u])=>{const el=$(id);let n=el.querySelector('.n');
     if(!n){el.innerHTML=`<span class="n" data-v="${v}">${fmt(v)}</span><small>${u}</small>`;}else if(typeof qzCount==='function'&&!$('viewCalc').hidden)qzCount(n,v);else{n.dataset.v=v;n.textContent=fmt(v);}});
+  [['nrCho',0,r.carbH/120],['nrFl',1,r.flH/1000],['nrNa',2,r.naH/1200]].forEach(([id,k,v])=>{const el=$(id);if(el)el.innerHTML=nutRing(k,feeding?v:0);});
   $('tCho').textContent=`Total ${fmt(r.carbTot)} g`;
   $('tFl').textContent=`Total ${fmt(r.flTot/1000,1)} L`;
   const naPos=r50(Math.max(0,r.naLoss-r.naTot));
@@ -4328,6 +4362,29 @@ const SP_IC={ciclismo:'<svg viewBox="0 0 24 24"><circle cx="5.5" cy="16.5" r="3.
   corrida:'<svg viewBox="0 0 24 24"><circle cx="14" cy="4.5" r="2"/><path d="M8 21l3-6 3 2v4M6 11l3-3 4 1 2 3h3M11 15l-1-5"/></svg>',
   natacao:'<svg viewBox="0 0 24 24"><circle cx="16.5" cy="6.5" r="2"/><path d="M3 17c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0 3-1 4.5 0M6 13l4-4 3 2 3-3"/></svg>'};
 const isoD=d=>d.toLocaleDateString('sv-SE');
+/* anéis temáticos (os mesmos da imagem de compartilhar): carbo em blocos, líquido como copo enchendo, sódio em cristais */
+let NR_ID=0;
+function nutRing(k,pct){
+  const p=Math.max(0,Math.min(1,pct||0)),C=50,R=40;let h='';
+  if(k===0){const N=18,sp=360/N,gap=4,on=p>0?Math.max(1,Math.round(p*N)):0;
+    const arc=(a0,a1)=>{const r0=(a0-90)*Math.PI/180,r1=(a1-90)*Math.PI/180;return `M${(C+R*Math.cos(r0)).toFixed(2)} ${(C+R*Math.sin(r0)).toFixed(2)}A${R} ${R} 0 0 1 ${(C+R*Math.cos(r1)).toFixed(2)} ${(C+R*Math.sin(r1)).toFixed(2)}`;};
+    let off='',onp='';
+    for(let i=0;i<N;i++){const d=arc(i*sp+gap/2,(i+1)*sp-gap/2);
+      if(i<on){const t=on>1?i/(on-1):1;const c=[[168,68,15],[255,176,122]];const col=`rgb(${c[0].map((x,j)=>Math.round(x+(c[1][j]-x)*t)).join(',')})`;onp+=`<path d="${d}" stroke="${col}"/>`;}
+      else off+=`<path d="${d}"/>`;}
+    h=`<g fill="none" stroke-width="8"><g stroke="var(--nr-off)">${off}</g><g class="nr-glow-o">${onp}</g></g><circle cx="50" cy="50" r="31" fill="none" stroke="rgba(242,100,25,.28)" stroke-width="1"/>`;}
+  else if(k===1){const id='nrc'+(++NR_ID),ri=37,lvl=C+ri-p*ri*2;
+    let w=`M-50 ${lvl}`;for(let x=-50;x<150;x+=25)w+=` Q${x+12.5} ${lvl+(((x+50)/25)%2?3:-3)} ${x+25} ${lvl}`;w+=' L150 100 L-50 100Z';
+    h=`<defs><clipPath id="${id}"><circle cx="50" cy="50" r="${ri}"/></clipPath><linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7AABF2" stop-opacity=".6"/><stop offset="1" stop-color="#1F5FBF" stop-opacity=".6"/></linearGradient></defs>
+      <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(122,171,242,.35)" stroke-width="1"/>
+      <g clip-path="url(#${id})"><rect x="0" y="0" width="100" height="100" fill="rgba(77,142,240,.08)"/>${p>0?`<g class="nr-wv2"><path d="${w}" fill="rgba(122,171,242,.2)" transform="translate(0 -2)"/></g><g class="nr-wv"><path d="${w}" fill="url(#${id}g)"/></g>`:''}</g>
+      <circle cx="50" cy="50" r="${ri}" fill="none" stroke="var(--nr-blue)" stroke-width="2"/>`;}
+  else{const N=30,on=p>0?Math.max(1,Math.round(p*N)):0;
+    for(let i=0;i<N;i++){const a=i/N*360;const x=C+R*Math.sin(a*Math.PI/180),y=C-R*Math.cos(a*Math.PI/180);const big=i<on,s=big?(i%5===0?6.4:5.4):4;
+      h+=`<rect x="${(x-s/2).toFixed(2)}" y="${(y-s/2).toFixed(2)}" width="${s}" height="${s}" rx="1" transform="rotate(${(a+45).toFixed(1)} ${x.toFixed(2)} ${y.toFixed(2)})" fill="${big?'var(--nr-ink)':'var(--nr-off)'}"${big&&i%5?' opacity=".78"':''}/>`;}
+    h=`<g class="nr-glow-w">${h}</g><circle cx="50" cy="50" r="31" fill="none" stroke="var(--nr-off)" stroke-width="1"/>`;}
+  return `<svg class="nr" viewBox="0 0 100 100" aria-hidden="true">${h}</svg>`;
+}
 function ringSvg(pct,size,stroke,cls){
   const r=(size-stroke)/2,c=+(2*Math.PI*r).toFixed(2),v=Math.max(0,Math.min(1,pct||0));
   return `<svg class="ring ${cls||''}" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><circle cx="${size/2}" cy="${size/2}" r="${r}" class="rg-bg" stroke-width="${stroke}"/><circle cx="${size/2}" cy="${size/2}" r="${r}" class="rg-fg" stroke-width="${stroke}" stroke-dasharray="${c}" stroke-dashoffset="${(c*(1-v)).toFixed(2)}" style="--c:${c}" transform="rotate(-90 ${size/2} ${size/2})"/></svg>`;
@@ -4421,7 +4478,7 @@ function renderHoje(){
     rcard=`<section class="card hj-next race"><div class="hj-sh"><h3>Próxima prova</h3><span>TrainingPeaks · prova ${qzEsc(rp.prova.prioridade||'')}</span></div><p class="hj-nt">${qzEsc(rp.prova.nome)}</p><div class="hj-cd"><b>${dd}</b><span>dia${dd===1?'':'s'} para a largada · ${new Date(rp.data+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</span></div><div class="hj-act"><button type="button" class="btn primary" data-tpr="${rp.uid}">Planejar esta prova</button></div></section>`;}}
   if(hasPlan){const r=LAST.r;const pd=planDay?new Date(planDay+'T12:00'):null;const dias=pd?Math.round((pd-new Date(today+'T12:00'))/864e5):null;
     const prova=S.tipo==='prova';const when=dias==null?'':dias===0?'hoje':dias===1?'amanhã':dias>1?`em ${dias} dias`:'';
-    const rg=(v,mx,u,l,cl)=>`<div class="hj-mr">${ringSvg(v/mx,64,6,cl)}<div><b>${fmt(v)}</b><small>${u}</small></div><span>${l}</span></div>`;
+    const rg=(v,mx,u,l,cl)=>`<div class="hj-mr"><div class="nrw">${nutRing({'rg-c':0,'rg-b':1,'rg-n':2}[cl],v/mx)}<div><b>${fmt(v)}</b><small>${u}</small></div></div><span>${l}</span></div>`;
     nx=`<section class="card hj-next${prova?' race':''}"><div class="hj-sh"><h3>${prova?'Sua prova':'Próxima sessão'}</h3><span>${when?when+' · ':''}${$('hora').value||''}</span></div>
       <p class="hj-nt">${qzEsc(sessionTitle()||'Sessão')}</p>
       ${prova&&dias>0?`<div class="hj-cd"><b>${dias}</b><span>dia${dias>1?'s':''} para a largada</span></div>`:''}
