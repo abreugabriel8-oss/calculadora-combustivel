@@ -5,6 +5,7 @@
 //   sair {endpoint}            (com login) remove este aparelho
 //   teste                      (com login) manda uma notificação de teste para os aparelhos da pessoa
 //   rodar                      (só o agendador, com o cabeçalho x-cron) envia véspera, pós-treino e assinatura
+//   pos_agora {user_id,dia,t,b,u} (só servidor, com x-cron) aviso imediato de treino novo (Strava)
 // Não precisa de segredo: as chaves ficam na tabela config_push, criadas sozinhas.
 import { createClient } from "npm:@supabase/supabase-js@2.116.0";
 import webpush from "npm:web-push@3.6.7";
@@ -214,6 +215,24 @@ Deno.serve(async (req) => {
       const c = await cfg();
       if (req.headers.get("x-cron") !== c.cron_segredo) return json(req, { error: "proibido" }, 403);
       return json(req, await rodar());
+    }
+    // aviso imediato de pós-treino (vem da função strava quando um treino novo chega)
+    if (action === "pos_agora") {
+      const c = await cfg();
+      if (req.headers.get("x-cron") !== c.cron_segredo) return json(req, { error: "proibido" }, 403);
+      const uid = String(body.user_id ?? ""), dia = String(body.dia ?? "");
+      if (!uid || !/^\d{4}-\d{2}-\d{2}$/.test(dia)) return json(req, { error: "params" }, 400);
+      const { data: p } = await admin.from("notif_prefs").select("pos").eq("user_id", uid).maybeSingle();
+      if (!p?.pos) return json(req, { enviado: false, motivo: "prefs" });
+      const { data: ok } = await admin.rpc("notif_tem_acesso", { p_user: uid });
+      if (!ok) return json(req, { enviado: false, motivo: "acesso" });
+      const { count } = await admin.from("registros").select("id", { count: "exact", head: true }).eq("user_id", uid).eq("data", dia);
+      if ((count ?? 0) > 0) return json(req, { enviado: false, motivo: "registrado" });
+      if (await jaNoLimite(uid)) return json(req, { enviado: false, motivo: "limite" });
+      if (!(await marcar(uid, "pos:" + dia))) return json(req, { enviado: false, motivo: "repetido" });
+      const u = String(body.u ?? "/?n=registrar");
+      const n = await enviar(uid, { t: String(body.t ?? "Treino feito? Pese-se agora").slice(0, 90), b: String(body.b ?? "").slice(0, 200), u: SITE + (u.startsWith("/") ? u : "/"), tag: "pos" });
+      return json(req, { enviado: n > 0 });
     }
     if (action === "chave") return json(req, { chave: (await cfg()).vapid_pub });
     const u = await usuario(req);

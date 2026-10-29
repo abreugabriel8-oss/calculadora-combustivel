@@ -1454,6 +1454,17 @@ html:not([data-theme="light"]) .nr-glow-w,#resultsCol .nr-glow-w{filter:drop-sha
 html[data-theme="light"] .fsum .fs-row .v .pic.mini{filter:saturate(1.4) brightness(.8)}
 .fs-more{font-size:12px;font-weight:800;color:var(--muted);margin-left:2px}
 @media (max-width:600px){.fsum .fs-row>i{display:none!important}.fsum .fs-row{gap:10px}.fsum .fs-row .k{font-size:13.5px!important}.fsum .fs-row .v{font-size:14px!important}}
+/* ===== Strava ===== */
+.sv-sec{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:var(--sunk);margin:12px 0}
+.sv-h>div{display:flex;flex-direction:column;gap:2px}
+.sv-sec.on .sv-h b::after{content:" · conectado";color:#FC5200;font-weight:800}
+.sv-btns{display:flex;gap:8px;flex-wrap:wrap}.sv-btns .btn{flex:1 1 auto}
+.sv-btn{background:#FC5200!important;color:#fff!important;border:0!important;font-weight:800}
+.sv-pw{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);align-self:flex-end}
+.gsrc.sv{color:#FC5200}
+.hj-act2{grid-column:1/-1;border:1px solid rgba(252,82,0,.35)}
+.hj-act2 .hj-row{width:100%}
+.hj-act2 .hj-row em.go{font:800 14px/1 var(--body)!important;color:#FC5200!important;white-space:nowrap;align-self:center}
 </style>
 
 <header class="band">
@@ -2036,6 +2047,9 @@ html[data-theme="light"] .fsum .fs-row .v .pic.mini{filter:saturate(1.4) brightn
       <div class="vin-box" id="vinBox" hidden></div>
       <div class="pay-box" id="payBox" hidden></div>
       <div class="tp-sec"><div><b>TrainingPeaks</b><span class="hint">Treinos do seu treinador direto no app (precisa do Premium).</span></div><button type="button" class="btn" data-trazer="tp">Conectar ou ver treinos</button></div>
+      <div class="sv-sec" id="svSec"><div class="sv-h"><div><b>Strava</b><span class="hint" id="svStatus"></span></div></div>
+        <div class="sv-btns"><button class="btn sv-btn" id="svConnect" type="button">Conectar com o Strava</button><button class="btn" id="svSync" type="button" hidden>Buscar treinos</button><button class="btn" id="svDisc" type="button" hidden>Desconectar</button></div>
+        <p class="status" id="svMsg" aria-live="polite"></p><span class="sv-pw">Powered by Strava</span></div>
       <div class="nt-sec" id="ntSec"></div>
       <div class="gsec" id="gSec" hidden>
         <div class="ghead"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAejElEQVR42u2deXRcV53nP/fd917tpSrtXiTbsi07jmPH2ZdOOmzuJDDZZkSABBqYJt0z0MBhpoHT54AD3c2ck2EYljRnhu7QPSwdSGgSQkLiQHZISJx4SWx5k3dJtmVJpaVKVfWWe+eP96osO5IxiUt2lntO/WGdsvTe73fv9/f9rVcw3dJaIoQPkP31cB0x62qUvkZo/wKldZvQOgkYvL0AlBYibyAOaEO8iOZhnKFHcu9ZOHq8LI9fYspfd4+WvF/4yV/taLJSLZ9C8xFhWvOREu264Lug1Ntin7wMA6SFsCzwfbTv7QH9AzeXvzN/3ZzBikxPrACtBbcj+IpQmSeGbxWWdYeIJ2fpiTw4ZYVAozEQQrwt8VdjBlqDQKER2BFDxJPoYr5fl93Pj7yz/ses0Qa3oxFCV/6TOZXws0/mviOS6U/pYgGdG/QQQiKEcYIz8yYUp0ZojRYCTm6/ifB7EgE4Za3LJR87MttIp3+UfTJ3ce4q8WnQRqCoQAmiKvx7MXg/KvNk7t+MTPYDenjIA4yq4N9Se1mj7CjakBhuGaG8177ztFaAEvUNphoeunvknY0f4h4t6UIhhBaTjUT2sYE7RUPTJ/XwkIsQ1ptdzkIr0KAN41jhWxHS+7tpf/Ju+i+5jqGll2CWC+jXsxe1dkV9g6WPHLkz957mv67I3OCeqvA/KDKNn9S54beE8BECL5LAjaeCf4akQmiFsmwSA/uYte5hmjY/EyhIv+6/Z+ncsCuyDZ/KPj5wM0L43KOlQRcq/exIPdL8ti4WFFrLN+NOF1pRlaIQGJ5L/fYXaF3/awDceCr8DhhOieFF55OfvZj0vi3Y48Mo0+R1a0FrqUsTCmF+p+6ZkSxdKAMhtCy6nxF12UbKJfVmwPyKICuQ4kUSeNEE2jARyseLxGl6+UlWfv8LLPnZ/2TF979I0+Zn8O0YXjSBdEqUM02Mty0hMbCfVN9OlBVBKP16T4FBuaREJtsky86nEULL+l/tSGsrdhdKpdBKvKF5TsAuUHY03PUaZdo0bv89ix64EyeZZaJlPkJ5CK1o6v4dfiROYmA/TZufJnlwN+W6ZoqNc/AjCaIjh2nc8ltK2VkMd16EdEtHxfNambgQ4Cvw3cWJK6//Z0NHGq42ook5OGX9hvZstUabgelK9u1EeC4QGNT67S/Q+tKjNHX/DiVNpFOmMGshE01tmMU8AyuuopRpoXnDbzjnX/+Wzvu+SWJgH0fOvgIn1UB21wbMUh5tSLQ0q3/nNVFbpQxRntA6mZlbXnn5n8nYRz//BRGJrsBzNJzh8KN1dWcHO1CEkBMIOnloN2f/+Ku0P3k3+Tmd5GcvxFA+WprU73gB6TkcOedKtCHxogliQ/00bn2O3iu62H3tbUinSOLwPrK7NtK45XdgSOx8jsTAPoaXXESpYTbR3CGswih+LHmScKhDSBQo08aPxtGmpaIToyLT/WxRRv/8C/+AEE0o/wx3s3T4AgmUFcHwvSrkCK3wo0lmP/8gLRt/g5YWfiTO4NmXIZ0SXjxFY/ezxAf7yC1aRbGprSqU5k1PYHgO/ZfewNCyyxldcA5muUCqv4f6nS+iDYl0ihQb5zLetoTW9Y8SH+yjlG3GjyUC9nQcHFWNvjBQdhQ/GgcEseGDNG35LW1P/ZQFj/3AaN7wmGWCbsN3OXPgJ/BA0YHB08IAIdBCEs0donHrc1iFUfa940No08Tw3EAJvkt8YB/KiqCkSd3+Ldj5UZQ0cVL1jM47m1TfTjK7NjLceSFmMU9+9kImWuaR6t9J4vAeivWzGWtfxpZbb6eh+1nanr6HVN8ODN+lafPT9F/8PkqZFoTyUaYdboCjXjOAlhLPTqClxCwVSPbtJLN7E9ldG0ge7MEqjKGFMLQdRUm7zRSQOO2BtUkvoEwL37LRRsCGDbeMWS7iJOpof+onzHnuFygrQmyoj23v/wJKmghfBS/b30OxYU4AR/09JA/uYmTBCgBGFp7L7BceIrPnZcxSAaE1TiLDyIIVtD3zM9L7t5GftRA7n0MZJoPLryDXeQGt6x6mafPTjHSsQktJrvOCwN7Io8pX0sK3ImghsAsjpPd3k+3ZQN3uTSQG9iPLE2hp4lsR3Hi6usm0UgnztAbWtEaE0OJZEQDs8WHq9rxCYmAvQilyi89nIoSM0QUraNn4OG48RfPLTyKUz9b3fwE/miDZt5P4YC99l92Ak8yS3fkSmd2bGF58PmZ5grH2ZZQyLSQO7SE+sI/8rEUIrcktXMWcZ++jfscLHDp/daB4ITCL42hp0nf5TfRfch1amshSIfScZWBHInGEUkRGj5A+sJVsz3rq9m4hOnwQw3NQpo2ybNxE3VH7pfxJhEgI87TGW0wbbRjEhg+S3t9Nw/YXyOzaSGT0CEL5aGFQrmtky623M9KxktF5Z+NF4ygrSm7hqgC/fY+XP/YPxHKHAlhpWUBhVgd+JEZm90bM8gRC+ZSyrYy3LaF505PU7dvCWPvZmKUCY+1n4aQaiA32IksFlGkhtAoUoRTmxFgoLQM/EkOZFoZbJjZ0kLq9r5DtWU+6dxv26FDoRUdQdgQ/EgtDHfoYoR+/aq6AykNUIKXCDHwrQvLgLhY8+n0Sh/YSzR3CSTcw0nEuw4vPp5xpYvbvH6TplaeY/fyDjM5fTinbwvjcpWR7XmLHDZ/Gj8Rp2fAblt39tcBA21FK9a3kWzuYaGon2b+L2JEDTLTMR0mTXMe5tK57hKZXnqH/kutAK7x4ms0f+SrldAPKtBHKD+FQB3geiU+N5/09WBNjaCFQVgQvlggCohWha/+k5GPW2qB6kTjaMDGL4yHHEsHLGQayPEF253p8O8r2//TfObL8SryQ3pXrEmghadr8NJGxQaTr4EViDHdeQMuG35Ds38Xmj9yOLBdo2fAYbjxFKdtKua4JL55iZMEK5jx3P5ndmxif24l0SowsPJehsy5heMlFwa4UArRirO0sDN/F8L3QBk3C833dZHdtILN7E/ET4Ll4jXbUrCXEaNOiYdvzRHOH6L/ofSF1VGhhIJ0S421LGWs/i7p9myllWig2tGAVJ0Apsj1bmfu7nyM8l6Gll+BbNtItMzr/HJxUPY1bn+XAlV1sufUrLLv778nufJFC6wKcVAPC98gtWkX7Uz+hbv9WepXC8FxK9bPY9Imvo0wbWSoEUCOMMDwRQyj9mvH8tS7ztbMWNSmppqt0sSp8aWIVRum875tEcweJ5g6z671/FRgygh3jJuoYnb+c+p0v0bLxMYr1s2jsfpb6HetIHN6LVRhh5w2fYf+f3hwcd0My0dTG+NxOkv09JA7tIT97IVtu+TIr//nzOMksbjyNWcoz0rGSlz/6NcbmLcNwHbQQCN9HeB6G60zCc4fYUB91ezcHeH5gG/ZYgOf+H4nnNVeA0EG2TVmRgAeLIIyrhREcYacUcHI0SppERo9geGXcRIa2Z+5FS8mua27DKubDELDPSMdK3Hia7I4XaXrlKbQwmGieh/A9tLSIDfUFnmc0gVnM46SS5BadR8O258nu2khhVgfKirD5w7cTGR3E8MoIrfGiSQ6fvxrDKWH4Lkqa+FaQZDHLFTzfSHbXxlOG5zVVgFAKPxIDIH54L+kD20gM7MOcGEdoxeFz30Vu8XlIpwQalCGJjA5iTYzTd+n1ZHe8yLzHf4ySNntWfwxrYiyAoTmdFOtnER/sY/+V76f/0usopxuo3/Eii3/xHdqe+RnJ/h623/Q5Ci0LMDyH3MJVuPE09vgwIDCcEm4ig5NqCP4+YPgeolzEj0TxRQy7MEJdjfG8ZgoQWuHFEqT3BVmi+h3rsIp5fDuKF4kTGT1CsWEOQ2ddgiwXg/9kGERzhzA8l75Lr2forEtZ/sM1zHvsh2hpsvfdH8bO53CTWcbmn026dxt+JMZE41yiowMML7mITX9xB4sf+A5NrzzN+Xd+ki23rmFoycUUWuaz7rP/RLmuMRBimDpECHw7GrKZgJ/X73ghxPPNRIcP1RTPa6IAoQLhN738JEt/9nVkaYLB5Vdw5JwrmWhux7cimKUCxfrZAWwIoxpKiA324saSCK0ZXHYZPe/9KzoeuYt5j/0AZZocuPJm0IpcxypmPf8QDdufp++yG1DSwiyOU65rovtDX2LWCw+hTJuJprkYvoM2JKVsK4bnoo0g/Dw9ng9WaW+t8fzUKyB88PiRAyx+4E6EUmzv+hv6L35f9Zgq00KZktjwYZIHd1NsnINWCsP3iA3146QbKDS3I5TPwYveS/32F2jYsY4Fv/5XlGmz/6oPMta+FDeZIbN7E4lDexhvW4rhlJBuCS0MDlzRBYB0ioHQpYmWJq4dOw7PN5Ds33UcnidnDM9PuQKEVig7QuPm3xIbPkTfJdfRd8l12PkcCIEsTZDe301j97PU7duC4Tls/MTXKTbMQZYKREaP4EUSNHY/S9Pmp8n2bMDwHIr1s4mMDrDk59/AcMvsf8cH6b/wWoRWlDPNiCA4iEYglI9dGA3iLZEovh3Dzlf4+Xoyu18+Y/C8BhAkEEoRG+oHID97EcIPdpCSJit+/FUyuzcy1r4MN54mfWArdXteYXzOYuKDvUinRGT0CMv+7e8ptMzn4AVXM9x5IYXWDtqfuptU3068WApZLrJ39cdQpoVZKgS7XBgoy341nu9cT92+zSE/d88oPK+JDdBCoGWQkLYKI2AY4a4S7HvnLexZ/TGGF59Pqn8n53/7v5DtWU/f5TdhFUaJjA1xZPnl7L7mNkqZ5iBV6DoYvsee1R8PfrchsSbGwXWQQuDbMVQ0cRJ4HsWPxM8oPK+BAjQgyM/qwDcjNGx9jr7Lb6ScasAsFRhcdlkQvFIKqzCGH41Tt28zsjxBbKgPWS5weNV7yLd2BOGE0E8IyhDKwV8Is1PVeEt/GG/p2UDy4BsLz19TrCz7xJA+YThBSsxigXO/9zniR3oZWnoxe1Z/NGQhDvGBA7Ru+DUt6x9FWRF2X/MJ+i69nlTv9oDnz10SRDYrggvj56oSb8mPkOzvmRbPK6dvcpLmTbTUiRVQ8QEicbI9G1h67x3Ehvvx7RjlukYMt0xkdBDfjjK4/AoOXNHF2NwlmKUCyrIDQ10uTonn6QNbp8Vzbcjjwh1v2vWHFTBZCbHBPlo2Pkby4G6kU8RJZBhrPytImjS3I3wfWZ4AYYSwYQf5W7dMbKg/xPOXSB/Yfgyea9MK/Qf1Ztzlr18BFSX4ph0YUt8LKhGkGfLzEoZbDmDDjlXxPH5477R4rkzrGDz/I1ATREBRX1VCoEGgwwK2N4Qi1UnHgrQwMDwXGRpPtEZCVei+HQ34eZgPzew5dfy8EmmtUEzh+QHr0QoRCjsoIzfC2p0gZaiFccZD2ckH4yqZrVfh+QD1O9a9Gs/D77xWfl4Vuu9hOgWE76NMCy+WwslmcBMZvGgisDUIDM/BLBWwCiPY+RHMibGq11wx5mcixJknUx6iDRnw82o+tP9oPvQ4PH+9/LxSAl4JOzjJDGPzzmZ0/nLG5yymVD8LN16Hb0fQhnlMDkIoH+mWsApjRIf7SfXuoG7vK6T6dmIVRlFWBN+OnFGM6lgbMLk8REqUFa3ieSLE88wpxfPJTyLQQmCWJ0BrxucsYWDFVQx3XkCpYXbgb/g+hu8GSlVqEt4zyS4YaClR0kJLGTh0g700bHue5pefJHlwV5B2tGMhDJ5WRSiRfXxQT8/Pd4Z4von4wIGp+bnSr/slKuFk6ZYZWXAOfZfdyHDnBfiReJBQ8dyqDxEIWfzhjB36WMi0IpgT4zR2P8vcZ39Osq+n6gCexniREnXPjOnJeJ7eH+ZD9215FZ6fen4u0IbAmhinlG1l3ztvYWDlO1GmhQzLSY5Jdb6O/HSl1MSLJjBLBWY//yBtT9+DWSrgRROnK5ShROt9W3Xdvi1kd75EuncG+bkQoDVmqcDAynew65pPUK5rxiyOB1VjRm0qJYXyA0XEUiT7e1j0y38ks3sTbiJ9Ok6CEldf+179ajynpoYqyCF7COWz+88+Tt/lN2G4ZQzPOaZ+aHpyQPhs+tUn6iS7GoXyg+SMUnQ8/E/Mee4X1ZKYGTTQyhS+d5Sfq9rHzysJfC1Ntt78RY4svwI7P1KNjJ4oM1cJgyvLOsrzxSQnLKS6hudUw+bTnSRtSGS5hDYMdl7/15QyzXSsvQvfjlVP58zQUCFmDv+ECCsULLpv+RK5Redhjw+HBv0EkCHN6u60CqNEB/YSzR3GHs8hnSAH7UdiOMkspWwrpfpWnHgdApDlIkJ5Uyo3aL7TWIUx9l/1QZQVYdEvvxuWk59hjtipwfxgF2+7+YvkFp2HlR+ZVvhCBUbTjddhTYzS9MpTNGx7nlTvdiJjgxhOOQhHT6ahQuLbUZx0I2NtSxhaegkji87DjddhlvLVQqyp6K+dz9F7+U3IcpGOtXcFTXszYBPENVdfPSNnTQsDs5Rnx42fpf/i92GP504gfB8vmkQ6E7S+9Ciz1j1MfGDfUXIgzanZUcXj9j2kW0YLg0LrfA5e9F4OrXoPyrIxS4VpoU4ohRtP03nfN5j9wkO48bpao4OaEQVoQ2IVRum79Hp23vBprMLo1EIIcdeLpajfuY6OR+4iGXYo+nbk5MlBuKsDj7qM4ZYZm7eMXdfcxuj8c7CKY1M3XWsdDN0AVtz1BZL9PYHDVrtYkpKLFy26vdY7X7olCq3z2f7+zwf1oRVIOv7lhcCPxJj/+I9YfP+3sQqjAfYbRthrdfJ7pfL9SrAwljtE88bHUZEYIx0rMFxnUrHwUcVVCtAKrR20bHq89ntzBsAHtGbP6o/jRZMI35tG+AbKtOi873+z4NF/CWJKdjSMer6OQxrGiIIyc5NFD9xJxyPfx48mpnTgtWEEfQPzzqbvkusxi/mToMavfRm1VW/wMoNn/wnDSy4Kuk6meRnfjtB5/7eY/cKvcJLZUx5GrjTTuYkM8574MfN+8wO8WHJKjA9K5wv0XXYDxYY51aq7N5wChFIoK0rv5TcdrcefyuDGUsx/7IfMWvcwTqq+doYvzEM4iQzzH/8Rret/jRtPB6fyOIfOcB3KdY0cvOhapFN8fYM6TocCKg0Yw50XMt62pJobPl5BXixJw7bnaH/yJziJzBTCOPWQKND4kRgLf/V/iR85UM1ZUPGiw1IcWS5y+Nx3BafAc2pyCowavicIg8Or3jX9V6TELObpeOSumsV+pjsJKmy6W/LvXycxsB8BQaq18lE+0i3jxVNMNLcHYZIaKKA2jpgQSLfMRFMbo/OXI53SqwQslI+bqKP9ibtJHNqNm8jMaERSKIVvx0j17uTc732OcrrhVSxLA4bysceHJ+UP3gAKCPLH5bD5IvBkjzW+GiUt7LEhZr30SK259gmoqgqYlucSP9I7XcQcJWs3PsmsFf5oIRldcE51JMCrsD+epGnz08QG+wJDeJpKC6sjBSz7hJD1hlKA8H28eIpC8/yAwqFfNcPH8D0atz4X4urpzs/q0/YIp14BIqhQmKifRbFhVnXEy2Tha2liToyR7O8JBiG9tYqxaqsAHWTHUaZN4tBejLDW/xgGYkXCLsixaprzrbpqGoz7Q1UHtXTx3yBL1TQfcGJufyZg/+lfp3FG0NvCryEN5ZiY/HTyfwuUn58uBVRqOktTKkGEjR++FX1bAbXY+cL3KNc1MT6nc4q5yxptmNVJJDMaA3qr0NBKHGjLLV8OqhYmnwKt8e0o6d4drPo/n3n7BJx68AkcrWjuMJGxwWBKieaY+p2gu6aOcrqRyMhAMIfzLeoLnPrzr4NAW2RsEHs8hzKDYl8tjOATtrk6qXrG2pdVqxfepqGnUgdSYk6MkTi0B21aU4QaglL2wbMvP+2e8NHyFj0NVRZvPAUEAtZk9myaMtgWZMuK5BaeG44TK56WU1CZ3GVUT+HRjBhhr4Hw3ZrS5dpEQ8PpgZndm7ALI0eHnB4XpvAicXovu5FlP/kavhAz6ptpQ1anJu59959Xx9fryeOQpUl09AhL/v1/hZtEnnIHsjZ+gNb4lk1ssI+63S8zuPyKsLzDOOYUWKU8R5ZfweBZl9K49bkZywtow0A6xYCp3boGJ5EJ64Qms7VgE2lpBmN4ahQ6qfm5b13/66AmVExNWYVS7Lr2LymnGyZBQQ1XODtOGyY7bvwsbiyFVRjF8JygRD78mOHkrTnP3R9U8sna7NWava1QCj8aJ9uznsyeV6pTZo8XhnRLlBpms/0//rewfdWvmRIqbavSKbHjhs8wOi8Y3qqleUxFBIAXiZE4vJfmTU/WtIOmtoVZoVc895l7K7Z5aiwujjPceSHbuv4mnN/pnvJQtTYkhu8Gwr/xsxxe9e7qJMYpbZhp0/7UT4PvyNqFzGpemOXFEtTvWEfzpidwY+lpKtEk1sQYAyuuYssta/Dt2NEqutdZCqLD5m2zOI5vR9nyoS9x8MJrpygUqDyzjxtP07jld+Ezp2pql2penBtyCtK92xg8+0/wowkMNUV9aEgJC60dDC+9mNhgH8lDe6hcfEDFoz5JnNeGUYU4s1wk13khWz/wt4zOXx5UR0+3860Idn6EZT/9H0E+u7axKl1zBQBo08LO54gNH2Rg5TvCAt0pMCmspHaSWQZWvoNStoX4YB/RkcMYngcy2M0YRnDZx2TcFuHPEBi+hywXMTyHQmsHe67+z+xZ/TG8WBIznLI4FXNDCLRpc9a9d5A6sO1ow3ktUXrGGjTCHoH9V32A3dfeFnTHTNcoEfJxL5bEmhijYdvzNG5+hlTvduzCaLXCenKou3IpmzItnFQ9421LObL8CoY7LwxaU4v5IE41pYEPStndeJpFv/xH5v7257iJupmgxGrGFFDBY6uYZ9e1t7H/T2/GzudC30BMY0PC/rBIHKF8ornDJA7tITGwn8joQCBUFUzYdeNpSpkWJlraKbTMp1zXBIij/cbTGXUdMHw3nmbBo//CvMd/NGPtSTOugMqoGVmaYPc1f8GBK2/GnBg7wc48aswRQaVF5c6Bavm65uhpCDm+4TlBNYY+cV5aKBUkhuwYC9beRftTPw2M7sxl6pQ5IxGn44JbfjTOwl99Dzs/wp7VHwtaS93ytLu0IkThuZiuw+Qb8aq/dtLPNOLYFtapIEcpvEgC6ZZYeu8dtFRK1WcwTaq11qbWOm8YRkrPVERSB0pwYynanvop8YF99PyHT1FsmBXOoT5Bl/x0eeY/YvtUYM1NpEnv72bxA3eS6t0+U5g/6VUEaF2QixctutUwjCatpyjirCkYBTX6iUN7aNr8DF4sSX5OJ8qKID0nvCuMU/NIFbgSRjCn1C3R/tQ9LP7Ft4iMDk7bKVNL6DEMQ2jYKRctXnyxKeUK3/e1mOF7JEV4b690ijS/8gypA1txU1mKjW34kSjCVxjKO8r/T9opC8YZCK2CEJpp48WSGJ5D86Yn6LzvmzRveqI6hn+mqzO01so0TeEr9bAJPKi1/gin6RK3KiTELbK7NpLZ/TIjC1dy+Lz3kOtYhZMK+sUMLwhRnHhwiKiOPFCWhZIWQnnEhg/SsPX3wcDB/p7qJK/gvpjTUhojtNZCKPWguO6661JuudxtSDlHKXVa75PUwkCgg8mLWlNsmM1ox0pGFqwkP6uDcroRPxKbPkQRKsos5YkOHyLVu53sro2k93cHV9JawUU/p3liljIMQ/hK9RaLxWUC4Oqrr14Tse3bHcfxmMnxBSeKWgowXCfMGQu8eJpyXROlTAvlukbceBrfjoZZKw+zXMDKjxAZPRIUBIwPBQOmwusElbTOlJlxnm3bplMuf/nhtWv/zgSElPLbjuv+V8MwGn3fV+I03ylcvWrctHCtSIDpXnBVYeLgrqP8f8oYkERVxtvH6zg6Beb0jznWWisppeE4zmE7Gv0OIGRXV5e8//77JxZ3dBwwLatLKeUBZ0zZcrVDPuxcVFYEZUWDXX38x7KDdqKK3/BHdtfPAPX0TNM0faU+/tBDD63v6uqSsru7W3d1dclf/PKXr8xfsKAhEolc6nmeK4Q4I2vHK0Kd9nOGFv1qrd1IJGI55fK3Hlm79htdXV3y3nvv9SVAd3c3XV1d8oEHHvjVggULOiORyLm+73taa8TpvGvyTbC01koI4YfC/9Ejjz76l6HwFZMYj7733nvVmjVrjEceeeQWx3G+bVmWKaU0AI+3a8lfa9zFk1IalmWZjut+8+G1az+8Zs0aIxS+nsrNrFxTra5ZvfpDQso7LMua43kevu9rQIUn4o1993ztBK51ENMxpJTCNE08z+v1fP/za9euvXvNmjXGV77ylWOG3U2F8xWb8HL7vHn/TxhGQWg9T0pZH56It4U/tYEVhmEI0zQNwzAEsEv5/jdd3//4o48+uq6rq0t+97vfVScdxqoYidBPSEspV2ulrkHrCzW0AUnOmFu4T/tSQF4IsR94UWj9sLTttQ888MD48bI8fv1/GjP2Oj3ZAsgAAAAASUVORK5CYII=" alt="" width="40" height="40"><div><b>Garmin Connect™</b><span class="gst" id="gStatus">Não conectado</span></div></div>
@@ -2756,7 +2770,7 @@ async function enterAccount(){
   applyConfig(ACC.perfil&&ACC.perfil.config);
   storeChip();afterLogs();
   if(typeof nutriLoad==='function')nutriLoad();
-  gStatus();gFinish();
+  gStatus();gFinish();svStatus();svFinish();
   payLoad().then(payConfirm);
   if(PAY.after){PAY.after=false;setTimeout(()=>{closeAcct();if(!isPro())payOpen(PAY.motivo);},900);}
 }
@@ -3334,7 +3348,7 @@ async function gConnect(){
 }
 /* volta do Garmin: ?code=...&state=... */
 function gCallbackParams(){
-  const q=new URLSearchParams(location.search);const code=q.get('code'),state=q.get('state'),err=q.get('error');
+  const q=new URLSearchParams(location.search);if(q.get('strava'))return null;const code=q.get('code'),state=q.get('state'),err=q.get('error');
   if(!code&&!err)return null;return {code,state,err};
 }
 async function gFinish(){
@@ -3525,15 +3539,15 @@ async function gLoadActs(){
 function gActDate(d){return new Date(((d.startTimeInSeconds||0)+(d.startTimeOffsetInSeconds||0))*1000);}
 function gRenderActs(){
   const box=$('gActs');const list=$('gActList');
-  box.hidden=!G.acts.length;list.innerHTML='';
-  G.acts.forEach(a=>{const d=a.dados;const sp=gSportOf(d.activityType);
+  const ALL=actsAll();box.hidden=!ALL.length;list.innerHTML='';
+  ALL.forEach(a=>{const d=a.dados;const sp=gSportOf(d.activityType);
     const dt=gActDate(d);const li=document.createElement('div');li.className='gact';
     const t=hm((d.durationInSeconds||0)/3600);
     const info=document.createElement('div');info.className='gact-i';
     const tt=document.createElement('b');tt.textContent=`${SPORT_NOME[sp.sport]}${sp.indoor?' indoor':''} · ${t.h}h${String(t.m).padStart(2,'0')}${d.distanceInMeters?` · ${fmt(d.distanceInMeters/1000,1)} km`:''}`;
     const sub=document.createElement('span');sub.className='hint';
     sub.textContent=`${dt.toLocaleDateString('pt-BR',{timeZone:'UTC'})}${d.averageHeartRateInBeatsPerMinute?` · FC média ${Math.round(d.averageHeartRateInBeatsPerMinute)}`:''}`;
-    const src=document.createElement('span');src.className='gsrc';src.textContent=`Garmin ${d.deviceName?d.deviceName.replace(/^Garmin\s+/i,''):''}`.trim();
+    const src=document.createElement('span');src.className='gsrc'+(a.src==='strava'?' sv':'');src.textContent=a.src==='strava'?`Strava${d.nome?' · '+d.nome:''}`:`Garmin ${d.deviceName?d.deviceName.replace(/^Garmin\s+/i,''):''}`.trim();
     info.append(tt,src,sub);
     const bt=document.createElement('div');bt.className='gact-b';
     const reg=document.createElement('button');reg.type='button';reg.className='btn primary';reg.textContent='Registrar';reg.addEventListener('click',()=>gUseAct(a));
@@ -3546,17 +3560,20 @@ function gUseAct(a){
   $('lgDur').value=Math.round((d.durationInSeconds||0)/60);
   $('lgData').value=gActDate(d).toISOString().slice(0,10);
   if(d.averageHeartRateInBeatsPerMinute){const hrmax=+$('wkHr').value||190;const p=d.averageHeartRateInBeatsPerMinute/hrmax;$('lgInt').value=String(p<.75?1:p<.83?2:p<.9?3:4);}
-  G.pend={id:a.summary_id,device:d.deviceName||''};
+  G.pend={id:a.summary_id,device:d.deviceName||'',src:a.src||'garmin'};
   lgPreview();
   const fmEl=$('lgFitMsg');fmEl.className='status ok';
-  fmEl.textContent=`Atividade de Garmin ${(d.deviceName||'').replace(/^Garmin\s+/i,'')} carregada. Preencha pesos, líquido e carbo e salve.`.replace('Garmin  ','Garmin ');
+  fmEl.textContent=a.src==='strava'?`Treino do Strava carregado${d.nome?': '+d.nome:''}. Preencha pesos, líquido e carbo e salve.`:`Atividade de Garmin ${(d.deviceName||'').replace(/^Garmin\s+/i,'')} carregada. Preencha pesos, líquido e carbo e salve.`.replace('Garmin  ','Garmin ');
   lqStartAt('clima');
 }
 async function gMarkDone(id){
-  G.acts=G.acts.filter(a=>a.summary_id!==id);gRenderActs();
-  if(SB&&ACC.user)await SB.from('garmin_atividades').update({registrado:true}).eq('summary_id',id);
+  G.acts=G.acts.filter(a=>a.summary_id!==id);SV.acts=SV.acts.filter(a=>a.summary_id!==id);gRenderActs();
+  if($('viewHoje')&&!$('viewHoje').hidden)renderHoje();
+  if(!SB||!ACC.user)return;
+  if(/^s\d+$/.test(id))await SB.from('strava_atividades').update({registrado:true}).eq('activity_id',+id.slice(1));
+  else await SB.from('garmin_atividades').update({registrado:true}).eq('summary_id',id);
 }
-function gLogExtra(){return G.pend?{fonte:'garmin',device:G.pend.device}:{};}
+function gLogExtra(){return G.pend?{fonte:G.pend.src||'garmin',device:G.pend.device}:{};}
 function gAfterSave(){if(G.pend){const id=G.pend.id;G.pend=null;gMarkDone(id);}}
 
 async function gTest(){
@@ -4526,7 +4543,7 @@ function renderHoje(){
   const cw=logs.filter(l=>inW(l,ws)),pw=logs.filter(l=>inW(l,ws2));const hrs=a=>a.reduce((s,l)=>s+(l.durMin||0),0)/60;
   const dh=hrs(cw)-hrs(pw);
   const rec6=logs.slice(0,6).map(derive);const pAvg=rec6.length?rec6.reduce((a,d)=>a+(d.ganhou?0:d.perdaPct),0)/rec6.length:null;
-  h+=`<div class="hj-grid">${sc}${rcard}${nx}${typeof ntCard==='function'?ntCard():''}
+  h+=`<div class="hj-grid">${typeof svCard==='function'?svCard():''}${sc}${rcard}${nx}${typeof ntCard==='function'?ntCard():''}
     <section class="card hj-t"><div class="hj-sh"><h3>Taxa de suor</h3><span>média ponderada</span></div>${sw||'<p class="hj-et">Aparece com o primeiro registro.</p>'}<button type="button" class="hj-link" data-st="1">Fazer teste de suor ›</button></section>
     <section class="card hj-t"><div class="hj-sh"><h3>Tolerância a carbo</h3><span>sem desconforto</span></div>${tol||'<p class="hj-et">Registre um treino de 45 min ou mais com o carbo consumido.</p>'}</section>
     <section class="card hj-t"><div class="hj-sh"><h3>Esta semana</h3></div><div class="hj-wk"><div><b>${cw.length}</b><small>treino${cw.length!==1?'s':''}</small></div><div><b>${fmt(hrs(cw),1)}</b><small>horas</small></div></div>${pw.length||cw.length?`<span class="hj-tn">${dh>=0?'+':'−'}${fmt(Math.abs(dh),1)} h que a semana passada</span>`:''}</section>
@@ -4563,6 +4580,7 @@ function initHoje(){
   $('viewHoje').addEventListener('click',e=>{
     const d=e.target.closest('[data-day]');if(d){buzz();HJ.day=d.dataset.day;renderHoje();return;}
     const lg=e.target.closest('[data-log]');if(lg){buzz();hdOpen(lg.dataset.log);return;}
+    const ac=e.target.closest('[data-act]');if(ac){buzz();if(gateBlock())return;svUse(ac.dataset.act);return;}
     const te=e.target.closest('[data-tpe]');if(te){buzz();if(gateBlock())return;const x=TP.ev.find(z=>z.uid===te.dataset.tpe);if(x){toast('Montando o plano...');tpUse([x],{data:x.data,hora:x.hora,via:'tp_hoje'});}return;}
     const tb=e.target.closest('[data-tpb]');if(tb){buzz();if(gateBlock())return;const L=TP.ev.filter(z=>z.data===tb.dataset.tpb&&!z.feito&&(z.esporte==='ciclismo'||z.esporte==='corrida'));toast('Montando o plano...');tpUse(L,{data:tb.dataset.tpb,via:'tp_brick'});return;}
     const tr=e.target.closest('[data-tpr]');if(tr){buzz();if(gateBlock())return;const x=TP.ev.find(z=>z.uid===tr.dataset.tpr);if(x)tpRace(x);return;}
@@ -5205,10 +5223,10 @@ async function planSyncNow(){
 /* toque na notificação: abre o app no lugar certo */
 function ntLink(){
   const q=new URLSearchParams(location.search);const n=q.get('n');if(!n)return;
-  const d=q.get('d');try{q.delete('n');q.delete('d');history.replaceState(history.state,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);}catch(e){}
+  const d=q.get('d'),sid=q.get('s');try{q.delete('n');q.delete('d');q.delete('s');history.replaceState(history.state,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);}catch(e){}
   track('notif_aberta',{n});
   setTimeout(()=>{
-    if(n==='registrar')hjAct('registrar');
+    if(n==='registrar'){if(sid&&/^\d+$/.test(sid)){let k=0;const tryIt=async()=>{if(!ACC.user&&k++<16){setTimeout(tryIt,400);return;}await svLoadActs();if(!svUse('s'+sid))hjAct('registrar');};tryIt();}else hjAct('registrar');}
     else if(n==='pagar')payOpen('notif');
     else if(n==='plano'){navTo('calc');if(lsGet('gaFlow')==='1')flowGo('summary');}
     else if(n==='dia'&&/^\d{4}-\d{2}-\d{2}$/.test(d||'')){navTo('hoje');HJ.day=d;renderHoje();}
@@ -5221,6 +5239,82 @@ function initNt(){
     if(c.dataset.ntc==='x'){try{localStorage.setItem('gaNtDis',String(Date.now()));}catch(e){}renderHoje();return;}
     ntAtivar().then(()=>{if(NT.msg){openAcct();}});});
   ntLoad();ntLink();}
+
+/* ===== STRAVA: treinos feitos chegam sozinhos para registrar ===== */
+const SV={connected:false,acts:[],busy:false};
+async function svCall(body){
+  if(!SB)return {error:'sem_conta'};
+  const {data,error}=await SB.functions.invoke('strava',{body});
+  if(error){let d=null;try{d=await error.context.json();}catch(e){}return {error:(d&&d.error)||'rede'};}
+  return data||{};}
+function svRedirect(){return location.origin+'/?strava=1';}
+function svMsg(t,ok){const m=$('svMsg');if(!m)return;m.className='status '+(ok?'ok':'bad');m.textContent=t||'';}
+function svRender(){
+  const c=SV.connected;if(!$('svSec'))return;
+  $('svConnect').hidden=c;$('svDisc').hidden=!c;$('svSync').hidden=!c;
+  $('svStatus').textContent=c?'Conectado. Cada treino novo chega aqui para você registrar.':'Seus treinos chegam sozinhos para registrar, com aviso no celular.';
+  $('svSec').classList.toggle('on',c);}
+async function svConnect(){
+  if(IN_CLAUDE){svMsg('Na prévia não há conexão. No site, o Strava abre para você autorizar.',true);return;}
+  if(!SB||!ACC.user){openAcct(true);return;}
+  if(gateBlock())return;
+  const state=b64url(crypto.getRandomValues(new Uint8Array(16)));
+  try{localStorage.setItem('gaStravaState',JSON.stringify({state,t:Date.now()}));}catch(e){}
+  svMsg('Abrindo o Strava...',true);
+  const r=await svCall({action:'auth_url',state,redirect_uri:svRedirect()});
+  if(!r.url){svMsg(r.error==='config'?'A integração com o Strava ainda não foi configurada no servidor.':'Não foi possível abrir o Strava. Tente de novo.',false);return;}
+  track('strava_conectar');location.href=r.url;}
+/* volta do Strava: ?strava=1&state=...&code=...&scope=... */
+async function svFinish(){
+  const q=new URLSearchParams(location.search);if(q.get('strava')!=='1')return;
+  const code=q.get('code'),state=q.get('state'),err=q.get('error'),scope=q.get('scope')||'';
+  try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}
+  openAcct(false);
+  if(err||!code){svMsg('A conexão com o Strava foi cancelada.',false);return;}
+  let saved=null;try{saved=JSON.parse(localStorage.getItem('gaStravaState')||'null');localStorage.removeItem('gaStravaState');}catch(e){}
+  if(!saved||saved.state!==state){svMsg('Não foi possível confirmar a conexão. Toque em Conectar de novo.',false);return;}
+  if(!/activity:read/.test(scope)){svMsg('Para trazer seus treinos, deixe marcada a opção de ver suas atividades e conecte de novo.',false);return;}
+  svMsg('Conectando ao Strava...',true);
+  const r=await svCall({action:'token',code,scope});
+  if(!r.connected){svMsg(r.error==='escopo'?'Para trazer seus treinos, deixe marcada a opção de ver suas atividades.':'O Strava não confirmou a conexão. Tente de novo em instantes.',false);return;}
+  SV.connected=true;svRender();track('strava_conectado',{novas:r.novas||0});
+  svMsg(`Strava conectado${r.nome?', '+r.nome:''}. ${r.novas?`${r.novas} treino${r.novas>1?'s':''} dos últimos dias ${r.novas>1?'estão':'está'} no Diário para registrar.`:'Seus próximos treinos chegam sozinhos.'}`,true);
+  svLoadActs();}
+async function svStatus(){
+  if(!SB||!ACC.user||IN_CLAUDE)return;
+  const r=await svCall({action:'status'});
+  SV.connected=!!r.connected;svRender();if(SV.connected)svLoadActs();}
+async function svSync(){
+  svMsg('Buscando treinos...',true);
+  const r=await svCall({action:'sincronizar'});
+  if(r.connected===false){SV.connected=false;svRender();svMsg('A conexão com o Strava expirou. Conecte de novo.',false);return;}
+  await svLoadActs();svMsg(r.novas?`${r.novas} treino${r.novas>1?'s novos':' novo'} no Diário.`:'Nenhum treino novo nos últimos 3 dias.',true);}
+async function svDisconnect(){
+  svMsg('Desconectando...',true);
+  await svCall({action:'disconnect'});
+  SV.connected=false;SV.acts=[];svRender();gRenderActs();if($('viewHoje')&&!$('viewHoje').hidden)renderHoje();
+  svMsg('Strava desconectado. Os treinos que vieram de lá e não foram registrados foram apagados.',true);track('strava_desconectado');}
+async function svLoadActs(){
+  if(!SB||!ACC.user)return;
+  const {data,error}=await SB.from('strava_atividades').select('activity_id,dados,recebido_em').eq('registrado',false).order('recebido_em',{ascending:false}).limit(15);
+  if(error)return;
+  SV.acts=(data||[]).filter(a=>gSportOf(a.dados.activityType)).map(a=>({summary_id:'s'+a.activity_id,dados:a.dados,src:'strava'}));
+  gRenderActs();if($('viewHoje')&&!$('viewHoje').hidden)renderHoje();}
+function actsAll(){return [...SV.acts,...(G.acts||[])].sort((a,b)=>(b.dados.startTimeInSeconds||0)-(a.dados.startTimeInSeconds||0));}
+/* card no Hoje: treino feito esperando o registro */
+function svCard(){
+  const L=actsAll();if(!L.length)return '';
+  const a=L[0],d=a.dados,sp=gSportOf(d.activityType),t=hm((d.durationInSeconds||0)/3600);
+  const dt=gActDate(d);const hoje=isoD(new Date())===dt.toISOString().slice(0,10);
+  return `<section class="card hj-act2"><div class="hj-sh"><h3>Treino para registrar</h3><span>${a.src==='strava'?'via Strava':'via Garmin'}</span></div>
+    <button type="button" class="hj-row" data-act="${a.summary_id}"><i class="hc-ic ${sp.sport}">${SP_IC[sp.sport]}</i><span><b>${qzEsc(d.nome||SPORT_NOME[sp.sport]+(sp.indoor?' indoor':''))}</b><small>${t.h}h${String(t.m).padStart(2,'0')}${d.distanceInMeters?` · ${fmt(d.distanceInMeters/1000,1)} km`:''} · ${hoje?'hoje':dt.toLocaleDateString('pt-BR',{timeZone:'UTC',day:'2-digit',month:'2-digit'})}</small></span><em class="go">Registrar ›</em></button>
+    <p class="hj-et">Peso antes e depois, o que bebeu e comeu. Cada registro deixa o seu plano mais certo.${L.length>1?` Mais ${L.length-1} no Diário.`:''}</p></section>`;}
+function svUse(id){const a=actsAll().find(x=>x.summary_id===id);if(!a)return false;navTo('diario');setTimeout(()=>gUseAct(a),150);return true;}
+function initStrava(){
+  $('svConnect').addEventListener('click',svConnect);
+  $('svDisc').addEventListener('click',svDisconnect);
+  $('svSync').addEventListener('click',svSync);
+  svRender();}
 
 /* ===== Avisos rápidos (toast) e toque ===== */
 let toastT=null;
@@ -5994,7 +6088,7 @@ function planRestore(){
   initMobile();
   initConta();
   initDiario();
-  initHoje();initDCal();renderDCal();initPNav();initHist2();initSweat();initGate();initTrazer();initNt();
+  initHoje();initDCal();renderDCal();initPNav();initHist2();initSweat();initGate();initTrazer();initNt();initStrava();
   $('wlGo').addEventListener('click',()=>{buzz();wlClose();});
   if(!flowDue()&&!/^#(diario|registrar)$/.test(location.hash)&&FLOW.mode!=='quiz')showView('hoje');
 })();
