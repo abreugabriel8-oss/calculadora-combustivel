@@ -1465,6 +1465,11 @@ html[data-theme="light"] .fsum .fs-row .v .pic.mini{filter:saturate(1.4) brightn
 .hj-act2{grid-column:1/-1;border:1px solid rgba(252,82,0,.35)}
 .hj-act2 .hj-row{width:100%}
 .hj-act2 .hj-row em.go{font:800 14px/1 var(--body)!important;color:#FC5200!important;white-space:nowrap;align-self:center}
+/* ===== Colunas que acompanham a rolagem no computador (sem sobrepor nada) ===== */
+@media (min-width:601px){.tabs{position:sticky;top:0;z-index:30}}
+@media (min-width:961px){.dcal{position:static!important}main.dview>.col:first-child{position:sticky;align-self:start}}
+main.dview .results{position:static!important}
+@media (max-width:960px){.results{position:static}}
 </style>
 
 <header class="band">
@@ -1593,11 +1598,11 @@ html[data-theme="light"] .fsum .fs-row .v .pic.mini{filter:saturate(1.4) brightn
       <div class="row">
         <label class="f">Tolerância a carbo pedalando<select id="gutBike">
           <option value="0">Iniciante (até 40 g/h)</option>
-          <option value="1" selected>Intermediário (40 a 70 g/h)</option>
+          <option value="1" selected>Intermediário (40 a 80 g/h)</option>
           <option value="2">Treinado (80 g/h ou mais)</option></select></label>
         <label class="f">Tolerância a carbo correndo<select id="gutRun">
           <option value="0">Iniciante (até 40 g/h)</option>
-          <option value="1" selected>Intermediário (40 a 60 g/h)</option>
+          <option value="1" selected>Intermediário (40 a 70 g/h)</option>
           <option value="2">Treinado (70 g/h ou mais)</option></select></label>
       </div>
       <p class="status ok" id="gutNote" hidden style="margin:-4px 0 0"></p>
@@ -1613,7 +1618,7 @@ html[data-theme="light"] .fsum .fs-row .v .pic.mini{filter:saturate(1.4) brightn
             <label class="f">Suor correndo (L/h)<input id="srRun" type="number" inputmode="decimal" step="0.05" min="0" placeholder="ex.: 1,8"></label>
             <label class="f">Sódio no suor (mg/L)<input id="naMedido" type="number" inputmode="numeric" step="10" min="0" placeholder="ex.: 1100"></label>
           </div>
-          <p class="hint">Sua taxa muda entre modalidades e entre indoor e ao ar livre. Para calcular, pese-se sem roupa antes e depois de 1 h de treino, sem urinar no meio, em condições parecidas com a sessão planejada.</p>
+          <p class="hint">Sua taxa muda entre modalidades e entre indoor e ao ar livre. Para calcular, pese-se sem roupa antes e depois de 1 h de treino, sem urinar no meio, em condições parecidas com a sessão planejada. O número digitado aqui fica fixo, em qualquer clima: para sessões em outra condição, apague. O teste de suor guiado ajusta ao clima de cada sessão sozinho.</p>
           <div class="row">
             <label class="f">Peso antes (kg)<input id="tA" type="number" step="0.1" inputmode="decimal"></label>
             <label class="f">Peso depois (kg)<input id="tB" type="number" step="0.1" inputmode="decimal"></label>
@@ -1724,14 +1729,18 @@ html[data-theme="light"] .fsum .fs-row .v .pic.mini{filter:saturate(1.4) brightn
     </details>
     <details class="card method">
       <summary><h3>Como calculamos</h3><span class="mth-s">Fontes e métodos</span></summary>
-      <p><b>Carboidrato</b> pela duração total da sessão (somando todas as modalidades) e pela intensidade, com transição contínua entre as faixas: abaixo de 1 h, bochecho ou nada; 1 a 2 h, 30 a 70 g/h; a partir de 2,5 h, até 90 g/h com glicose + frutose. Acima de 90 g/h só com intestino treinado. A tolerância é avaliada separadamente no pedal e na corrida, que tem teto menor pelo impacto gastrointestinal.</p>
+      <p><b>Carboidrato</b> pela duração total da sessão (somando todas as modalidades) e pela intensidade, com transição contínua entre as faixas: abaixo de 1 h, bochecho ou nada (o efeito nessa duração vem da boca, não da quantidade); de 1 a 2 h, 30 a 60 g/h; de 2 a 3 h, a meta sobe aos poucos até 90 g/h, passando por ~75 g/h em 2h30 (o melhor desempenho no maior estudo de dose-resposta foi com ~78 g/h em ~2h40); acima de 3 h, até 90 g/h com glicose + frutose. De 90 a 120 g/h no pedal (até 90 na corrida) só com intestino treinado e sessão acima de 2h30: acima de 90 g/h a oxidação aumenta, mas o ganho de desempenho ainda não foi demonstrado. A tolerância é avaliada separadamente no pedal e na corrida, que tem teto menor pelo impacto gastrointestinal.</p>
       <p><b>Líquido</b> pela taxa de suor medida ou estimada em cada modalidade. O déficit tolerável (até 2% do peso) é calculado para a sessão inteira: onde você sua mais do que consegue beber, como na corrida, o pedal compensa. Nunca se bebe mais do que se sua.</p>
       <p><b>Objetivo e estado pré-sessão</b> seguem o princípio de abastecer conforme o trabalho exigido: carbo completo em treinos de qualidade, carbo reduzido só em sessões leves feitas para adaptação, meta acima da tolerância atual para treinar o intestino, e início precoce quando o atleta chega em jejum. A refeição pré (1 a 4 g/kg), o carb loading (10 a 12 g/kg/dia) e a hidratação pré (5 a 7 ml/kg) seguem o ACSM.</p>
-      <p><b>Sódio</b> acoplado ao líquido: cada litro bebido leva de 50% a 90% do sódio do seu suor, conforme a duração (mínimo de 460 mg/L, máximo de 1.500 mg/L). Sem líquido, não há sódio durante: até 1h15 (1h com WBGT de 28 ou mais) a reposição fica para depois. Aclimatação reduz o sódio do suor.</p>
+      <p><b>Sódio</b> acoplado ao líquido: cada litro bebido leva de 50% a 90% do sódio do seu suor, conforme a duração (até 100% com WBGT de 28 ou mais) (mínimo de 460 mg/L, máximo de 1.500 mg/L). Sem líquido, não há sódio durante: até 1h15 (1h com WBGT de 28 ou mais) a reposição fica para depois. Aclimatação reduz o sódio do suor.</p>
       <ol>
         <li>Thomas DT, Erdman KA, Burke LM. Nutrition and Athletic Performance. Med Sci Sports Exerc, 2016 (ACSM).</li>
         <li>Sawka MN et al. ACSM Position Stand: Exercise and Fluid Replacement. Med Sci Sports Exerc, 2007.</li>
         <li>Baker LB. Sweating Rate and Sweat Sodium Concentration in Athletes. Sports Med, 2017.</li>
+        <li>Smith JW et al. Curvilinear dose-response relationship of carbohydrate (0-120 g/h) and performance. Med Sci Sports Exerc, 2013.</li>
+        <li>Stellingwerff T, Cox GR. Carbohydrate supplementation on exercise performance or capacity of varying durations. Appl Physiol Nutr Metab, 2014.</li>
+        <li>Morton JP et al. Revisiting Carbohydrate Guidelines for Fueling Endurance Athletes during Exercise. J Nutr, 2026.</li>
+        <li>Costa RJS et al. Gut-training: two weeks repetitive gut-challenge during exercise. Appl Physiol Nutr Metab, 2017.</li>
         <li>Impey SG et al. Fuel for the Work Required: A Theoretical Framework for Carbohydrate Periodization and the Glycogen Threshold Hypothesis. Sports Med, 2018.</li>
         <li>Guest NS et al. ISSN position stand: caffeine and exercise performance. J Int Soc Sports Nutr, 2021.</li>
       </ol>
@@ -2102,8 +2111,13 @@ function intensity(seg,mode){
   }
   return {i:INT_I[(seg.int||2)-1],IF:null};
 }
-/* faixas de carboidrato interpoladas pela duração total (sem degraus) */
-const CARB_PTS=[[0.75,0,0],[1,0,30],[1.5,30,60],[2,40,70],[2.5,50,90]];
+/* faixas de carboidrato interpoladas pela duração total (sem degraus).
+   ACSM 2016 (Thomas, Erdman, Burke): 45 a 75 min, pequenas quantidades ou bochecho; 1 a 2,5 h, 30 a 60 g/h;
+   acima de 2,5 a 3 h, até 90 g/h (glicose + frutose). Jeukendrup 2014 (Sports Med) no mesmo sentido.
+   Smith 2013 (MSSE, dose-resposta 0 a 120 g/h, ~160 min de ciclismo): ganho crescente até ~78 g/h.
+   Stellingwerff e Cox 2014 (APNM): em ~1 h o efeito é central (boca); a quantidade não importa.
+   O valor dentro da faixa sobe com a intensidade (mais oxidação de carboidrato). */
+const CARB_PTS=[[0.75,0,0],[1,0,30],[1.5,30,60],[2,40,60],[2.5,45,75],[3,50,90]];
 const lerp=(a,b,f)=>a+(b-a)*f;
 function carbBand(T){
   if(T<=CARB_PTS[0][0]) return [0,0];
@@ -2111,15 +2125,19 @@ function carbBand(T){
     const [t1,l1,h1]=CARB_PTS[k];
     if(T<=t1){const [t0,l0,h0]=CARB_PTS[k-1];const f=(T-t0)/(t1-t0);return [lerp(l0,l1,f),lerp(h0,h1,f)];}
   }
-  return [50,90];
+  return [CARB_PTS[CARB_PTS.length-1][1],CARB_PTS[CARB_PTS.length-1][2]];
 }
 function gutOf(inp,sport){const g=inp.gut;return typeof g==='object'?(g[sport]??1):g;}
 function carbPerHour(sport,T,i,gut){
   if(sport==='natacao'||T<1) return 0;
   let [lo,hi]=carbBand(T);
-  if(gut===2){const ext=sport==='corrida'?90:120;hi=lerp(hi,Math.max(hi,ext),clamp((T-2)/1,0,1));}
+  // intestino treinado: acima de 2,5 h pode passar de 90 g/h, até 120 no pedal (Morton 2026, J Nutr: 90 a 120 g/h é o teto
+  // com melhor evidência para treinados) e 90 na corrida (120 g/h correndo melhora a oxidação, mas com muitos sintomas GI e
+  // ganho de desempenho ainda não demonstrado: Ravikanti 2025, J Appl Physiol). Chega ao teto às 3h30.
+  if(gut===2){const ext=sport==='corrida'?90:120;hi=lerp(hi,Math.max(hi,ext),clamp((T-2.5)/1,0,1));}
   const c=lo+(hi-lo)*i;
-  return r5(Math.min(c,CARB_CAP[sport][gut]));
+  const v=r5(Math.min(c,CARB_CAP[sport][gut]));
+  return v<15?0:v;   // abaixo de 15 g/h não vira produto: fica o bochecho
 }
 function heatFactor(T,RH,cond,fan){
   let h=1+0.035*(T-20);
@@ -2186,7 +2204,7 @@ function calcular(inp){
     feed.forEach(o=>{o.fl=Math.max(Math.min(floor,o.fl),o.fl-cut);});
   }
   feed.forEach(o=>{
-    if(T<1) o.fl=0;
+    if(T<1&&o.fl<0.1) o.fl=0;
     o.fl=Math.round(o.fl*20)/20;
     o.na=r50(o.fl*naDrink(T,conc,wbS));
   });
@@ -2530,7 +2548,7 @@ function run(){
   {const ind=inp.cond==='indoor';$('fanW').hidden=!ind;const wbI=wbgt(inp.temp,inp.rh,ind?'nublado':inp.cond);const cat=wbI<18?[1,'baixo']:wbI<23?[2,'moderado']:wbI<28?[3,'alto']:[4,'extremo'];
    const hb=$('heat');hb.className='heat h'+cat[0];hb.innerHTML=`<b>${fmt(wbI)}°</b><span>WBGT estimado${ind?' (ambiente interno)':''} · risco de calor <strong>${cat[1]}</strong></span>`;}
   // antes da sessão
-  const OBJ_HINT={perf:'Carbo para render o máximo na sessão.',gut:'Meta 10 g/h acima do que você tolera hoje, para adaptar o intestino. Use 2 a 3 vezes por semana.',low:'Sessão leve sem carbo para estimular adaptação. Não vale para treino forte nem acima de 2h30.',regen:'Sessão leve e curta: água e sódio bastam.'};
+  const OBJ_HINT={perf:'Carbo para render o máximo na sessão.',gut:'Meta 10 g/h acima do que você tolera hoje, para adaptar o intestino. Funciona com repetição: vários treinos seguidos com carbo.',low:'Sessão leve sem carbo para estimular adaptação. Não vale para treino forte nem acima de 2h30.',regen:'Sessão leve e curta: água e sódio bastam.'};
   $('objWrap').hidden=S.tipo==='prova';
   $('objHint').textContent=S.tipo==='prova'?'Em prova o objetivo é sempre performance.':OBJ_HINT[inp.objetivo];
   const pl=$('preList');pl.innerHTML='';
@@ -2543,7 +2561,7 @@ function run(){
   else if(inp.pre==='jejum'){padd('0 g','Sem refeição: comece a ingerir carbo nos primeiros 15 min'+(f.jejum?', por isso a meta durante a sessão subiu.':'.'));}
   else if(inp.pre==='loading'){if(r.T>=1.5)padd(`${fmt(Math.round(10*kg/10)*10)} a ${fmt(Math.round(12*kg/10)*10)} g/dia`,'de carbo nas 36 a 48 h antes (10 a 12 g/kg/dia), com pouca fibra. Mantenha a refeição de 2 a 3 g/kg cerca de 3 h antes.');
     else padd(`${fmt(Math.round(7*kg/10)*10)} a ${fmt(Math.round(12*kg/10)*10)} g`,'de carbo nas 24 h antes (7 a 12 g/kg). Para sessão abaixo de 1h30, carb loading de 2 dias não traz ganho.');}
-  if(r.T>=1)padd(`${fmt(Math.round(5*kg/10)*10)} a ${fmt(Math.round(7*kg/10)*10)} ml`,'de líquido 2 a 4 h antes (5 a 7 ml/kg). Se a urina estiver escura, mais 3 a 5 ml/kg 2 h antes.','b');
+  if(r.T>=1)padd(`${fmt(Math.round(5*kg/10)*10)} a ${fmt(Math.round(7*kg/10)*10)} ml`,'de líquido cerca de 4 h antes (5 a 7 ml/kg). Se a urina ainda estiver escura 2 h antes, mais 3 a 5 ml/kg.','b');
   const cafPre=prova&&r.T>=1?raceCafPre(kg,r.T):0;const cafDur=prova?raceCafDur(kg,r.T):0;
   if(cafPre)padd(`${fmt(cafPre)} mg`,'de cafeína cerca de 60 min antes (3 mg/kg). Opcional, e só se você já testou em treino.');
   if(!pl.children.length)padd('','Sessão curta: chegue alimentado e hidratado normalmente.');
@@ -2590,7 +2608,7 @@ function run(){
   // alertas
   const A=[];
   const al=(c,t)=>A.push(`<div class="al ${c}">${t}</div>`);
-  if(r.deficitPct>2.5)al('c',`<b>Déficit hídrico projetado de ${fmt(r.deficitPct,1)}%.</b> O volume tolerável por hora não cobre o seu suor. Comece bem hidratado (5 a 7 ml/kg 2 a 4 h antes), use os pontos de água e aceite reduzir o ritmo no calor.`);
+  if(r.deficitPct>2.5)al('c',`<b>Déficit hídrico projetado de ${fmt(r.deficitPct,1)}%.</b> O volume tolerável por hora não cobre o seu suor. Comece bem hidratado (5 a 7 ml/kg cerca de 4 h antes), use os pontos de água e aceite reduzir o ritmo no calor.`);
   if(r.T>=4&&r.segs.some(s=>s.fl>0&&s.fl>=s.sr*0.9))al('c',`<b>Risco de hiponatremia.</b> Ingestão próxima da taxa de suor em sessão longa. Não beba acima do plano e garanta o sódio indicado.`);
   const wb=wbgt(inp.temp,inp.rh,inp.cond==='indoor'?'nublado':inp.cond);
   if(wb>=28)al('c',`<b>Estresse térmico extremo (WBGT ~${fmt(wb)} °C).</b> Nessa faixa o ACSM recomenda adiar treinos intensos e provas. Se for treinar, reduza a intensidade, use resfriamento (gelo, água na cabeça e na nuca) e não pule a hidratação.`);
@@ -2598,7 +2616,7 @@ function run(){
   if(inp.cond==='indoor'&&!inp.fan)al('w',`<b>Rolo ou esteira sem ventilador:</b> sem vento, o corpo perde muito menos calor e sua bem mais. Um ventilador forte de frente reduz o suor e melhora o rendimento.`);
   const maxCarb=Math.max(...r.segs.map(s=>s.carb));
   const multi=(P.gels||[]).some(g=>g.multi)||(P.drs||[]).some(d=>d.multi);
-  if(maxCarb>60&&(P.gel||P.dr)&&!multi)al('w',`<b>Acima de 60 g/h use glicose + frutose.</b> O produto escolhido usa um tipo só de carboidrato, que satura a absorção intestinal por volta de 60 g/h.`);
+  if(maxCarb>60&&(P.gel||P.dr)&&!multi)al('w',`<b>Acima de 60 g/h use glicose + frutose.</b> O produto escolhido usa um tipo só de carboidrato, que satura a absorção intestinal por volta de 60 g/h. Em 90 g/h ou mais, a proporção que mais é oxidada fica perto de 1 parte de frutose para 1 a 1,25 de glicose.`);
   {const naPos=r50(Math.max(0,r.naLoss-r.naTot));
    if(feeding&&!r.naTot&&r.naLoss>=300)al('i',`<b>Sódio só depois.</b> Com pouco ou nenhum líquido nesta sessão, sódio durante não traz benefício: sem água ele vira uma carga concentrada no intestino. Você perde ~${fmt(r.naLoss)} mg no suor; reponha na refeição ou bebida pós-treino (~${fmt(naPos)} mg).`);
    else if(false)al('i',`<b>Reposição pós-sessão:</b> o plano repõe ${fmt(r.naTot)} de ~${fmt(r.naLoss)} mg perdidos. Complete ~${fmt(naPos)} mg depois, com 1,25 a 1,5 L de líquido por kg perdido, para reter a água.`);}
@@ -2613,11 +2631,12 @@ function run(){
     else al('i',`<b>Brick:</b> tome o último gel nos 15 a 20 min finais do pedal. Na corrida o esvaziamento gástrico piora, então chegue à T2 já abastecido.`);}
   if(isTri)al('i',`<b>Triathlon:</b> sem ingestão na natação; o ciclismo é a janela principal de abastecimento e já compensa o déficit da água.`);
   if(r.segs.length===1&&r.segs[0].sport==='natacao')al('i',`<b>Natação:</b> acima de 75 min, deixe uma garrafa na borda e beba nas pausas da série.`);
-  if(r.T<1&&feeding)al('i',`Sessão abaixo de 1 h: líquido pela sede. No calor intenso, 200 a 300 ml ajudam.`);
+  if(r.T<1&&feeding&&!r.intake)al('i',`Sessão abaixo de 1 h: líquido pela sede. No calor intenso, 200 a 300 ml ajudam.`);
+  if(r.T<1&&feeding&&r.intake>0)al('i',`<b>Sessão curta, mas com muito suor:</b> sem beber, você passaria de 2% do peso. Por isso o plano inclui ~${fmt(Math.round(r.intake*1000/50)*50)} ml.`);
   if(f.lowBlocked)al('w',`<b>Train low não se aplica a esta sessão.</b> Treino forte ou acima de 2h30 sem carbo derruba a qualidade e aumenta o risco de lesão e de doença. O plano foi mantido em performance.`);
   if(f.low)al('i',`<b>Adaptação (train low):</b> carbo segurado para aumentar o estímulo de adaptação mitocondrial. Use no máximo 2 a 3 vezes por semana, só em treinos leves, e mantenha água e sódio.`);
   if(f.regen)al('i',`<b>Regenerativo:</b> sessão leve e curta não precisa de carbo. Se passar de 1h30, até 30 g/h.`);
-  if(f.gut){Object.entries(f.gut).forEach(([sp,g])=>al('i',`<b>Treino do intestino ${sp==='ciclismo'?'no pedal':'na corrida'}:</b> meta de ${g.tgt} g/h, acima dos ~${g.tol} g/h que você tolera hoje${calTol()&&calTol()[sp]!=null?' (pelo diário)':''}. Repita 2 a 3 vezes por semana e suba mais 10 g/h quando a nota de desconforto ficar em 3 ou menos.`));}
+  if(f.gut){Object.entries(f.gut).forEach(([sp,g])=>al('i',`<b>Treino do intestino ${sp==='ciclismo'?'no pedal':'na corrida'}:</b> meta de ${g.tgt} g/h, acima dos ~${g.tol} g/h que você tolera hoje${calTol()&&calTol()[sp]!=null?' (pelo diário)':''}. Repita em vários treinos seguidos (nos estudos, 1 h por dia durante 2 semanas reduziu o desconforto pela metade) e suba mais 10 g/h quando a nota de desconforto ficar em 3 ou menos.`));}
   if(f.jejum)al('w',`<b>Em jejum:</b> o glicogênio do fígado está baixo depois da noite. O carbo durante a sessão rende mais nessa condição, então comece cedo, já nos primeiros 15 min.`);
   if(S.tipo==='prova')al('i',`<b>Regra de prova:</b> use só produtos e quantidades já testados em treino.`);
   $('alerts').innerHTML=A.length>2?A.slice(0,2).join('')+`<div class="al-more" hidden>${A.slice(2).join('')}</div><button type="button" class="al-btn" onclick="this.previousElementSibling.hidden=false;this.remove()">Ver mais ${A.length-2} aviso${A.length-2>1?'s':''}</button>`:A.join('');
@@ -2913,8 +2932,8 @@ function calibrar(){
     const n=valid.length;
     let f=1,mean=null,ratioMean=null;
     if(n){
-      let wsum=0,rs=0,ss=0;valid.forEach((x,k)=>{const w=Math.pow(0.85,k);wsum+=w;rs+=w*x.d.ratio;ss+=w*x.d.sr;});
-      ratioMean=rs/wsum;mean=ss/wsum;f=1+(ratioMean-1)*n/(n+2);
+      let wsum=0,rs=0,ss=0,ne=0;valid.forEach((x,k)=>{const q=x.l.notas==='Teste de suor'?3:1;const w=Math.pow(0.85,k)*q;wsum+=w;rs+=w*x.d.ratio;ss+=w*x.d.sr;ne+=q;});
+      ratioMean=rs/wsum;mean=ss/wsum;f=1+(ratioMean-1)*ne/(ne+2);
     }
     CAL.f[sp]=f;CAL.n[sp]=n;
     // tolerância a carbo: sessões de 45 min ou mais
@@ -3932,7 +3951,7 @@ function initTheme(){let mode=lsGet('gaTheme')||'dark';thmApply(mode);
 
 /* ===== MODO NUTRICIONISTA ===== */
 const NU={vins:[],logs:{},filt:'ativo',cur:null};
-const GUT_TX=['Iniciante (até 40 g/h)','Intermediário (40 a 70 g/h)','Treinado (80 g/h ou mais)'];
+const GUT_TX=['Iniciante (até 40 g/h)','Intermediário (40 a 80 g/h)','Treinado (80 g/h ou mais)'];
 function inviteUrl(tok){return `${location.origin}/?convite=${tok}`;}
 function nutriClear(){ACC.pro=null;ACC.vin=null;$('tabPro').hidden=true;if(curView()==='pro')showView('calc');vinRender();run();}
 async function nutriLoad(){
@@ -4276,7 +4295,7 @@ function raceData(){
   const dayLbl=n=>{if(!dt)return n===1?'Véspera':'2 dias antes';const d=new Date(dt);d.setDate(d.getDate()-n);const s=d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'});return s.charAt(0).toUpperCase()+s.slice(1);};
   // dias antes (ACSM 2016): >90 min, 36 a 48 h com 10 a 12 g/kg/dia; 60 a 90 min, 7 a 12 g/kg nas 24 h
   if(T>=1.5){out.load={lo:Math.round(10*kg/10)*10,hi:Math.round(12*kg/10)*10,dias:[2,1].map(dayLbl),txt:'10 a 12 g/kg por dia, nos 2 dias antes'};}
-  else if(T>=1){out.load={lo:Math.round(7*kg/10)*10,hi:Math.round(10*kg/10)*10,dias:[dayLbl(1)],txt:'7 a 10 g/kg na véspera'};}
+  else if(T>=1){out.load={lo:Math.round(7*kg/10)*10,hi:Math.round(12*kg/10)*10,dias:[dayLbl(1)],txt:'7 a 12 g/kg nas 24 h antes'};}
   if(out.load){const L=out.load.lo;out.load.ref=[['Café da manhã',.2],['Lanche',.15],['Almoço',.2],['Lanche',.15],['Jantar',.2],['Ceia',.1]].map(([n,f])=>[n,Math.round(L*f/5)*5]);
     out.team.push({h:'',k:'',t:`${out.load.dias.join(' e ')}: ${fmt(out.load.lo)} a ${fmt(out.load.hi)} g de carbo por dia`});}
   // manhã da prova
@@ -4822,7 +4841,7 @@ function swClock(min){const s=Math.floor(min*60);const h=Math.floor(s/3600),m=Ma
 function swResult(){
   const h=(SWT.durMin||0)/60;const loss=(SWT.pre-SWT.pos)+(SWT.bebeu||0)/1000-(SWT.urina||0)/1000;
   const sr=h>0?loss/h:0;
-  const model=sweatRate(SWT.sport,INT_I[SWT.int-1],{temp:+$('temp').value||25,rh:+$('rh').value||60,cond:$('cond').value==='indoor'?'nublado':$('cond').value,peso:SWT.pre,aclim:$('aclim').value==='1',srMedida:0,srFactor:null});
+  const model=sweatRate(SWT.sport,INT_I[SWT.int-1],{temp:SWT.temp??(+$('temp').value||25),rh:SWT.rh??(+$('rh').value||60),cond:SWT.cond||'sol',fan:true,peso:SWT.pre,aclim:$('aclim').value==='1',srMedida:0,srFactor:null});
   return {sr,loss,h,pct:SWT.pre?(SWT.pre-SWT.pos)/SWT.pre*100:0,model,rel:model?Math.round((sr/model-1)*100):0};
 }
 function swRender(){
@@ -4854,7 +4873,9 @@ function swRender(){
       <div class="sw-g2">${num('swDur','Duração',dm||'','1','min','60')}${num('swBebI','Bebeu',SWT.bebeu||0,'50','ml','0')}</div>
       ${num('swUri','Urinou (se urinou)',SWT.urina||0,'50','ml','0')}
       <div class="sw-int"><span>Intensidade</span>${['Leve','Moderado','Forte','Prova'].map((t,k)=>`<button type="button" data-int="${k+1}" aria-pressed="${SWT.int===k+1}">${t}</button>`).join('')}</div>
-      <p class="hint">Clima considerado: ${fmt(+$('temp').value||25)} °C e ${fmt(+$('rh').value||60)}% de umidade, do seu plano atual.</p>
+      <div class="sw-g2">${num('swTemp','Temperatura no treino',SWT.temp??(+$('temp').value||25),'1','°C','25')}${num('swRh','Umidade',SWT.rh??(+$('rh').value||60),'5','%','60')}</div>
+      <div class="sw-int"><span>Onde</span>${[['sol','Sol'],['nublado','Nublado'],['indoor','Indoor']].map(([v,t])=>`<button type="button" data-cond="${v}" aria-pressed="${(SWT.cond||'sol')===v}">${t}</button>`).join('')}</div>
+      <p class="hint">O clima do treino entra na conta: assim o app sabe quanto você sua em cada condição.</p>
       <button type="button" class="btn primary sw-go" data-sw="4">Calcular minha taxa</button><p class="status" id="swMsg"></p>`;}
   else{
     const R=swResult();const warn=[];
@@ -4876,6 +4897,8 @@ function swRead(){
   if($('swDur')&&v('swDur')!=null)SWT.durMin=v('swDur');
   if($('swBebI')&&v('swBebI')!=null)SWT.bebeu=v('swBebI');
   if($('swUri')&&v('swUri')!=null)SWT.urina=v('swUri');
+  if($('swTemp')&&v('swTemp')!=null)SWT.temp=v('swTemp');
+  if($('swRh')&&v('swRh')!=null)SWT.rh=v('swRh');
 }
 async function swAct(a){
   buzz();swRead();
@@ -4889,12 +4912,11 @@ async function swAct(a){
     SWT.step=4;track('suor_resultado',{esporte:SWT.sport});}
   else if(a==='redo'){Object.assign(SWT,{step:0,pre:null,start:null,durMin:null,pos:null,bebeu:0,urina:0});}
   else if(a==='save'){
-    const R=swResult();const log={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now(),data:isoD(new Date()),sport:SWT.sport,cond:$('cond').value==='indoor'?'indoor':$('cond').value,durMin:Math.round(SWT.durMin),int:SWT.int,
-      temp:+$('temp').value||25,rh:+$('rh').value||60,pesoPre:SWT.pre,pesoPos:SWT.pos,bebeuMl:Math.round(SWT.bebeu||0),urinaMl:Math.round(SWT.urina||0),choG:0,naMg:0,gi:0,notas:'Teste de suor'};
+    const R=swResult();const log={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now(),data:isoD(new Date()),sport:SWT.sport,cond:SWT.cond||'sol',durMin:Math.round(SWT.durMin),int:SWT.int,
+      temp:SWT.temp??(+$('temp').value||25),rh:SWT.rh??(+$('rh').value||60),pesoPre:SWT.pre,pesoPos:SWT.pos,bebeuMl:Math.round(SWT.bebeu||0),urinaMl:Math.round(SWT.urina||0),choG:0,naMg:0,gi:0,notas:'Teste de suor'};
     const ok=await storeSave(log);if(ok===false){toast('Não foi possível salvar agora');return;}
-    const f=SWT.sport==='ciclismo'?'srBike':'srRun';if($(f)){$(f).value=R.sr.toFixed(2);if(typeof queueConfigSave==='function')queueConfigSave();}
     $('peso').value=SWT.pre;run();
-    Object.assign(SWT,{step:0,pre:null,start:null,durMin:null,pos:null,bebeu:0,urina:0});swSave();swClose();
+    Object.assign(SWT,{step:0,pre:null,start:null,durMin:null,pos:null,bebeu:0,urina:0,temp:null,rh:null});swSave();swClose();
     toast(`Taxa de ${fmt(R.sr,2)} L/h salva e aplicada ao plano`,'ok');track('suor_salvo',{esporte:log.sport});return;}
   swSave();swRender();
 }
@@ -4911,6 +4933,7 @@ function initSweat(){
   $('swPanel').addEventListener('click',e=>{if(e.target===$('swPanel')){swClose();return;}
     const sp=e.target.closest('[data-sp]');if(sp){buzz();SWT.sport=sp.dataset.sp;swSave();swRender();return;}
     const it=e.target.closest('[data-int]');if(it){buzz();swRead();SWT.int=+it.dataset.int;swSave();swRender();return;}
+    const cd=e.target.closest('[data-cond]');if(cd&&$('swPanel').contains(cd)){buzz();swRead();SWT.cond=cd.dataset.cond;swSave();swRender();return;}
     const ad=e.target.closest('[data-add]');if(ad){buzz();SWT.bebeu=Math.max(0,(SWT.bebeu||0)+ +ad.dataset.add);swSave();$('swBeb').textContent=fmt(SWT.bebeu);return;}
     const b=e.target.closest('[data-sw]');if(b)swAct(b.dataset.sw);});
   document.addEventListener('click',e=>{if(e.target.closest('[data-st]')){e.preventDefault();swOpen();}});
@@ -5655,7 +5678,7 @@ const QZQ=[
   pick:v=>qzSet('sal',v)},
  {id:'gut',show:()=>!QZ.known&&!(qzSingle()==='natacao'),title:()=>'Quanto carboidrato você já usa sem desconforto?',sub:()=>'Em treinos longos, contando gel, bebida e comida. Um gel comum tem 20 a 30 g.',
   recap:()=>'Carbo '+['pouco','médio','alto'][+$('gutBike').value],
-  html:()=>qzCards([{v:'0',t:'Pouco',d:'Até 30 a 40 g por hora, ou nunca testei'},{v:'1',t:'Médio',d:'De 60 a 80 g por hora'},{v:'2',t:'Muito',d:'90 g ou mais por hora, intestino treinado'}].map((o,k)=>({...o,lv:qzLvl(k+1,3,'gel')})),$('gutBike').value),
+  html:()=>qzCards([{v:'0',t:'Pouco',d:'Até 30 a 40 g por hora, ou nunca testei'},{v:'1',t:'Médio',d:'De 40 a 80 g por hora'},{v:'2',t:'Muito',d:'80 g ou mais por hora, intestino treinado'}].map((o,k)=>({...o,lv:qzLvl(k+1,3,'gel')})),$('gutBike').value),
   pick:v=>{$('gutBike').dataset.user='1';$('gutRun').dataset.user='1';qzSet('gutBike',v);qzSet('gutRun',v);}},
  {id:'quando',recap:()=>{const d=$('data').value;const t=new Date().toLocaleDateString('sv-SE');return (d===t?'Hoje':d.split('-').reverse().slice(0,2).join('/'))+' às '+$('hora').value;},show:()=>!qzIndoor()&&qzSingle()!=='natacao',next:true,
   title:()=>'Quando e onde?',sub:()=>'Buscamos a previsão do tempo para a janela da sessão.',
@@ -6041,6 +6064,20 @@ function planRestore(){
     return true;
   }catch(e){return false;}}
 
+
+/* colunas "grudadas" no computador: a altura da coluna define até onde ela rola antes de parar,
+   então nada fica escondido atrás da barra de abas nem passa por cima de outro bloco */
+function stickyFit(){
+  const wide=innerWidth>=961;const tabs=document.querySelector('.tabs');const top0=(tabs&&innerWidth>=601?tabs.getBoundingClientRect().height:0)+14;
+  ['#viewCalc>.col:first-child','#resultsCol','main.dview>.col:first-child','main.dview>.col.results'].forEach(sel=>{const el=document.querySelector(sel);if(!el)return;
+    if(!wide){el.style.top='';return;}
+    if(sel==='main.dview>.col.results'){el.style.position='static';return;}
+    const h=el.offsetHeight;el.style.top=(h+top0+16>innerHeight?Math.min(top0,innerHeight-h-16):top0)+'px';});}
+function initStickyFit(){
+  stickyFit();addEventListener('resize',stickyFit);
+  try{const ro=new ResizeObserver(()=>stickyFit());['#viewCalc>.col:first-child','#resultsCol','main.dview>.col:first-child'].forEach(sel=>{const el=document.querySelector(sel);if(el)ro.observe(el);});}catch(e){}
+}
+
 /* ===== INICIALIZAÇÃO ===== */
 (function init(){
   const today=new Date();today.setDate(today.getDate()+1);$('data').value=today.toLocaleDateString('sv-SE');
@@ -6088,7 +6125,7 @@ function planRestore(){
   initMobile();
   initConta();
   initDiario();
-  initHoje();initDCal();renderDCal();initPNav();initHist2();initSweat();initGate();initTrazer();initNt();initStrava();
+  initHoje();initDCal();renderDCal();initPNav();initHist2();initSweat();initGate();initTrazer();initNt();initStrava();initStickyFit();
   $('wlGo').addEventListener('click',()=>{buzz();wlClose();});
   if(!flowDue()&&!/^#(diario|registrar)$/.test(location.hash)&&FLOW.mode!=='quiz')showView('hoje');
 })();
