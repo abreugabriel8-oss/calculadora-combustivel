@@ -3051,7 +3051,7 @@ function applyCal(){
   $('calSwTxt').innerHTML=`Usar minha calibração do diário (${parts.join(', ')} registro${ST.logs.length>1?'s':''})${pro?'':' '+proTag()}`;
   const c=$('tabCnt');c.textContent=ST.logs.length;c.hidden=!ST.logs.length;
 }
-function afterLogs(){calibrar();renderCal();renderHist();labelize('#histBody');applyCal();run();renderDCal();if(!$('viewHoje').hidden)renderHoje();}
+function afterLogs(){if(typeof actsReconcile==='function')actsReconcile();calibrar();renderCal();renderHist();labelize('#histBody');applyCal();run();renderDCal();if(!$('viewHoje').hidden)renderHoje();}
 function calTol(){if(typeof CAL==='undefined'||!CAL.on||!ST.logs.length)return null;return {ciclismo:CAL.detail.ciclismo?CAL.detail.ciclismo.tol:null,corrida:CAL.detail.corrida?CAL.detail.corrida.tol:null};}
 function calFactor(){return CAL.on&&ST.logs.length?{...CAL.f}:null;}
 
@@ -5361,7 +5361,9 @@ async function svFinish(){
 async function svStatus(){
   if(!SB||!ACC.user||IN_CLAUDE)return;
   const r=await svCall({action:'status'});
-  SV.connected=!!r.connected;svRender();if(SV.connected)svLoadActs();}
+  SV.connected=!!r.connected;svRender();if(!SV.connected)return;
+  if(Date.now()-(+(lsGet('gaSvSync')||0))>10*60e3){lsSet('gaSvSync',String(Date.now()));await svCall({action:'sincronizar'});}
+  svLoadActs();}
 async function svSync(){
   svMsg('Buscando treinos...',true);
   const r=await svCall({action:'sincronizar'});
@@ -5377,16 +5379,23 @@ async function svLoadActs(){
   const {data,error}=await SB.from('strava_atividades').select('activity_id,dados,recebido_em').eq('registrado',false).order('recebido_em',{ascending:false}).limit(15);
   if(error)return;
   SV.acts=(data||[]).filter(a=>gSportOf(a.dados.activityType)).map(a=>({summary_id:'s'+a.activity_id,dados:a.dados,src:'strava'}));
-  gRenderActs();if($('viewHoje')&&!$('viewHoje').hidden)renderHoje();}
-function actsAll(){return [...SV.acts,...(G.acts||[])].sort((a,b)=>(b.dados.startTimeInSeconds||0)-(a.dados.startTimeInSeconds||0));}
+  actsReconcile();gRenderActs();if($('viewHoje')&&!$('viewHoje').hidden)renderHoje();}
+/* treino do relógio já registrado no diário (mesmo dia e mesma modalidade) não volta a pedir registro */
+function actDia(a){return gActDate(a.dados).toISOString().slice(0,10);}
+function actJaRegistrado(a){const sp=(gSportOf(a.dados.activityType)||{}).sport;const d=actDia(a);return (ST.logs||[]).some(l=>l.data===d&&l.sport===sp);}
+function actsAll(){return [...SV.acts,...(G.acts||[])].filter(a=>!actJaRegistrado(a)).sort((a,b)=>(b.dados.startTimeInSeconds||0)-(a.dados.startTimeInSeconds||0));}
+let ACT_REC=false;
+async function actsReconcile(){
+  if(ACT_REC||!SB||!ACC.user)return;ACT_REC=true;
+  try{for(const a of [...SV.acts,...(G.acts||[])])if(actJaRegistrado(a))await gMarkDone(a.summary_id);}finally{ACT_REC=false;}}
 /* card no Hoje: treino feito esperando o registro */
 function svCard(){
-  const L=actsAll();if(!L.length)return '';
+  const hj=isoD(new Date());const L=actsAll().filter(a=>actDia(a)===hj);if(!L.length)return '';
   const a=L[0],d=a.dados,sp=gSportOf(d.activityType),t=hm((d.durationInSeconds||0)/3600);
   const dt=gActDate(d);const hoje=isoD(new Date())===dt.toISOString().slice(0,10);
   return `<section class="card hj-act2"><div class="hj-sh"><h3>Treino para registrar</h3><span>${a.src==='strava'?'via Strava':'via Garmin'}</span></div>
     <button type="button" class="hj-row" data-act="${a.summary_id}"><i class="hc-ic ${sp.sport}">${SP_IC[sp.sport]}</i><span><b>${qzEsc(d.nome||SPORT_NOME[sp.sport]+(sp.indoor?' indoor':''))}</b><small>${t.h}h${String(t.m).padStart(2,'0')}${d.distanceInMeters?` · ${fmt(d.distanceInMeters/1000,1)} km`:''} · ${hoje?'hoje':dt.toLocaleDateString('pt-BR',{timeZone:'UTC',day:'2-digit',month:'2-digit'})}</small></span><em class="go">Registrar ›</em></button>
-    <p class="hj-et">Peso antes e depois, o que bebeu e comeu. Cada registro deixa o seu plano mais certo.${L.length>1?` Mais ${L.length-1} no Diário.`:''}</p></section>`;}
+    <p class="hj-et">Peso antes e depois, o que bebeu e comeu. Cada registro deixa o seu plano mais certo.${L.length>1?` Mais ${L.length-1} de hoje no Diário.`:''}</p></section>`;}
 function svUse(id){const a=actsAll().find(x=>x.summary_id===id);if(!a)return false;navTo('diario');setTimeout(()=>gUseAct(a),150);return true;}
 function initStrava(){
   $('svConnect').addEventListener('click',svConnect);

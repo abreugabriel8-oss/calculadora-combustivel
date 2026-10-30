@@ -96,7 +96,8 @@ async function garantirWebhook() {
   const c = await cfg();
   if (!c) return "sem_tabela";
   const lista = await fetch(`${API}/push_subscriptions?client_id=${CID}&client_secret=${encodeURIComponent(CSEC)}`).then((r) => r.json()).catch(() => []);
-  const cb = `${SB_URL}/functions/v1/strava?k=${c.verify_token}`;
+  // a chave vai no caminho (e não em ?k=): o Strava acrescenta os próprios parâmetros na validação
+  const cb = `${SB_URL}/functions/v1/strava/wh/${c.verify_token}`;
   // deno-lint-ignore no-explicit-any
   const atual = Array.isArray(lista) ? lista.find((s: any) => s.callback_url === cb) : null;
   if (atual) {
@@ -117,6 +118,13 @@ async function garantirWebhook() {
   if (r.ok && j.id) { await admin.from("config_strava").update({ webhook_id: j.id }).eq("id", 1); return "ok"; }
   console.log("webhook", r.status, JSON.stringify(j).slice(0, 300));
   return "falhou";
+}
+async function webhookCerto() {
+  const c = await cfg();
+  if (!c) return false;
+  const lista = await fetch(`${API}/push_subscriptions?client_id=${CID}&client_secret=${encodeURIComponent(CSEC)}`).then((r) => r.json()).catch(() => []);
+  // deno-lint-ignore no-explicit-any
+  return Array.isArray(lista) && lista.some((s: any) => s.callback_url === `${SB_URL}/functions/v1/strava/wh/${c.verify_token}`);
 }
 const SPN: Record<string, string> = { RUNNING: "Corrida", TRAIL_RUNNING: "Corrida", TREADMILL_RUNNING: "Corrida na esteira", VIRTUAL_RUN: "Corrida", CYCLING: "Pedal", INDOOR_CYCLING: "Pedal no rolo", VIRTUAL_RIDE: "Pedal no rolo" };
 const durTxt = (s: number) => { const m = Math.round(s / 60), h = Math.floor(m / 60), r = m % 60; return h ? `${h}h${r ? String(r).padStart(2, "0") : ""}` : `${r} min`; };
@@ -140,10 +148,15 @@ async function evento(ev: any) {
   const tok = await accessFor(c as Conn);
   const a = await strava(tok, `/activities/${ev.object_id}`);
   if (!a.ok) return;
-  const nova = await guardar(c.user_id, a.data);
-  // atividade nova e recente: avisa para pesar e registrar
-  const iniUtc = Date.parse(String(a.data?.start_date ?? "")) / 1000;
-  if (nova && ev.aspect_type === "create" && Number.isFinite(iniUtc) && Date.now() / 1000 - iniUtc < 12 * 3600) {
+  await novaAtividade(c.user_id, a.data);
+}
+/* guarda a atividade e, se for nova e de hoje, avisa para pesar e registrar */
+// deno-lint-ignore no-explicit-any
+async function novaAtividade(userId: string, a: any) {
+  const nova = await guardar(userId, a);
+  const iniUtc = Date.parse(String(a?.start_date ?? "")) / 1000;
+  const fim = iniUtc + Number(a?.elapsed_time ?? 0);
+  if (nova && Number.isFinite(iniUtc) && Date.now() / 1000 - fim < 6 * 3600) {
     const { data: cp } = await admin.from("config_push").select("cron_segredo").eq("id", 1).maybeSingle();
     if (cp?.cron_segredo) {
       const dia = new Date((nova.startTimeInSeconds ?? iniUtc) * 1000).toISOString().slice(0, 10);
@@ -151,10 +164,10 @@ async function evento(ev: any) {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-cron": cp.cron_segredo },
         body: JSON.stringify({
-          action: "pos_agora", user_id: c.user_id, dia,
+          action: "pos_agora", user_id: userId, dia,
           t: `${SPN[nova.activityType] ?? "Treino"} de ${durTxt(nova.durationInSeconds)} no Strava`,
           b: "Pese-se agora, antes de beber, e registre o que consumiu. Leva 30 segundos e calibra o seu suor.",
-          u: `/?n=registrar&s=${ev.object_id}`,
+          u: `/?n=registrar&s=${a.id}`,
         }),
       }).catch(() => null);
     }
@@ -176,13 +189,38 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("metodo", { status: 405 });
 
   // eventos do Strava: responde em menos de 2 s e processa depois
-  if (url.searchParams.has("k")) {
+  const whPath = url.pathname.match(/\/wh\/([A-Za-z0-9]+)$/);
+  if (whPath || url.searchParams.has("k")) {
     const c = await cfg();
-    if (!c || url.searchParams.get("k") !== c.verify_token) return new Response("proibido", { status: 403 });
+    const k = whPath ? whPath[1] : url.searchParams.get("k");
+    if (!c || k !== c.verify_token) return new Response("proibido", { status: 403 });
     const ev = await req.json().catch(() => null);
     // @ts-ignore EdgeRuntime existe no ambiente do Supabase
     EdgeRuntime.waitUntil(evento(ev).catch((e) => console.error("strava evento", e)));
     return new Response("ok", { status: 200 });
+  }
+
+  // busca de segurança (agendador, a cada 15 min): se o aviso do Strava não estiver ativo, procura treinos novos
+  if (req.headers.get("x-cron")) {
+    const { data: cp } = await admin.from("config_push").select("cron_segredo").eq("id", 1).maybeSingle();
+    if (!cp || req.headers.get("x-cron") !== cp.cron_segredo) return new Response("proibido", { status: 403 });
+    const c = await cfg();
+    let wh = "ok";
+    if (CID && CSEC && (!c?.webhook_id || !(await webhookCerto()))) wh = await garantirWebhook().catch(() => "falhou");
+    const ativo = wh === "ok" && !!(await cfg())?.webhook_id;
+    let novas = 0;
+    if (!ativo) {
+      const { data: cs } = await admin.from("strava_conexoes").select("user_id,athlete_id,access_token,refresh_token,expires_at");
+      const after = Math.floor(Date.now() / 1000) - 8 * 3600;
+      for (const cn of cs ?? []) {
+        try {
+          const tok = await accessFor(cn as Conn);
+          const l = await strava(tok, `/athlete/activities?after=${after}&per_page=5`);
+          for (const a of (Array.isArray(l.data) ? l.data : [])) { const ja = await admin.from("strava_atividades").select("activity_id").eq("user_id", cn.user_id).eq("activity_id", a.id).maybeSingle(); if (!ja.data) { await novaAtividade(cn.user_id, a); novas++; } }
+        } catch (e) { console.log("strava poll", String(e)); }
+      }
+    }
+    return new Response(JSON.stringify({ webhook: ativo ? "ativo" : wh, novas }), { headers: { "Content-Type": "application/json" } });
   }
 
   // ações do app
@@ -227,7 +265,10 @@ Deno.serve(async (req) => {
       }
       case "status": {
         const { data: c } = await admin.from("strava_conexoes").select("conectado_em").eq("user_id", user.id).maybeSingle();
-        return json(req, { connected: !!c, since: c?.conectado_em ?? null });
+        // aviso do Strava ainda não assinado (ou assinado no endereço antigo): tenta de novo
+        let webhook = "ok";
+        if (c) { const cf = await cfg(); if (!cf?.webhook_id) webhook = await garantirWebhook().catch(() => "falhou"); }
+        return json(req, { connected: !!c, since: c?.conectado_em ?? null, webhook });
       }
       case "sincronizar": {
         const { data: c } = await admin.from("strava_conexoes").select("user_id,athlete_id,access_token,refresh_token,expires_at").eq("user_id", user.id).maybeSingle();

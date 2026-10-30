@@ -136,7 +136,13 @@ async function eventosTP(url: string, dia: string): Promise<Ev[]> {
 }
 
 async function rodar() {
-  const out = { vespera: 0, pre: 0, pos: 0, assinatura: 0 };
+  const out = { vespera: 0, pre: 0, pos: 0, assinatura: 0, strava: null as unknown };
+  // 0. Strava: confere o aviso automático e, se ele não estiver ativo, busca treinos novos
+  try {
+    const c = await cfg();
+    const r = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/strava`, { method: "POST", headers: { "Content-Type": "application/json", "x-cron": c.cron_segredo }, body: "{}", signal: AbortSignal.timeout(20000) });
+    out.strava = r.ok ? await r.json() : r.status;
+  } catch (e) { out.strava = String(e).slice(0, 80); }
   const feito = new Set<string>();
 
   // 1. véspera do treino longo ou da prova
