@@ -3502,15 +3502,16 @@ function gSteps(seg,k,lean){
   // junta avisos próximos (até 60 s) num só
   pts.sort((a,b)=>a.t-b.t);const merged=[];
   pts.forEach(p=>{const m=merged.find(q=>Math.abs(q.t-p.t)<=60);if(m){m.gel=m.gel||p.gel;m.gg=m.gg||p.gg;m.drink=(m.drink||0)+(p.drink||0);if(p.gel)m.t=p.t;}else merged.push({...p});});
-  // corta só onde é permitido (passo por distância continua por distância)
+  // nenhum passo novo: cortar um passo cria uma volta (lap) a mais no relógio e bagunça a estrutura do treino.
+  // Aviso dentro de tiro ou de passo aberto (lap, FC, potência) vai para o próximo trecho leve; o resto fica no
+  // próprio passo, listado com o minuto na observação que aparece quando o passo começa.
   merged.forEach(p=>{
     const i=base.findIndex(b=>p.t>b.start+45&&p.t<b.start+b.sec-45);if(i<0)return;
-    const b=base[i];if(!cuttable(b)){const nx=base.find(x=>!hard(x)&&x.start>=p.t);p.t=nx?nx.start:b.start;return;}
-    const f=(p.t-b.start)/b.sec;
-    base.splice(i,1,{...b,sec:p.t-b.start,m:b.m?Math.round(b.m*f):null},{...b,start:p.t,sec:b.start+b.sec-p.t,m:b.m?b.m-Math.round(b.m*f):null});});
+    const b=base[i];if(structured&&(hard(b)||fixed(b))){const nx=base.find(x=>!hard(x)&&x.start>=p.t);p.t=nx?nx.start:b.start;}});
   const els=((LAST.et||{})[k]||[]);
   // cada aviso vai para um único passo: o que começa mais perto dele (empate: o trecho leve)
-  const owner=merged.map(p=>{let bi=0,bd=1e9;base.forEach((b,i)=>{const d=Math.abs(b.start-p.t)+(hard(b)&&structured?0.5:0);if(d<bd){bd=d;bi=i;}});return bi;});
+  const owner=merged.map(p=>{let bi=0;base.forEach((b,i)=>{if(b.start<=p.t+60)bi=i;});return bi;});
+  const quando=t=>durTxt(t/3600);
   const steps=base.map((b,i)=>{
     const notes=[];
     const here=merged.filter((p,j)=>owner[j]===i);
@@ -3518,9 +3519,15 @@ function gSteps(seg,k,lean){
     if(sp&&b.start===base.find(x=>x.start===b.start).start&&longHard(b)){
       const parts=[];if(sp.gel&&P.gel)parts.push(`${sp.gel} ${P.gel.nome.split(' (')[0]}`);if(sp.ml)parts.push(`~${sp.ml} ml`);
       if(parts.length)notes.push(`BLOCO LONGO: ${parts.join(' e ')} aos goles durante o bloco`);}
-    {const hg=here.find(p=>p.gel);const gg=hg&&(hg.gg||P.gel);if(gg)notes.push(`GEL AGORA: 1 ${gg.nome.split(' (')[0]} (${fmt(gg.cho)} g)`);}
-    const dml=here.reduce((a,p)=>a+(p.drink||0),0);if(dml)notes.push(`BEBA ~${dml} ml`);
-    els.forEach(e=>{if(e.t*60>=b.start&&e.t*60<b.start+b.sec&&!(hard(b)&&structured))notes.push(`ELETRÓLITO: ${e.q} ${P.el?P.el.un:''}`.trim());});
+    const now=here.filter(p=>Math.abs(p.t-b.start)<=60),later=here.filter(p=>Math.abs(p.t-b.start)>60);
+    {const hg=now.find(p=>p.gel);const gg=hg&&(hg.gg||P.gel);if(gg)notes.push(`GEL AGORA: 1 ${gg.nome.split(' (')[0]} (${fmt(gg.cho)} g)`);}
+    const dml=now.reduce((a,p)=>a+(p.drink||0),0);if(dml)notes.push(`BEBA ~${dml} ml`);
+    {const lg=later.filter(p=>p.gel);if(lg.length){const nm=[...new Set(lg.map(p=>(p.gg||P.gel).nome.split(' (')[0]))].join(' / ');
+      const ts=lg.map(p=>quando(p.t));notes.push(`GEL aos ${ts.length>1?ts.slice(0,-1).join(', ')+' e '+ts[ts.length-1]:ts[0]} (${nm})`);}}
+    {const ee=els.filter(e=>e.t*60>=b.start-60&&e.t*60<b.start+b.sec&&!(hard(b)&&structured));
+      const en=ee.filter(e=>Math.abs(e.t*60-b.start)<=60),el=ee.filter(e=>Math.abs(e.t*60-b.start)>60),un=P.el?P.el.un:'';
+      if(en.length)notes.push(`ELETRÓLITO AGORA: ${en[0].q} ${un}`.trim());
+      if(el.length){const ts=el.map(e=>quando(e.t*60));notes.push(`ELETRÓLITO aos ${ts.length>1?ts.slice(0,-1).join(', ')+' e '+ts[ts.length-1]:ts[0]} (${un||'dose'})`);}}
     if(i===0&&ml15>=50)notes.push(`Hidratação: ~${ml15} ml a cada 15 min`+(structured&&H.length?(lean===2?'; na série, beba nas recuperações':'; na série, os avisos vêm nas recuperações'):''));
     const d=b.dur?{durationType:b.dur.type,durationValue:b.dur.val??null,durationValueType:b.dur.vt||null}
       :{durationType:b.m?'DISTANCE':'TIME',durationValue:b.m?Math.round(b.m):Math.round(b.sec),durationValueType:b.m?'METER':null};
@@ -3555,7 +3562,9 @@ function gWorkout(){
   const wkName=(segList().find(q=>q.wkName)||{}).wkName;
   const name=('Combustível · '+(wkName||sessionTitle())).slice(0,60);
   const leva=[...document.querySelectorAll('#carry li')].map(li=>[...li.children].map(c=>c.textContent.trim()).join(' ').replace(/\s+/g,' ')).join('; ');
-  const desc=`Plano da Calculadora Combustível (@gabreutri): carbo ${fmt(r.carbH)} g/h, líquido ${fmt(r.flH)} ml/h, sódio ${fmt(r.naH)} mg/h. Leve: ${leva}.`.slice(0,1024);
+  const gelT=Object.values(LAST.gt||{}).flat().sort((a,b)=>a-b);const gi=gelT.length>1?Math.round((gelT[gelT.length-1]-gelT[0])/(gelT.length-1)):0;
+  const dica=` Aviso na hora certa sem criar voltas: no relógio, em Alertas da atividade, crie alertas recorrentes por tempo: Beber a cada 15 min${gi?` e Comer a cada ${gi} min`:''}.`;
+  const desc=(`Plano da Calculadora Combustível (@gabreutri): carbo ${fmt(r.carbH)} g/h, líquido ${fmt(r.flH)} ml/h, sódio ${fmt(r.naH)} mg/h. Leve: ${leva}.`+dica).slice(0,1024);
   const lim=segs.length>1?250:100;
   let segments=segs.map((x,i)=>({segmentOrder:i+1,sport:SG[x.s.sport],poolLength:null,poolLengthUnit:null,steps:gSteps(x.s,x.k)}));
   // treino longo demais para o relógio: repetições viram "Repetir N vezes" e a série fica sem avisos
@@ -3579,7 +3588,7 @@ async function gSend(){
     const dt=date.split('-').reverse().join('/');
     m.className='status ok';
     toast('Treino enviado para o Garmin Connect','ok');
-    m.textContent=r.schedule&&!r.schedule.error?`Treino enviado e agendado para ${dt}. Sincronize o relógio pelo app Garmin Connect. Os géis e a hidratação aparecem nas observações de cada passo.`:'Treino enviado para a sua biblioteca no Garmin Connect, mas sem data. Agende pelo app.';
+    m.textContent=r.schedule&&!r.schedule.error?`Treino enviado e agendado para ${dt}. Sincronize o relógio pelo app Garmin Connect. O treino vai sem voltas extras: os horários dos géis e da água aparecem na observação do início de cada passo. Para o relógio avisar na hora, crie alertas recorrentes de Beber e Comer em Alertas da atividade (a descrição do treino traz os intervalos).`:'Treino enviado para a sua biblioteca no Garmin Connect, mas sem data. Agende pelo app.';
     track('garmin_treino_enviado',{formato:S.formato});
   }else{
     m.className='status bad';
