@@ -1495,6 +1495,22 @@ main.dview .results{position:static!important}
 .tut-ok{color:#3FB37F!important;font-weight:800}
 .tut-dots{display:flex;gap:6px;margin-top:6px}.tut-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.tut-dots i.on{width:20px;border-radius:4px;background:var(--accent)}
 .tut-nav{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;width:100%;margin-top:6px}.tut-nav .btn{min-height:48px}
+/* ===== Metas por modalidade (brick e triathlon) ===== */
+.hseg{display:flex;gap:8px;grid-column:1/-1;margin:2px 0 4px}
+.hseg button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#F4EFE9;font:inherit;cursor:pointer}
+.hseg button b{font-size:14px}.hseg button small{font-size:11.5px;color:#B7ACA0}
+.hseg button[aria-pressed="true"]{background:rgba(242,100,25,.18);border-color:rgba(242,100,25,.6)}
+.hseg button[aria-pressed="true"] b{color:#F5874A}
+.hj-segs{display:flex;flex-direction:column;gap:6px;margin:4px 0 14px}
+.hj-sgh,.hj-sg{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));align-items:center;gap:6px}
+.hj-sgh small{font-size:11px;font-weight:800;color:var(--muted);text-align:right;text-transform:uppercase;letter-spacing:.06em}
+.hj-sg{padding:10px 12px;border-radius:14px;background:var(--sunk)}
+.hj-sg>span{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:8px;align-items:center;min-width:0}
+.hj-sg>span .hc-ic{grid-row:1/3;width:30px;height:30px}.hj-sg>span .hc-ic svg{width:17px;height:17px}
+.hj-sg>span b{font-size:14px}.hj-sg>span small{font-size:11.5px;color:var(--muted)}
+.hj-sg em{font:900 20px/1 var(--display);font-style:normal;text-align:right;white-space:nowrap}
+.hj-sg em small{font:700 10px var(--body);color:var(--muted);margin-left:2px}
+.hj-sg em.c{color:var(--accent-ink)}.hj-sg em.b{color:var(--blue)}
 </style>
 
 <header class="band">
@@ -1715,6 +1731,7 @@ main.dview .results{position:static!important}
   <div class="col results" id="resultsCol" aria-live="polite">
     <div class="metrics">
       <div class="hero-h"><span class="hero-eb" id="heroEb"></span><b>Seu plano</b></div>
+      <div class="hseg" id="hSeg" hidden></div>
       <div class="m cho"><span class="lbl">Carboidrato</span><div class="nrw"><i id="nrCho"></i><span class="val" id="vCho">0<small>g/h</small></span></div><span class="tot" id="tCho"></span></div>
       <div class="m flu"><span class="lbl">Líquido</span><div class="nrw"><i id="nrFl"></i><span class="val" id="vFl">0<small>ml/h</small></span></div><span class="tot" id="tFl"></span></div>
       <div class="m na"><span class="lbl">Sódio</span><div class="nrw"><i id="nrNa"></i><span class="val" id="vNa">0<small>mg/h</small></span></div><span class="tot" id="tNa"></span></div>
@@ -2218,7 +2235,9 @@ function calcular(inp){
   let swimCarbDef=0;
   const out=segs.map(s=>{
     const {i,IF}=intensity(s,inp.modo);
-    const sr=sweatRate(s.sport,i,inp);
+    // brick e triathlon: cada modalidade pode ser na rua ou indoor (rolo, esteira)
+    const si=s.indoor===true?{...inp,cond:'indoor'}:(s.indoor===false&&inp.cond==='indoor'?{...inp,cond:'nublado'}:inp);
+    const sr=sweatRate(s.sport,i,si);
     let carb=carbPerHour(s.sport,T,i,gutOf(inp,s.sport));
     let fl=0,na=0;
     if(s.sport!=='natacao'){
@@ -2504,7 +2523,7 @@ function readInputs(){
   return {modo:S.modo,peso:+$('peso').value||70,gut:{ciclismo:mv('gutBike',+$('gutBike').value),corrida:mv('gutRun',+$('gutRun').value)},sal:+$('sal').value,
     naMedido:mv('naMedido',+$('naMedido').value||0),srMedida:{ciclismo:mv('srBike',+$('srBike').value||0),corrida:mv('srRun',+$('srRun').value||0)},aclim:$('aclim').value==='1',
     temp:+$('temp').value||25,rh:+$('rh').value||60,
-    cond:(S.formato==='single'&&$('indoor').value==='1')?'indoor':$('cond').value,fan:$('fan').value==='1',
+    cond:qzIndoor()?'indoor':$('cond').value,fan:$('fan').value==='1',
     formato:S.formato,srFactor:calFactor(),objetivo:S.tipo==='prova'?'perf':$('objetivo').value,pre:$('pre').value,tol:calTol(),segs:segList().map(s=>({...s}))};
 }
 
@@ -2551,20 +2570,27 @@ function plano(r,inp){
   return {rows,tot,gel,gels,dr,drs,el,bottle};
 }
 
+/* segmentos com abastecimento (sem natação), com o líquido em ml/h */
+function fsegsOf(r){return (r&&r.segs?r.segs:[]).filter(s=>s.sport!=='natacao'&&s.h>0).map((s,k)=>{const sg=(segList().filter(q=>q.h>0)||[]).find(q=>q.sport===s.sport)||{};return {sport:s.sport,h:s.h,carb:s.carb,flMl:Math.round(s.fl*1000/50)*50,na:s.na,indoor:!!sg.indoor,shifted:s.shifted||0};});}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-hseg]');if(!b)return;window.HSEG=+b.dataset.hseg;if(typeof buzz==='function')buzz();run();});
 /* ===== RENDER ===== */
 function run(){
   const inp=readInputs();
   const r=calcular(inp);
   const P=plano(r,inp);LAST.r=r;LAST.P=P;LAST.inp=inp;
   const feeding=r.segs.some(s=>s.sport!=='natacao');
-  [['vCho',feeding?r.carbH:0,'g/h'],['vFl',feeding?r.flH:0,'ml/h'],['vNa',feeding?r.naH:0,'mg/h']].forEach(([id,v,u])=>{const el=$(id);let n=el.querySelector('.n');
+  // brick e triathlon: as metas são por modalidade (o pedal e a corrida têm números próprios)
+  const FS=fsegsOf(r);const MS=FS.length>1;if(MS)window.HSEG=Math.min(window.HSEG||0,FS.length-1);const SEL=MS?FS[window.HSEG||0]:null;
+  {const hs=$('hSeg');if(hs){hs.hidden=!MS;if(MS)hs.innerHTML=FS.map((x,k)=>`<button type="button" data-hseg="${k}" aria-pressed="${k===(window.HSEG||0)}"><b>${SPORT_NOME[x.sport]}</b><small>${durTxt(x.h)}${x.indoor?' · indoor':''}</small></button>`).join('');}}
+  const V=SEL?{c:SEL.carb,f:SEL.flMl,n:SEL.na}:{c:r.carbH,f:r.flH,n:r.naH};
+  [['vCho',feeding?V.c:0,'g/h'],['vFl',feeding?V.f:0,'ml/h'],['vNa',feeding?V.n:0,'mg/h']].forEach(([id,v,u])=>{const el=$(id);let n=el.querySelector('.n');
     if(!n){el.innerHTML=`<span class="n" data-v="${v}">${fmt(v)}</span><small>${u}</small>`;}else if(typeof qzCount==='function'&&!$('viewCalc').hidden)qzCount(n,v);else{n.dataset.v=v;n.textContent=fmt(v);}});
-  [['nrCho',0,r.carbH/120],['nrFl',1,r.flH/1000],['nrNa',2,r.naH/1200]].forEach(([id,k,v])=>{const el=$(id);if(el)el.innerHTML=nutRing(k,feeding?v:0);});
-  $('tCho').textContent=`Total ${fmt(r.carbTot)} g`;
-  $('tFl').textContent=`Total ${fmt(r.flTot/1000,1)} L`;
+  [['nrCho',0,V.c/120],['nrFl',1,V.f/1000],['nrNa',2,V.n/1200]].forEach(([id,k,v])=>{const el=$(id);if(el)el.innerHTML=nutRing(k,feeding?v:0);});
+  $('tCho').textContent=SEL?`${fmt(Math.round(SEL.carb*SEL.h))} g ${SEL.sport==='ciclismo'?'no pedal':'na corrida'}`:`Total ${fmt(r.carbTot)} g`;
+  $('tFl').textContent=SEL?`${fmt(SEL.flMl*SEL.h/1000,1)} L ${SEL.sport==='ciclismo'?'no pedal':'na corrida'}`:`Total ${fmt(r.flTot/1000,1)} L`;
   const naPos=r50(Math.max(0,r.naLoss-r.naTot));
-  $('heroEb').textContent='Metas por hora';
-  $('tNa').textContent=feeding&&!r.naTot&&r.naLoss?`Só após · repor ~${fmt(naPos)} mg`:`Total ${fmt(r.naTot)} mg`;
+  $('tNa').textContent=SEL?`${fmt(r50(SEL.na*SEL.h))} mg ${SEL.sport==='ciclismo'?'no pedal':'na corrida'}`:feeding&&!r.naTot&&r.naLoss?`Só após · repor ~${fmt(naPos)} mg`:`Total ${fmt(r.naTot)} mg`;
+  $('heroEb').textContent=SEL?`Metas por hora · ${SPORT_NOME[SEL.sport].toLowerCase()}`:'Metas por hora';
 
   // duração total
   const td=$('totDur');td.hidden=r.segs.length<2;
@@ -3740,6 +3766,21 @@ async function drawStory(){
   const RS=168,RW=15,colW=CW/3;
   // cada anel com a sua cara: carbo em blocos de energia, líquido como um copo enchendo, sódio em cristais
   const icG=await svgImg(PIC.gel,'#F5874A',false),icA=await svgImg(PIC.agua,'#7AABF2',false),icS=await svgImg(PIC.sal,'#E6DED5',false);
+  const FSx=fsegsOf(r);
+  if(FSx.length>1){
+    // brick e triathlon: uma linha por modalidade, cada uma com as suas metas
+    const cx=[L+CW*0.53,L+CW*0.74,L+CW-44];
+    g.font=`800 20px ${B}`;ls('2px');g.fillStyle=C.mut;g.textAlign='right';['CARBO','LÍQUIDO','SÓDIO'].forEach((t,k)=>g.fillText(t,cx[k],y+122));ls('0px');g.textAlign='left';
+    const rh=Math.min(104,(h1-150)/FSx.length);
+    for(let k=0;k<FSx.length;k++){const x=FSx[k],ry=y+140+k*rh;
+      g.fillStyle=C.sunk;roundRect(g,L+28,ry,CW-56,rh-12,24);g.fill();
+      const im=await svgImg(SP_IC[x.sport],x.sport==='ciclismo'?C.blue2:C.or2,true);g.drawImage(im,L+48,ry+(rh-12)/2-22,44,44);
+      g.font=`800 30px ${B}`;g.fillStyle=C.ink;g.fillText(SPORT_NOME[x.sport],L+108,ry+(rh-12)/2-2);
+      g.font=`500 22px ${B}`;g.fillStyle=C.mut;g.fillText(durTxt(x.h)+(x.indoor?' · indoor':''),L+108,ry+(rh-12)/2+28);
+      g.textAlign='right';const vy=ry+(rh-12)/2+14;
+      [[x.carb,'g/h',C.or2],[x.flMl,'ml/h',C.blue2],[x.na,'mg/h',C.ink]].forEach(([v,u,col],j)=>{g.font=`900 50px ${D}`;g.fillStyle=col;const vs=fmt(v);g.font=`600 18px ${B}`;const uw=g.measureText(u).width;g.fillStyle=C.mut;g.fillText(u,cx[j],vy);g.font=`900 50px ${D}`;g.fillStyle=col;g.fillText(vs,cx[j]-uw-6,vy);});
+      g.textAlign='left';}
+  }else
   for(let k=0;k<3;k++){const [lb,v,mx,u,tot]=rings[k];const cxr=L+colW*k+colW/2,cyr=y+92+RS/2,rad=RS/2-12;
     const pc=Math.max(.03,Math.min(1,v/mx));
     if(k===0){const N=18,gap=.07,sp=Math.PI*2/N,on=Math.max(1,Math.round(pc*N));
@@ -4596,7 +4637,8 @@ function renderHoje(){
     nx=`<section class="card hj-next${prova?' race':''}"><div class="hj-sh"><h3>${prova?'Sua prova':'Próxima sessão'}</h3><span>${when?when+' · ':''}${$('hora').value||''}</span></div>
       <p class="hj-nt">${qzEsc(sessionTitle()||'Sessão')}</p>
       ${prova&&dias>0?`<div class="hj-cd"><b>${dias}</b><span>dia${dias>1?'s':''} para a largada</span></div>`:''}
-      <div class="hj-mrs">${rg(r.carbH,120,'g/h','Carbo','rg-c')}${rg(r.flH,1000,'ml/h','Líquido','rg-b')}${rg(r.naH,1200,'mg/h','Sódio','rg-n')}</div>
+      ${(()=>{const FS=fsegsOf(r);if(FS.length<2)return `<div class="hj-mrs">${rg(r.carbH,120,'g/h','Carbo','rg-c')}${rg(r.flH,1000,'ml/h','Líquido','rg-b')}${rg(r.naH,1200,'mg/h','Sódio','rg-n')}</div>`;
+        return `<div class="hj-segs"><div class="hj-sgh"><span></span><small>Carbo</small><small>Líquido</small><small>Sódio</small></div>${FS.map(x=>`<div class="hj-sg"><span><i class="hc-ic ${x.sport}">${SP_IC[x.sport]}</i><b>${SPORT_NOME[x.sport]}</b><small>${durTxt(x.h)}${x.indoor?' · indoor':''}</small></span><em class="c">${x.carb?fmt(x.carb):'0'}<small>g/h</small></em><em class="b">${fmt(x.flMl)}<small>ml/h</small></em><em class="n">${fmt(x.na)}<small>mg/h</small></em></div>`).join('')}</div>`;})()}
       <div class="hj-act"><button type="button" class="btn primary" data-hj="plano">${prova?'Ver plano de prova':'Ver plano completo'}</button><button type="button" class="btn" data-hj="${prova?'planejar':'prova'}">${prova?'Nova sessão':'Planejar prova'}</button></div><button type="button" class="linkbtn hj-del" data-hjdel="1">Excluir este planejamento</button></section>`;}
   else nx=`<section class="card hj-next"><div class="hj-sh"><h3>Próxima sessão</h3></div><p class="hj-et">Diga o treino ou a prova, o clima e os seus produtos. Em 1 minuto você tem carbo, líquido e sódio por hora.</p><div class="hj-act"><button type="button" class="btn primary" data-hj="planejar">Planejar treino</button><button type="button" class="btn" data-hj="prova">Planejar prova</button></div></section>`;
   // tendências
@@ -5294,7 +5336,8 @@ async function planSyncNow(){
   const d=$('data').value;if(!d||d<isoD(new Date()))return;
   const r=LAST.r;const dur=Math.round(r.segs.reduce((a,s)=>a+(s.h||0)*60,0));if(!dur)return;
   const leva=[...document.querySelectorAll('#carry li')].map(li=>[...li.children].map(c=>c.textContent.trim()).join(' ').replace(/\s+/g,' ')).filter(Boolean).join('; ');
-  const resumo=(`${fmt(r.carbH)} g/h de carbo, ${fmt(r.flH)} ml/h de líquido e ${fmt(r.naH)} mg/h de sódio`+(leva?`. Leve: ${leva}`:'')).replace(/\s+/g,' ').replace(/\s*\([^)]*contando[^)]*\)/g,'').slice(0,230);
+  const FS=fsegsOf(r);const metas=FS.length>1?FS.map(x=>`${SPORT_NOME[x.sport]}: ${fmt(x.carb)} g/h, ${fmt(x.flMl)} ml/h, ${fmt(x.na)} mg/h`).join('; '):`${fmt(r.carbH)} g/h de carbo, ${fmt(r.flH)} ml/h de líquido e ${fmt(r.naH)} mg/h de sódio`;
+  const resumo=(metas+(leva?`. Leve: ${leva}`:'')).replace(/\s+/g,' ').replace(/\s*\([^)]*contando[^)]*\)/g,'').slice(0,230);
   const row={user_id:ACC.user.id,data:d,hora:$('hora').value||null,dur_min:dur,titulo:(sessionTitle()||'Treino').slice(0,80),resumo,prova:S.tipo==='prova',atualizado_em:new Date().toISOString()};
   const key=JSON.stringify([row.data,row.hora,row.dur_min,row.titulo,row.resumo,row.prova]);if(key===PS_LAST)return;PS_LAST=key;
   try{const {error}=await SB.from('sessoes_plan').upsert(row);if(error)PS_LAST='';}catch(e){PS_LAST='';}}
@@ -5688,7 +5731,8 @@ function initApp(){
 const QZ={cur:null,hist:[],known:false,wx:null};
 const qzEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function qzSingle(){return S.formato==='single'?segList()[0].sport:null;}
-function qzIndoor(){return S.formato==='single'&&$('indoor').value==='1';}
+function qzIndoor(){return (S.formato==='single'&&$('indoor').value==='1')||(S.formato==='brick'&&S.segs.brick.every(s=>s.indoor));}
+function qzAnyIndoor(){return qzIndoor()||(S.formato==='brick'&&S.segs.brick.some(s=>s.indoor));}
 function qzSet(id,v){const el=$(id);if(!el)return;el.value=v;el.dispatchEvent(new Event('change',{bubbles:true}));}
 let qzAT=null;function qzApply(){renderSegs();run();qzTick();clearTimeout(qzAT);qzAT=setTimeout(()=>{if(typeof queueConfigSave==='function')queueConfigSave();},600);}
 function qzLast(){try{return JSON.parse(localStorage.getItem('gaQzLast')||'null');}catch(e){return null;}}
@@ -5773,7 +5817,15 @@ const QZQ=[
   recap:()=>$('indoor').value==='1'?(qzSingle()==='corrida'?'Esteira':'Rolo'):'Ao ar livre',
   html:()=>qzCards([{v:'0',t:'Ao ar livre',ic:IC.fora},{v:'1',t:qzSingle()==='corrida'?'Esteira':'Rolo',d:'Indoor',ic:IC.dentro}],$('indoor').value,'g2'),
   pick:v=>{$('indoor').value=v;}},
- {id:'fan',show:()=>!QZ.repeat&&qzIndoor(),title:()=>'Tem ventilador?',sub:()=>'Sem vento, o corpo perde menos calor e sua bem mais.',
+ {id:'ondeBike',show:()=>!QZ.repeat&&S.formato==='brick',title:()=>'Onde vai ser o pedal?',
+  recap:()=>'Pedal '+(S.segs.brick[0].indoor?'no rolo':'na rua'),
+  html:()=>qzCards([{v:'0',t:'Na rua',ic:IC.fora},{v:'1',t:'Rolo',d:'Indoor',ic:IC.dentro}],S.segs.brick[0].indoor?'1':'0','g2'),
+  pick:v=>{S.segs.brick[0].indoor=v==='1';}},
+ {id:'ondeRun',show:()=>!QZ.repeat&&S.formato==='brick',title:()=>'E a corrida?',
+  recap:()=>'Corrida '+(S.segs.brick[1].indoor?'na esteira':'na rua'),
+  html:()=>qzCards([{v:'0',t:'Na rua',ic:IC.fora},{v:'1',t:'Esteira',d:'Indoor',ic:IC.dentro}],S.segs.brick[1].indoor?'1':'0','g2'),
+  pick:v=>{S.segs.brick[1].indoor=v==='1';}},
+ {id:'fan',show:()=>!QZ.repeat&&qzAnyIndoor(),title:()=>'Tem ventilador?',sub:()=>'Sem vento, o corpo perde menos calor e sua bem mais.',
   recap:()=>$('fan').value==='1'?'Com ventilador':'Sem ventilador',html:()=>qzCards([{v:'1',t:'Com ventilador',ic:IC.fan},{v:'0',t:'Sem ventilador',ic:IC.nofan}],$('fan').value,'g2'),pick:v=>{$('fan').value=v;}},
  {id:'dist',recap:()=>S.formato==='tri'?TRI_NOME[S.dist.tri].split(' (')[0]:RUN_DIST[S.dist.single]?RUN_DIST[S.dist.single][0].split(' (')[0]:'',show:()=>!QZ.repeat&&S.tipo==='prova'&&(qzSingle()==='corrida'||S.formato==='tri'),title:()=>'Qual distância?',
   html:()=>S.formato==='tri'?qzCards(Object.entries(TRI_NOME).map(([k,n])=>({v:k,t:n.split(' (')[0],d:n.split('(')[1].replace(')','')})),S.dist.tri,'g2')
@@ -6082,7 +6134,7 @@ function flowRefresh(){
   const pIds=[...multiIds('pGel'),...($('drinkWrap').hidden?[]:multiIds('pDrink')),$('pElec').value].filter(Boolean);
   const pOs=pIds.map(prod).filter(Boolean);const pVal=pOs.length?`${pOs.map(o=>picHtml(o,'mini')).join('')}${qzEsc(shortNm(pOs[0].nome))}${pOs.length>1?` <small class="fs-more">+${pOs.length-1}</small>`:''}`:'Nenhum';
   const d0=$('data').value?new Date($('data').value+'T12:00'):null;const dTx=!d0?'':($('data').value===isoD(new Date())?'Hoje':d0.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','').replace(',',''));
-  const tipoTx=(S.formato==='brick'?'Brick':S.formato==='tri'?'Triathlon':opt('sport'))+(S.formato==='single'&&$('indoor').value==='1'?' indoor':'')+(S.tipo==='treino'&&$('objetivo').value!=='perf'?' · '+opt('objetivo').split(' (')[0].toLowerCase():'');
+  const tipoTx=(S.formato==='brick'?`Brick (${S.segs.brick[0].indoor?'rolo':'rua'} + ${S.segs.brick[1].indoor?'esteira':'rua'})`:S.formato==='tri'?'Triathlon':opt('sport'))+(S.formato==='single'&&$('indoor').value==='1'?' indoor':'')+(S.tipo==='treino'&&$('objetivo').value!=='perf'?' · '+opt('objetivo').split(' (')[0].toLowerCase():'');
   const cliTx=`${nd(+$('temp').value)} °C · ${fmt(+$('rh').value)}%`+(readInputs().cond==='indoor'&&$('fan').value==='0'?' · sem vent.':'');
   const pw=+$('peso').value||0;const youTx=`${fmt(pw,pw%1?1:0)} kg · ${['suor pouco salgado','suor médio','suor salgado'][+$('sal').value]}`;
   const rows=[[4,3,'Quando',[dTx,$('hora').value].filter(Boolean).join(' · ')||'Escolher'],[1,0,'Sessão',tipoTx],[2,1,'Duração',`${durTxt(r.T)} · ${wk?'importado':S.modo==='tss'?'por TSS':ints}`],[4,3,'Clima',cliTx],[5,4,'Produtos',pVal],[3,2,'Você',youTx]];
