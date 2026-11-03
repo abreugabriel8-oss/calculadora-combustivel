@@ -1144,6 +1144,7 @@ footer a{display:inline-block;padding:8px 2px;margin:-8px 0}
 .hj-tn{font-size:11.5px;color:var(--muted)}
 .hj-wk{display:flex;gap:18px}
 .hj-grid>.hj-cal{grid-column:1/-1}
+.bo-out{display:flex;gap:8px;align-items:flex-end}.qz-bo{display:flex;gap:8px;align-items:flex-end;margin-top:12px}.qz-bo .f{flex:1}.qz-bo .btn{min-height:44px}.bo-out .f{flex:1}.bo-out .btn{flex:0 0 auto;min-height:44px}
 .sk-w i.rest{background:repeating-linear-gradient(45deg,var(--sunk) 0 3px,color-mix(in srgb,var(--accent) 35%,var(--sunk)) 3px 6px)}
 .sk-meta{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;color:var(--muted);font-weight:700;flex-wrap:wrap}.sk-mv{display:flex;align-items:center;gap:6px;white-space:nowrap}.sk-meta b{color:var(--ink)}
 .hj-t .sk-meta select{width:auto;font:inherit;font-size:12.5px;font-weight:800;color:var(--ink);background:var(--sunk);border:0;border-radius:8px;padding:2px 6px;min-height:28px;height:28px}
@@ -1780,6 +1781,7 @@ main.dview .results{position:static!important}
       <details class="adv"><summary>Caramanhola e produto próprio</summary><div class="advb">
       <div class="row">
         <label class="f"><span id="bottleLbl">Caramanhola</span><select id="bottle"></select></label>
+        <div class="bo-out" id="bottleOutW" hidden><label class="f">Volume (ml)<input id="bottleOut" type="number" min="100" max="3000" step="10" inputmode="numeric" placeholder="ex.: 680"></label><button type="button" class="btn primary" id="bottleOutGo">Usar</button></div>
       </div>
       <details>
         <summary>Adicionar produto próprio</summary>
@@ -2056,7 +2058,7 @@ main.dview .results{position:static!important}
 <div class="acctwrap gl-wrap" id="glPanel" hidden>
   <div class="acct gl" role="dialog" aria-modal="true" aria-labelledby="glT"><div id="glBody"></div></div>
 </div>
-<input type="hidden" id="metaSem" value="2"><input type="hidden" id="eqRank" value="0">
+<input type="hidden" id="metaSem" value="2"><input type="hidden" id="bottleB" value=""><input type="hidden" id="bottleR" value=""><input type="hidden" id="eqRank" value="0">
 <div class="acctwrap" id="fbPanel" hidden>
   <div class="acct" role="dialog" aria-modal="true" aria-labelledby="fbT">
     <div class="acct-h"><h3 id="fbT">Fale com o Gabriel</h3><button class="xclose" id="fbX" type="button" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -2560,17 +2562,31 @@ function renderDist(){
   sel.innerHTML=opts.map(([v,n])=>`<option value="${v}">${n}</option>`).join('');sel.value=S.dist[key];
 }
 function paceTxt(s){if(!isRunRace()||!s.h)return '';const km=RUN_DIST[S.dist.single][1];const sec=Math.round(s.h*3600/km);return `ritmo ${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}/km`;}
-function renderBottle(){
+/* recipientes: tamanhos comuns + volume livre; a escolha fica guardada por contexto (pedal ou corrida) */
+const BOTTLES={bike:[[500,'c'],[550,'c'],[600,'c'],[620,'c'],[710,'c'],[750,'c'],[950,'c']],
+  run:[[150,'copo'],[250,'f'],[350,'f'],[500,'f'],[600,'g'],[1500,'m'],[2000,'m']]};
+function bottleLabel(v,k){return k==='copo'?'Copo do posto de hidratação (~150 ml)':k==='f'?`Flask ${v} ml`:k==='g'?`Garrafa ${v} ml`:k==='m'?`Mochila de hidratação ${fmt(v/1000,v%1000?1:0)} L`:`Caramanhola ${v} ml`;}
+function bottleSaved(ctx){const v=($(ctx==='bike'?'bottleB':'bottleR')||{}).value||lsGet('gaBottle_'+ctx)||'';const m=String(v).match(/^(\d{2,4}):(c|f|g|m|copo)$/);return m?{v:+m[1],k:m[2]}:null;}
+function renderBottle(force){
   const bike=segList().some(s=>s.sport==='ciclismo');const sel=$('bottle');const cur=sel.dataset.ctx;const ctx=bike?'bike':'run';
-  if(cur===ctx)return;sel.dataset.ctx=ctx;
-  const opts=bike?[[500,'Caramanhola 500 ml'],[600,'Caramanhola 600 ml'],[750,'Caramanhola 750 ml']]:[[150,'Copo do posto de hidratação (~150 ml)'],[250,'Flask 250 ml'],[500,'Flask ou garrafa 500 ml']];
-  sel.innerHTML=opts.map(([v,n])=>`<option value="${v}">${n}</option>`).join('');sel.value=bike?600:(S.tipo==='prova'?150:500);
+  if(cur===ctx&&!force)return;sel.dataset.ctx=ctx;
+  const L=BOTTLES[ctx].slice();const sv=bottleSaved(ctx);
+  if(sv&&!L.some(([v,k])=>v===sv.v&&k===sv.k))L.push([sv.v,sv.k,1]);
+  sel.innerHTML=L.map(([v,k,c])=>`<option value="${v}" data-k="${k}">${c?'Outro: ':''}${bottleLabel(v,k)}</option>`).join('')+'<option value="outro" data-k="outro">Outro volume...</option>';
+  const pick=sv||(bike?{v:600,k:'c'}:S.tipo==='prova'?{v:150,k:'copo'}:{v:500,k:'f'});
+  const idx=[...sel.options].findIndex(o=>+o.value===pick.v&&o.dataset.k===pick.k);sel.selectedIndex=idx>=0?idx:0;sel.dataset.prev=sel.selectedIndex;
   $('bottleLbl').textContent=bike?'Caramanhola':'Como você vai beber';
+  const w=$('bottleOutW');if(w)w.hidden=true;
 }
-function bottleName(n){const o=$('bottle').selectedOptions[0];const t=o?o.textContent:'';
-  if(t.startsWith('Copo'))return n>1?'copos de ~150 ml nos postos':'copo de ~150 ml no posto';
-  if(t.startsWith('Flask'))return (n>1?'flasks de ':'flask de ')+$('bottle').value+' ml';
-  return (n>1?'caramanholas de ':'caramanhola de ')+$('bottle').value+' ml';}
+function bottleSet(v,k){const ctx=$('bottle').dataset.ctx||'run';const val=v+':'+k;lsSet('gaBottle_'+ctx,val);
+  const h=$(ctx==='bike'?'bottleB':'bottleR');if(h){h.value=val;h.dispatchEvent(new Event('change'));}
+  renderBottle(true);run();}
+function bottleName(n){const o=$('bottle').selectedOptions[0];const k=o?o.dataset.k:'c';const v=+$('bottle').value||600;
+  if(k==='copo')return n>1?'copos de ~150 ml nos postos':'copo de ~150 ml no posto';
+  if(k==='m')return (n>1?'mochilas de hidratação de ':'mochila de hidratação de ')+fmt(v/1000,v%1000?1:0)+' L';
+  if(k==='f')return (n>1?'flasks de ':'flask de ')+v+' ml';
+  if(k==='g')return (n>1?'garrafas de ':'garrafa de ')+v+' ml';
+  return (n>1?'caramanholas de ':'caramanhola de ')+v+' ml';}
 function fillSelect(sel,types,none){
   const el=$(sel);const cur=el.value;el.innerHTML='';
   if(none){const o=document.createElement('option');o.value='';o.textContent=none;el.appendChild(o);}
@@ -2615,7 +2631,7 @@ function plano(r,inp){
   const gels=multiIds('pGel').map(prod).filter(g=>g&&g.cho>0);
   const drs=$('drinkWrap').hidden?[]:multiIds('pDrink').map(prod).filter(Boolean);
   const gel=gels[0]||null,dr=drs[0]||null,el=prod($('pElec').value);
-  const bottle=+$('bottle').value;
+  const bottle=+$('bottle').value||600;
   const tot={gels:0,drinkServ:0,poG:0,elec:0,water:0,caf:0,bottles:0,byGel:{},byDr:{}};
   const rows=[];let gi=0;
   r.segs.forEach(s=>{
@@ -2835,7 +2851,7 @@ const SB_KEY='sb_publishable_x29ctnGxafVWM6ZTjy9ukA_930OE0Gr';
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const SB=(!IN_CLAUDE&&window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
 /* ===== ERROS (anônimo: mensagem, tela, aparelho e versão; nada do que a pessoa digitou) ===== */
-const APP_BUILD='20261103-2001';
+const APP_BUILD='20261103-2009';
 const ERR={sent:new Set(),n:0,busy:false};
 const ERR_IGN=/^Script error\.?$|ResizeObserver loop|Failed to fetch|Load failed|NetworkError|AbortError|aborted|The user aborted|cancelad|Network request failed|Fetch is aborted|NotAllowedError|chrome-extension|moz-extension|safari-extension/i;
 function errDev(){const ua=navigator.userAgent;const ap=/iphone|ipad/i.test(ua)?'iPhone':/android/i.test(ua)?'Android':/mac/i.test(ua)?'Mac':/windows/i.test(ua)?'Windows':'outro';
@@ -2856,7 +2872,7 @@ window.errFlush=async function(){
 setTimeout(()=>window.errFlush(),1500);
 
 const ACC={user:null,perfil:null,consent:false,syncing:false};
-const CFG_IDS=['fan','peso','sal','aclim','srBike','srRun','naMedido','gutBike','gutRun','cidade','wkFtp','wkHr','wkPace','metaSem','eqRank'];
+const CFG_IDS=['fan','peso','sal','aclim','srBike','srRun','naMedido','gutBike','gutRun','cidade','wkFtp','wkHr','wkPace','metaSem','eqRank','bottleB','bottleR'];
 
 async function storeInit(){
   if(SB){
@@ -2961,6 +2977,7 @@ async function enterAccount(){
 function applyConfig(cfg){
   if(!cfg)return;
   CFG_IDS.forEach(id=>{if(cfg[id]==null||!$(id))return;$(id).value=cfg[id];if(id==='gutBike'||id==='gutRun')$(id).dataset.user='1';});
+  if(cfg.bottleB||cfg.bottleR)renderBottle(true);
   applyCal();run();
 }
 let cfgTimer=null;
@@ -3279,6 +3296,12 @@ async function drawMonth(){
 
 
 function initGame(){
+  $('bottle').addEventListener('change',()=>{const o=$('bottle').selectedOptions[0];if(!o)return;
+    if(o.dataset.k==='outro'){$('bottle').selectedIndex=+($('bottle').dataset.prev||0);run();$('bottleOutW').hidden=false;const sv=bottleSaved($('bottle').dataset.ctx);$('bottleOut').value=sv?sv.v:'';setTimeout(()=>$('bottleOut').focus(),50);return;}
+    $('bottle').dataset.prev=$('bottle').selectedIndex;bottleSet(+o.value,o.dataset.k);});
+  const boGo=()=>{const v=Math.round(+$('bottleOut').value);if(!(v>=100&&v<=3000)){toast('Use um volume entre 100 e 3.000 ml');return;}
+    const bike=$('bottle').dataset.ctx==='bike';bottleSet(v,bike?'c':v>=1000?'m':'f');};
+  $('bottleOutGo').addEventListener('click',boGo);$('bottleOut').addEventListener('keydown',e=>{if(e.key==='Enter')boGo();});
   {const m=lsGet('gaMetaSem');if(m&&$('metaSem'))$('metaSem').value=m;}
   $('viewHoje').addEventListener('click',async e=>{
     const fw=e.target.closest('[data-fw]');if(fw){e.stopPropagation();buzz();const a=fw.dataset.fw;if(a==='lembretes'){await ntAtivar();renderHoje();}else hjAct(a);return;}
@@ -6336,6 +6359,21 @@ const QZQ=[
     el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.addEventListener('click',()=>{buzz();if(!isPro()&&!b.classList.contains('on'))el.querySelectorAll('.qz-multi .qz-card.on').forEach(x=>x.classList.remove('on'));b.classList.toggle('on');$('qzDrNone').classList.toggle('on',!cur().length);
       const prev=multiIds('pDrink');const now=cur();apply([...prev.filter(i=>now.includes(i)),...now.filter(i=>!prev.includes(i))]);}));
     $('qzDrNone').addEventListener('click',()=>{buzz();el.querySelectorAll('.qz-multi .qz-card').forEach(b=>b.classList.remove('on'));$('qzDrNone').classList.add('on');apply([]);});}},
+ {id:'garrafa',show:()=>!QZ.repeat&&qzSingle()!=='natacao'&&!!(LAST.r&&LAST.r.flH>0),
+  recap:()=>{const o=$('bottle').selectedOptions[0];return o?o.textContent.replace(/^Outro: /,'').replace(' do posto de hidratação (~150 ml)',' do posto'):'';},
+  title:()=>segList().some(s=>s.sport==='ciclismo')?'Qual caramanhola você usa?':'Como você vai levar o líquido?',
+  sub:()=>'Muda quantas entram no plano e quando reabastecer.',
+  html:()=>{renderBottle();const ctx=$('bottle').dataset.ctx;const L=BOTTLES[ctx].slice();const sv=bottleSaved(ctx);if(sv&&!L.some(([v,k])=>v===sv.v&&k===sv.k))L.push([sv.v,sv.k]);
+    if(ctx==='run'&&S.tipo!=='prova')L.splice(L.findIndex(([,k])=>k==='copo'),1);
+    const o=$('bottle').selectedOptions[0];const cur=o?o.value+':'+o.dataset.k:'';
+    const nm=(v,k)=>k==='copo'?'Copo do posto':k==='m'?`Mochila ${fmt(v/1000,v%1000?1:0)} L`:`${v} ml`;
+    const ds=(v,k)=>k==='copo'?'~150 ml nos postos':k==='f'?'flask':k==='g'?'garrafa':k==='m'?'mochila de hidratação':'caramanhola';
+    return qzCards(L.map(([v,k])=>({v:v+':'+k,t:nm(v,k),d:ds(v,k)})),cur,'g2 qz-sm')+
+      `<div class="qz-bo"><label class="f">Outro volume (ml)<input id="qzBoV" type="number" min="100" max="3000" step="10" inputmode="numeric" placeholder="ex.: 680"></label><button type="button" class="btn" id="qzBoGo">Usar</button></div>`;},
+  pick:v=>{const [a,k]=String(v).split(':');bottleSet(+a,k);},
+  bind:el=>{const go=()=>{const v=Math.round(+$('qzBoV').value);if(!(v>=100&&v<=3000)){toast('Use um volume entre 100 e 3.000 ml');return;}
+      const bike=$('bottle').dataset.ctx==='bike';bottleSet(v,bike?'c':v>=1000?'m':'f');buzz();qzApply();setTimeout(qzNext,QZ_RM?0:150);};
+    $('qzBoGo').addEventListener('click',go);$('qzBoV').addEventListener('keydown',e=>{if(e.key==='Enter')go();});}},
  {id:'eletro',show:()=>!QZ.repeat&&qzSingle()!=='natacao'&&(LAST.r&&LAST.r.naH>0),title:()=>'E para o sódio?',sub:()=>'Para completar o sódio que a bebida e o gel não cobrem.',
   html:()=>qzCards([{v:'saltz500',t:'Saltz 500',d:'sachê'},{v:'liquidz',t:'Liquidz',d:'sachê'},{v:'hydrolift',t:'Hydrolift Sport',d:'stick'},{v:'ph1000',t:'Precision PH 1000',d:'tablete'},{v:'hidraiso',t:'Dobro Hidra Iso',d:'tablete'},{v:'lmnt',t:'LMNT',d:'sachê'},{v:'saltstick',t:'Cápsula',d:'SaltStick ou similar'},{v:'sal',t:'Sal de cozinha',d:'¼ colher de chá'},{v:'',t:'Nenhum'}].map(o=>({...o,ic:picHtml(prod(o.v))})),$('pElec').value,'g2 qz-sm qz-pics')+
     `<label class="f qz-other">Outro eletrólito<select id="qzElO"><option value="">Escolher na lista completa...</option>${PRODUTOS.filter(x=>x.t==='eletrolito'&&!['saltz500','liquidz','hydrolift','ph1000','hidraiso','lmnt','saltstick','sal'].includes(x.id)).map(x=>`<option value="${x.id}"${$('pElec').value===x.id?' selected':''}>${qzEsc(x.nome)}</option>`).join('')}</select></label>`,
@@ -6409,7 +6447,7 @@ function qzStart(){
 }
 function qzDone(){qzFinish();}
 /* editar uma parte da sessão no próprio quiz */
-const QZ_EDIT={1:['tipo','mod','onde','fan','dist','objetivo','pre'],2:['dur','int'],3:['peso','sal','gut'],4:['quando','clima'],5:['gel','bebida','eletro']};
+const QZ_EDIT={1:['tipo','mod','onde','fan','dist','objetivo','pre'],2:['dur','int'],3:['peso','sal','gut'],4:['quando','clima'],5:['gel','bebida','garrafa','eletro']};
 function qzEdit(n){
   QZ.skip=null;QZ.hist=[];QZ.repeat=false;QZ.known=false;QZ.wx=null;QZ.only=QZ_EDIT[n];
   FLOW.mode='quiz';document.body.classList.add('qz-on');document.body.classList.remove('flow-on','flow-guided','flow-sum');
