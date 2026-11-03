@@ -5111,8 +5111,7 @@ function trDone(){
   trClose();
   if(FLOW.mode==='quiz'&&QZ.cur==='dur'){qzRender(0);toast('Treino aplicado','ok');return;}
   navTo('calc');
-  if(lsGet('gaFlow')==='1'){flowGo('summary');setTimeout(()=>{qzEdit(4);toast('Treino aplicado. Confira o dia e o clima.','ok');},250);}
-  else{QZ.skipNext=['repetir','tipo','mod','dur','int'];setTimeout(()=>qzStart(),80);}
+  QZ.skipNext=['repetir','tipo','mod','dur','int'];setTimeout(()=>{qzStart();toast('Treino aplicado. Agora umas perguntas rápidas.','ok');},80);
 }
 /* ---- tela ---- */
 function trOpen(tab){if(gateBlock())return;TR.tab=tab||TR.tab||'colar';TR.res=null;trRender();sheetShow('trPanel');track('trazer_aberto',{aba:TR.tab});
@@ -5802,7 +5801,7 @@ function qzDurBind(el,onCh){
 }
 /* perguntas, em ordem; cada uma diz se aparece */
 const QZQ=[
- {id:'repetir',show:()=>!!qzLast(),title:()=>'Vamos planejar a próxima sessão',sub:()=>'Repita a última e só confira o clima, ou monte uma nova.',
+ {id:'repetir',show:()=>!!qzLast(),title:()=>'Vamos planejar a próxima sessão',sub:()=>'Repita a última e só confira objetivo, como você chega e o clima. Ou monte uma nova.',
   html:()=>qzCards([{v:'rep',t:'Repetir a última',d:qzEsc(qzLastTxt(qzLast()))},{v:'nova',t:'Nova sessão',d:'Escolher tudo de novo'}],null),
   pick:v=>{if(v==='rep'){qzUseLast(qzLast());QZ.repeat=true;}else QZ.repeat=false;}},
  {id:'tipo',show:()=>!QZ.repeat&&!QZ.prova,title:()=>'É treino ou prova?',
@@ -5860,7 +5859,7 @@ const QZQ=[
   recap:()=>INT_NOME[segList()[0].int-1].split(' (')[0],
   html:()=>qzCards([{v:1,t:'Leve',d:'Dá para conversar · Z1 a Z2'},{v:2,t:'Moderado',d:'Frases curtas · Z3'},{v:3,t:'Forte',d:'Poucas palavras · tiros ou limiar, Z4'},{v:4,t:'Muito forte',d:'Sem conversa · ritmo de prova, Z5'}].map(o=>({...o,lv:qzLvl(o.v,4)})),segList()[0].int),
   pick:v=>{segList().forEach(s=>{s.int=+v;});}},
- {id:'objetivo',show:()=>!QZ.repeat&&S.tipo==='treino'&&qzSingle()!=='natacao',title:()=>'Qual o objetivo do treino?',sub:()=>'Muda quanto carboidrato faz sentido usar.',
+ {id:'objetivo',show:()=>S.tipo==='treino'&&qzSingle()!=='natacao',title:()=>'Qual o objetivo do treino?',sub:()=>'Muda quanto carboidrato faz sentido usar.',
   recap:()=>({perf:'Performance',gut:'Treinar intestino',low:'Train low',regen:'Regenerativo'})[$('objetivo').value],
   html:()=>qzCards([{v:'perf',t:'Performance',d:'Render o máximo nesta sessão'},{v:'gut',t:'Treinar o intestino',d:'Subir aos poucos o carbo que você tolera'},{v:'low',t:'Adaptação (train low)',d:'Pouco ou nenhum carbo, só em treino leve'},{v:'regen',t:'Regenerativo',d:'Sessão leve de recuperação'}],$('objetivo').value),
   pick:v=>qzSet('objetivo',v)},
