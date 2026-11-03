@@ -2835,7 +2835,7 @@ const SB_KEY='sb_publishable_x29ctnGxafVWM6ZTjy9ukA_930OE0Gr';
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const SB=(!IN_CLAUDE&&window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
 /* ===== ERROS (anônimo: mensagem, tela, aparelho e versão; nada do que a pessoa digitou) ===== */
-const APP_BUILD='20261103-1949';
+const APP_BUILD='20261103-2001';
 const ERR={sent:new Set(),n:0,busy:false};
 const ERR_IGN=/^Script error\.?$|ResizeObserver loop|Failed to fetch|Load failed|NetworkError|AbortError|aborted|The user aborted|cancelad|Network request failed|Fetch is aborted|NotAllowedError|chrome-extension|moz-extension|safari-extension/i;
 function errDev(){const ua=navigator.userAgent;const ap=/iphone|ipad/i.test(ua)?'iPhone':/android/i.test(ua)?'Android':/mac/i.test(ua)?'Mac':/windows/i.test(ua)?'Windows':'outro';
@@ -4952,7 +4952,11 @@ function renderHoje(){
   const logs=logsSorted();
   const byDay={};logs.forEach(l=>{(byDay[l.data]=byDay[l.data]||[]).push(l);});
   const planDay=$('data').value||'';const hasPlan=!!(LAST.r&&lsGet('gaFlow')==='1');
-  const tpBy={};(TP.on?TP.ev:[]).filter(e=>!e.feito&&e.esporte&&e.data>=today).forEach(e=>{(tpBy[e.data]=tpBy[e.data]||[]).push(e);});
+  const PT=(()=>{try{return JSON.parse(lsGet('gaPlanTp')||'null');}catch(e){return null;}})();
+  const planSp=hasPlan&&LAST.r?new Set(LAST.r.segs.map(x=>x.sport)):new Set();
+  const tpCov=e=>!!(hasPlan&&PT&&PT.d===planDay&&e.data===planDay&&(PT.u||[]).includes(e.uid)&&planSp.has(e.esporte));
+  const tpCovList=(TP.on?TP.ev:[]).filter(e=>!e.feito&&e.esporte&&tpCov(e));
+  const tpBy={};(TP.on?TP.ev:[]).filter(e=>!e.feito&&e.esporte&&e.data>=today&&!tpCov(e)).forEach(e=>{(tpBy[e.data]=tpBy[e.data]||[]).push(e);});
   if(!HJ.day)HJ.day=today;
   const hr=now.getHours();const nm=hjName();
   const dtx=now.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
@@ -4969,7 +4973,7 @@ function renderHoje(){
   const dName=HJ.day===today?'Hoje':dSel.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'});
   h+=`<div class="hj-dayl"><span class="hj-dn">${dName.charAt(0).toUpperCase()+dName.slice(1)}</span>`;
   if(dl.length)h+=dl.map(l=>{const f=fuelScore(l);const t=hm(f.d.h);return `<button type="button" class="hj-row" data-log="${l.id}"><i class="hc-ic ${l.sport}">${SP_IC[l.sport]||SP_IC.corrida}</i><span><b>${SPORT_NOME[l.sport]} · ${t.h}h${String(t.m).padStart(2,'0')}</b><small>${fmt(f.d.choH)} g/h · ${f.d.ganhou?'+':'−'}${fmt(Math.abs(f.d.perdaPct),1)}% peso · GI ${l.gi||0}</small></span><em class="sc${f.s>=85?' s3':f.s>=70?' s2':f.s>=50?' s1':' s0'}">${f.s}</em></button>`;}).join('');
-  else if(planDay===HJ.day&&hasPlan)h+=`<button type="button" class="hj-row" data-hj="plano"><i class="hc-ic plan">${SP_IC[(LAST.r.segs[0]||{}).sport]||SP_IC.corrida}</i><span><b>${qzEsc(sessionTitle()||'Sessão planejada')}</b><small>${fmt(LAST.r.carbH)} g/h · ${fmt(LAST.r.flH)} ml/h · ${fmt(LAST.r.naH)} mg/h</small></span><em class="go">›</em></button>`;
+  else if(planDay===HJ.day&&hasPlan)h+=`<button type="button" class="hj-row" data-hj="plano"><i class="hc-ic plan">${SP_IC[(LAST.r.segs[0]||{}).sport]||SP_IC.corrida}</i><span><b>${qzEsc(tpCovList.length?tpCovList.map(e=>e.titulo||SPORT_NOME[e.esporte]).join(' + '):(sessionTitle()||'Sessão planejada'))}</b><small>${tpCovList.length?'<i class="tp-tag">TrainingPeaks</i> · plano pronto · ':''}${fmt(LAST.r.carbH)} g/h · ${fmt(LAST.r.flH)} ml/h · ${fmt(LAST.r.naH)} mg/h</small></span><em class="go">›</em></button>`;
   else if(!(tpBy[HJ.day]||[]).length)h+=`<p class="hj-none">${HJ.day>today?'Nada planejado.':'Nenhum treino registrado.'} <button type="button" class="linkbtn" data-hj="${HJ.day>today?'planejar':'registrar'}">${HJ.day>today?'Planejar':'Registrar'}</button></p>`;
   {const T=tpBy[HJ.day]||[];if(T.length&&!dl.length){h+=T.map(e=>{const ok=e.esporte==='ciclismo'||e.esporte==='corrida'||e.esporte==='triathlon';return `<button type="button" class="hj-row tp"${ok?` data-tpe="${e.uid}"`:''}><i class="hc-ic ${e.esporte}">${SP_IC[e.esporte]||SP_IC.corrida}</i><span><b>${qzEsc(e.titulo||'Treino')}</b><small><i class="tp-tag">TrainingPeaks</i>${[e.min_plan?durTxt(e.min_plan/60):'',e.km_plan?fmt(e.km_plan,e.km_plan%1?1:0)+' km':''].filter(Boolean).map(x=>' · '+x).join('')}</small></span>${ok?'<em class="go">Gerar plano ›</em>':''}</button>`;}).join('');
     if(tpBrick(T))h+=`<button type="button" class="btn primary hj-brick" data-tpb="${HJ.day}">Gerar plano de brick (pedal + corrida)</button>`;}}
@@ -5584,6 +5588,7 @@ async function tpUse(list,meta){
     if(!r.error&&r.sessoes&&r.sessoes.length){const ia=trFromIA(trInterleave(r));
       ia.forEach(s=>{const o=sess.find(x=>x.sport===s.sport);if(o&&s.items&&s.items.length){o.items=s.items;}});}}
   if(!trApply(sess,meta)){toast('Esse treino não tem duração planejada');return;}
+  lsSet('gaPlanTp',JSON.stringify({d:(meta&&meta.data)||$('data').value,u:list.map(e=>e.uid)}));
   trDone();
 }
 function tpRaceDist(nome){const n=(nome||'').toLowerCase();
