@@ -1143,6 +1143,22 @@ footer a{display:inline-block;padding:8px 2px;margin:-8px 0}
 .hj-tr .spark{width:100%;height:30px}
 .hj-tn{font-size:11.5px;color:var(--muted)}
 .hj-wk{display:flex;gap:18px}
+.hj-grid>.hj-cal{grid-column:1/-1}
+.hj-cal{display:flex;flex-direction:column;gap:12px}
+.cl-g{display:flex;flex-direction:column;gap:12px}@media (min-width:900px){.cl-g{display:grid;grid-template-columns:1fr 1fr;gap:28px}}
+.cl-r{display:flex;align-items:center;gap:12px}.cl-r .hc-ic{flex:0 0 auto}
+.cl-m{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.cl-t{display:flex;align-items:center;gap:8px}.cl-t b{font-size:15px}
+.cl-lv{font-style:normal;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--sunk);color:var(--muted)}
+.cl-lv.l1{color:var(--accent-ink);background:var(--orange-soft)}.cl-lv.l2{color:var(--sp-bike);background:color-mix(in srgb,var(--sp-bike) 16%,transparent)}.cl-lv.l3{color:#fff;background:var(--sc3)}
+:root[data-theme="light"] .cl-lv.l3{background:#23864A}
+.cl-st{display:flex;gap:4px}.cl-st i{flex:1;height:6px;border-radius:6px;background:var(--sunk)}.cl-st i.on{background:var(--grad)}
+.cl-p{font:900 28px/1 var(--display);flex:0 0 auto}.cl-p small{font:700 12px var(--body);color:var(--muted);margin-left:2px}
+.gt-tr{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12.5px}.gt-h{white-space:nowrap}.gt-h b{color:var(--accent-ink)}
+.gt-pp{display:flex;gap:4px}.gt-pp i{width:11px;height:11px;border-radius:50%;border:2px solid var(--accent);opacity:.5}.gt-pp i.on{background:var(--accent);opacity:1}
+.sk{display:flex;flex-direction:column;gap:6px;margin-top:auto}
+.sk-w{display:flex;gap:4px}.sk-w i{flex:1;height:8px;border-radius:4px;background:var(--sunk)}.sk-w i.half{background:color-mix(in srgb,var(--accent) 40%,var(--sunk))}.sk-w i.on{background:var(--accent)}.sk-w i.cur{outline:1.5px solid var(--ink);outline-offset:1px}
+.sk-t{font-size:11.5px;color:var(--muted);line-height:1.4}.sk-t b{color:var(--ink)}
 .hj-wk div{display:flex;flex-direction:column}
 .hj-wk b{font:900 32px/1 var(--display)}
 .hj-wk small{font-size:12px;color:var(--muted);font-weight:700}
@@ -2767,7 +2783,7 @@ const SB_KEY='sb_publishable_x29ctnGxafVWM6ZTjy9ukA_930OE0Gr';
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const SB=(!IN_CLAUDE&&window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
 /* ===== ERROS (anônimo: mensagem, tela, aparelho e versão; nada do que a pessoa digitou) ===== */
-const APP_BUILD='20261103-1626';
+const APP_BUILD='20261103-1917';
 const ERR={sent:new Set(),n:0,busy:false};
 const ERR_IGN=/^Script error\.?$|ResizeObserver loop|Failed to fetch|Load failed|NetworkError|AbortError|aborted|The user aborted|cancelad|Network request failed|Fetch is aborted|NotAllowedError|chrome-extension|moz-extension|safari-extension/i;
 function errDev(){const ua=navigator.userAgent;const ap=/iphone|ipad/i.test(ua)?'iPhone':/android/i.test(ua)?'Android':/mac/i.test(ua)?'Mac':/windows/i.test(ua)?'Windows':'outro';
@@ -2828,9 +2844,9 @@ function storeChip(){
 async function storeSave(log){
   if(ST.mode==='conta'){
     const {error}=await SB.from('registros').upsert({user_id:ACC.user.id,id:log.id,data:log.data,dados:log});
-    if(!error){ST.logs=[...ST.logs.filter(l=>l.id!==log.id),log];afterLogs();return true;}
+    if(!error){ST.logs=[...ST.logs.filter(l=>l.id!==log.id),log];window.GAME_ARM=1;afterLogs();return true;}
     $('lgMsg').textContent='Não foi possível salvar na conta agora. Guardado neste navegador; ele sobe para a conta no próximo acesso.';
-    const a=lsRead().filter(l=>l.id!==log.id);a.push(log);lsWrite(a);ST.logs=[...ST.logs.filter(l=>l.id!==log.id),log];afterLogs();return true;
+    const a=lsRead().filter(l=>l.id!==log.id);a.push(log);lsWrite(a);ST.logs=[...ST.logs.filter(l=>l.id!==log.id),log];window.GAME_ARM=1;afterLogs();return true;
   }
   if(ST.mode==='nuvem'){
     try{await ST.col.doc(log.id).set(log);return true;}
@@ -3022,6 +3038,55 @@ function derive(l){
 
 /* Calibração: fator de suor com encolhimento para 1 e tolerância a carbo por modalidade */
 const GUT_CUT={ciclismo:[40,80],corrida:[40,70]};
+/* ===== JOGO: calibração, trilha do intestino e sequência semanal ===== */
+// faixa de clima do registro (para saber se o plano já viu calor, frio e indoor)
+function calBin(l){if(l.cond==='indoor')return 'indoor';const w=wbgt(l.temp??25,l.rh??60,l.cond||'sol');return w<18?'frio':w<25?'ameno':'quente';}
+// quanto do fator de suor vem dos seus dados: é o mesmo peso usado no cálculo, ne/(ne+2)
+const CAL_LV=['Estimado','Calibrando','Calibrado','Preciso'];
+function calLevel(sp){const d=CAL.detail[sp];const ne=d?d.ne||0:0;const pct=Math.round(100*ne/(ne+2));const nb=d&&d.bins?d.bins.length:0;
+  let lv=ne===0?0:pct<60?1:(pct>=80&&nb>=2)?3:2;
+  let hint;
+  if(lv===0)hint=`Registre o primeiro treino de ${sp==='ciclismo'?'pedal':'corrida'} com peso antes e depois.`;
+  else if(lv===1){const f=3-ne;hint=`Mais ${f} registro${f>1?'s':''} para Calibrado (um teste de suor vale 3).`;}
+  else if(lv===2){if(pct<80){const f=8-ne;hint=`Mais ${f} registro${f>1?'s':''} para Preciso${nb<2?', com um deles em outro clima':''}.`;}
+    else hint='Falta um treino em outro clima (calor, frio ou indoor) para Preciso.';}
+  else hint='Seu suor e seu sódio já vêm dos seus próprios treinos.';
+  return {lv,pct,hint,ne,nb};}
+// trilha do intestino: degraus de 10 g/h; um degrau fica confirmado com 2 treinos de 45 min+ sem desconforto (até 3 de 10)
+function gutTrail(sp){
+  const cap=CARB_CAP[sp][2];const lim=new Date();lim.setDate(lim.getDate()-60);const lim14=new Date();lim14.setDate(lim14.getDate()-14);
+  const L=ST.logs.filter(l=>l.sport===sp&&new Date(l.data+'T12:00')>=lim).map(l=>({l,d:derive(l)})).filter(x=>x.d.h>=0.75&&x.d.choH>0);
+  if(!L.length)return null;
+  const ok=L.filter(x=>(x.l.gi||0)<=3).map(x=>x.d.choH);
+  const cnt=v=>ok.filter(c=>c>=v-2).length;
+  let C=null;for(let v=30;v<=cap;v+=10)if(cnt(v)>=2)C=v;
+  const mx=ok.length?Math.max(...ok):0;
+  let T=C!=null?C+10:Math.max(40,Math.floor((mx+2)/10)*10);
+  if(C!=null&&C>=cap)return {C,T:null,k:2,top:true,cap};
+  T=Math.min(T,cap);
+  const bad=L.filter(x=>(x.l.gi||0)>=6&&x.d.choH<=T+2&&new Date(x.l.data+'T12:00')>=lim14).sort((a,b)=>b.l.data.localeCompare(a.l.data))[0];
+  return {C,T,k:Math.min(2,cnt(T)),bad:bad?{g:Math.round(bad.d.choH),dt:bad.l.data.split('-').reverse().slice(0,2).join('/')}:null,cap};}
+// sequência: semanas seguidas (seg a dom) com 2 ou mais registros; a semana atual só conta quando completa os 2
+function streakInfo(logs){
+  const wk=d=>isoD(weekStart(new Date(d+'T12:00')));const M={};logs.forEach(l=>{const k=wk(l.data);M[k]=(M[k]||0)+1;});
+  const cur=weekStart(new Date());const key=d=>isoD(d);const now=M[key(cur)]||0;
+  let n=0;const d=new Date(cur);if(now<2)d.setDate(d.getDate()-7);
+  while((M[key(d)]||0)>=2){n++;d.setDate(d.getDate()-7);}
+  const last=[];for(let i=7;i>=0;i--){const x=new Date(cur);x.setDate(x.getDate()-7*i);last.push({c:M[key(x)]||0,cur:i===0});}
+  let best=0,run=0;Object.keys(M).sort().forEach((k,i,a)=>{const prev=i?new Date(a[i-1]+'T12:00'):null;const gap=prev?Math.round((new Date(k+'T12:00')-prev)/6048e5):1;
+    if(M[k]>=2){run=(gap===1?run:0)+1;best=Math.max(best,run);}else run=0;});
+  return {n,now,last,best};}
+// comemoração discreta quando algo sobe de nível
+function gameCheck(){try{
+  const prev=JSON.parse(localStorage.getItem('gaGame')||'{}');const cur={};const msgs=[];
+  ['ciclismo','corrida'].forEach(sp=>{const nm=sp==='ciclismo'?'pedal':'corrida';
+    const c=calLevel(sp);cur['c_'+sp]=c.lv;if(prev['c_'+sp]!=null&&c.lv>prev['c_'+sp])msgs.push(`Plano de ${nm}: ${CAL_LV[c.lv]}`);
+    const g=gutTrail(sp);const gc=g&&g.C||0;cur['g_'+sp]=gc;if(prev['g_'+sp]!=null&&gc>prev['g_'+sp])msgs.push(`Intestino ${sp==='ciclismo'?'no pedal':'na corrida'}: ${gc} g/h confirmados`);});
+  const st=streakInfo(ST.logs||[]);cur.s=st.n;if(prev.s!=null&&st.n>prev.s&&[2,4,8,12,26,52].includes(st.n))msgs.push(`${st.n} semanas seguidas registrando`);
+  localStorage.setItem('gaGame',JSON.stringify(cur));
+  const armed=window.GAME_ARM;window.GAME_ARM=0;
+  if(armed&&msgs.length&&typeof toast==='function')setTimeout(()=>toast('Subiu de nível: '+msgs.join(' · '),'ok'),400);
+}catch(e){}}
 function calibrar(){
   ['ciclismo','corrida'].forEach(sp=>{
     const ls=ST.logs.filter(l=>l.sport===sp).sort((a,b)=>b.data.localeCompare(a.data));
@@ -3032,6 +3097,8 @@ function calibrar(){
       let wsum=0,rs=0,ss=0,ne=0;valid.forEach((x,k)=>{const q=x.l.notas==='Teste de suor'?3:1;const w=Math.pow(0.85,k)*q;wsum+=w;rs+=w*x.d.ratio;ss+=w*x.d.sr;ne+=q;});
       ratioMean=rs/wsum;mean=ss/wsum;f=1+(ratioMean-1)*ne/(ne+2);
     }
+    const neT=valid.reduce((t,x)=>t+(x.l.notas==='Teste de suor'?3:1),0),nTest=valid.filter(x=>x.l.notas==='Teste de suor').length;
+    const bins=new Set(valid.map(x=>calBin(x.l)));
     CAL.f[sp]=f;CAL.n[sp]=n;
     // tolerância a carbo: sessões de 45 min ou mais
     const longos=ls.map(l=>({l,d:derive(l)})).filter(x=>x.d.h>=0.75);
@@ -3042,7 +3109,7 @@ function calibrar(){
     if(tol!==null&&badMin!==null&&badMin<=tol)tol=Math.max(0,badMin-10);
     let lvl=null;if(tol!==null){const [a,b]=GUT_CUT[sp];lvl=tol>=b?2:tol>=a?1:0;}
     CAL.gut[sp]=lvl;
-    CAL.detail[sp]={n,mean,ratioMean,f,tol,badMin,nLong:longos.length};
+    CAL.detail[sp]={n,mean,ratioMean,f,tol,badMin,nLong:longos.length,ne:neT,nTest,bins:[...bins]};
   });
 }
 function confBars(n){const lv=n>=6?3:n>=3?2:n>=1?1:0;return `<span class="conf">${[1,2,3].map(k=>`<i class="${k<=lv?'on':''}"></i>`).join('')} ${['sem dados','baixa','média','alta'][lv]}</span>`;}
@@ -4678,16 +4745,24 @@ function renderHoje(){
     const srs=logs.filter(l=>l.sport===sp).reverse().map(l=>derive(l).sr).filter(v=>v>0&&v<4).slice(-12);
     return `<div class="hj-tr"><small>${sp==='ciclismo'?'Pedal':'Corrida'}</small><b>${fmt(d.mean,2)}<i>L/h</i></b>${sparkSvg(srs)}</div>`;}).join('');
   const tol=['ciclismo','corrida'].filter(sp=>CAL.detail[sp]&&CAL.detail[sp].tol!=null).map(sp=>{const d=CAL.detail[sp];const [a,b]=GUT_CUT[sp];const nx2=d.tol<a?a:d.tol<b?b:CARB_CAP[sp][2];
-    return `<div class="hj-tr"><small>${sp==='ciclismo'?'Pedal':'Corrida'}</small><b>${fmt(d.tol)}<i>g/h</i></b><div class="hj-bar c"><i style="width:${Math.min(100,d.tol/nx2*100)}%"></i></div><span class="hj-tn">${d.tol>=nx2?'nível máximo':`próximo nível: ${fmt(nx2)} g/h`}</span></div>`;}).join('');
+    return `<div class="hj-tr"><small>${sp==='ciclismo'?'Pedal':'Corrida'}</small><b>${fmt(d.tol)}<i>g/h</i></b><div class="hj-bar c"><i style="width:${Math.min(100,d.tol/nx2*100)}%"></i></div>${(()=>{const g=gutTrail(sp);if(!g)return `<span class="hj-tn">${d.tol>=nx2?'nível máximo':`próximo nível: ${fmt(nx2)} g/h`}</span>`;
+      if(g.top)return `<span class="hj-tn">Topo da trilha: ${g.cap} g/h confirmados. Mantenha nos treinos longos.</span>`;
+      return `<div class="gt-tr"><span class="gt-h">Próximo: <b>${g.T} g/h</b></span><span class="gt-pp" aria-label="${g.k} de 2">${[0,1].map(k=>`<i class="${k<g.k?'on':''}"></i>`).join('')}</span></div><span class="hj-tn">${g.bad?`Desconforto a ${g.bad.g} g/h em ${g.bad.dt}. Fique ${g.C!=null?'em '+g.C:'um degrau abaixo'} por 1 a 2 semanas.`:`${g.C!=null?g.C+' g/h confirmados. ':''}Faltam ${2-g.k} treino${2-g.k>1?'s':''} a ${g.T} g/h sem desconforto.`}</span>`;})()}</div>`;}).join('');
+  const calSp=['ciclismo','corrida'].filter(sp=>CAL.detail[sp]&&CAL.detail[sp].n);
+  const calRows=(calSp.length?calSp:[]).map(sp=>{const c=calLevel(sp);
+    return `<div class="cl-r"><i class="hc-ic ${sp}">${SP_IC[sp]}</i><div class="cl-m"><div class="cl-t"><b>${sp==='ciclismo'?'Pedal':'Corrida'}</b><em class="cl-lv l${c.lv}">${CAL_LV[c.lv]}</em></div>
+      <div class="cl-st" aria-hidden="true">${[1,2,3].map(k=>`<i class="${k<=c.lv?'on':''}"></i>`).join('')}</div><span class="hj-tn">${c.hint}</span></div><strong class="cl-p">${c.pct}<small>%</small></strong></div>`;}).join('');
+  const calCard=`<section class="card hj-cal"><div class="hj-sh"><h3>Seu plano calibrado</h3><span>quanto dele vem dos seus treinos</span></div>${calRows?`<div class="cl-g">${calRows}</div>`:''}${calRows?'':`<p class="hj-et">Hoje o plano usa estimativas de estudos. A cada treino registrado com peso antes e depois, ele passa a usar o seu suor de verdade.</p><button type="button" class="hj-link" data-hj="registrar">Registrar um treino ›</button>`}</section>`;
   const ws2=new Date(ws);ws2.setDate(ws.getDate()-7);
   const inW=(l,a)=>{const d=new Date(l.data+'T12:00');const e=new Date(a);e.setDate(a.getDate()+7);return d>=a&&d<e;};
   const cw=logs.filter(l=>inW(l,ws)),pw=logs.filter(l=>inW(l,ws2));const hrs=a=>a.reduce((s,l)=>s+(l.durMin||0),0)/60;
   const dh=hrs(cw)-hrs(pw);
   const rec6=logs.slice(0,6).map(derive);const pAvg=rec6.length?rec6.reduce((a,d)=>a+(d.ganhou?0:d.perdaPct),0)/rec6.length:null;
-  h+=`<div class="hj-grid">${typeof svCard==='function'?svCard():''}${typeof instHjCard==='function'?instHjCard():''}${sc}${rcard}${nx}${typeof ntCard==='function'?ntCard():''}
+  h+=`<div class="hj-grid">${typeof svCard==='function'?svCard():''}${typeof instHjCard==='function'?instHjCard():''}${sc}${rcard}${nx}${calCard}${typeof ntCard==='function'?ntCard():''}
     <section class="card hj-t"><div class="hj-sh"><h3>Taxa de suor</h3><span>média ponderada</span></div>${sw||'<p class="hj-et">Aparece com o primeiro registro.</p>'}<button type="button" class="hj-link" data-st="1">Fazer teste de suor ›</button></section>
     <section class="card hj-t"><div class="hj-sh"><h3>Tolerância a carbo</h3><span>sem desconforto</span></div>${tol||'<p class="hj-et">Registre um treino de 45 min ou mais com o carbo consumido.</p>'}</section>
-    <section class="card hj-t"><div class="hj-sh"><h3>Esta semana</h3></div><div class="hj-wk"><div><b>${cw.length}</b><small>treino${cw.length!==1?'s':''}</small></div><div><b>${fmt(hrs(cw),1)}</b><small>horas</small></div></div>${pw.length||cw.length?`<span class="hj-tn">${dh>=0?'+':'−'}${fmt(Math.abs(dh),1)} h que a semana passada</span>`:''}</section>
+    <section class="card hj-t"><div class="hj-sh"><h3>Esta semana</h3></div><div class="hj-wk"><div><b>${cw.length}</b><small>treino${cw.length!==1?'s':''}</small></div><div><b>${fmt(hrs(cw),1)}</b><small>horas</small></div></div>${pw.length||cw.length?`<span class="hj-tn">${dh>=0?'+':'−'}${fmt(Math.abs(dh),1)} h que a semana passada</span>`:''}${(()=>{const st=streakInfo(logs);const f=Math.max(0,2-st.now);
+      return `<div class="sk"><div class="sk-w" aria-label="Últimas 8 semanas">${st.last.map(w=>`<i class="${w.c>=2?'on':w.c===1?'half':''}${w.cur?' cur':''}"></i>`).join('')}</div><span class="sk-t">${st.n?`<b>${st.n} semana${st.n>1?'s':''}</b> seguida${st.n>1?'s':''} com 2+ registros`:'Registre 2 treinos por semana para começar uma sequência'}${st.now<2&&st.n?`. Falta${f>1?'m':''} ${f} esta semana para manter.`:st.now<2&&!st.n&&st.now===1?'. Falta 1 esta semana.':''}</span></div>`;})()}</section>
     <section class="card hj-t"><div class="hj-sh"><h3>Perda de peso</h3><span>últimos ${rec6.length||0}</span></div>${pAvg!=null?`<div class="hj-tr"><b>${fmt(pAvg,1)}<i>%</i></b><div class="hj-bar b lim"><i style="width:${Math.min(100,pAvg/3*100)}%"></i><u style="left:${2/3*100}%"></u></div><span class="hj-tn">limite de 2% marcado na barra</span></div>`:'<p class="hj-et">Aparece com o primeiro registro.</p>'}</section>
   </div>`;
   const ins=hjInsights(logs);
@@ -4695,6 +4770,7 @@ function renderHoje(){
   if(PAY.ready&&!isPro()&&!IN_CLAUDE)h+=`<button type="button" class="hj-pro" data-pro="conta"><b>Combustível Pro</b><span>${ACC.user?'Modo prova, calibração pelo diário e Garmin':'Crie sua conta e teste 3 dias grátis'}</span><em>›</em></button>`;
   h+=`<button type="button" class="hj-fb" data-fb="ideia">Sugestão, dúvida ou problema? <b>Fale comigo</b></button>`;
   box.innerHTML=h;
+  gameCheck();
   if(typeof tutMaybe==='function')tutMaybe();
 }
 function hjAct(a){
