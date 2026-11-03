@@ -6,6 +6,7 @@
 //   teste                      (com login) manda uma notificação de teste para os aparelhos da pessoa
 //   rodar                      (só o agendador, com o cabeçalho x-cron) envia véspera, pós-treino e assinatura
 //   pos_agora {user_id,dia,t,b,u} (só servidor, com x-cron) aviso imediato de treino novo (Strava)
+//   retorno {paciente_id,registro_id} (com login de nutricionista) avisa o paciente da curtida ou do comentário
 // Não precisa de segredo: as chaves ficam na tabela config_push, criadas sozinhas.
 import { createClient } from "npm:@supabase/supabase-js@2.116.0";
 import webpush from "npm:web-push@3.6.7";
@@ -136,7 +137,7 @@ async function eventosTP(url: string, dia: string): Promise<Ev[]> {
 }
 
 async function rodar() {
-  const out = { vespera: 0, pre: 0, pos: 0, assinatura: 0, strava: null as unknown };
+  const out = { vespera: 0, pre: 0, pos: 0, assinatura: 0, sequencia: 0, strava: null as unknown };
   // 0. Strava: confere o aviso automático e, se ele não estiver ativo, busca treinos novos
   try {
     const c = await cfg();
@@ -217,6 +218,18 @@ async function rodar() {
     if (!(await marcar(a.user_id, k))) continue;
     if (await enviar(a.user_id, m)) out.assinatura++;
   }
+
+  // 5. sequência em risco: domingo à tarde, semana ainda sem registro
+  const { data: sq } = await admin.rpc("notif_alvos_sequencia");
+  for (const q of sq ?? []) {
+    if (await jaNoLimite(q.user_id)) continue;
+    if (!(await marcar(q.user_id, "seq:" + q.semana))) continue;
+    if (await enviar(q.user_id, {
+      t: `Sua sequência de ${q.n} semanas termina hoje`,
+      b: "Falta 1 registro nesta semana para manter. Vale qualquer treino de segunda a hoje.",
+      u: `${SITE}/?n=registrar`, tag: "sequencia",
+    })) out.sequencia++;
+  }
   return out;
 }
 
@@ -272,6 +285,25 @@ Deno.serve(async (req) => {
     if (action === "sair") {
       await admin.from("push_subs").delete().eq("endpoint", String(body.endpoint ?? "")).eq("user_id", u.id);
       return json(req, { ok: true });
+    }
+    // o nutricionista curtiu ou comentou um registro: avisa o paciente uma vez por registro
+    if (action === "retorno") {
+      const pid = String(body.paciente_id ?? ""), rid = String(body.registro_id ?? "");
+      if (!/^[0-9a-f-]{36}$/i.test(pid) || !rid || rid.length > 80) return json(req, { error: "params" }, 400);
+      const { data: v } = await admin.from("vinculos").select("id").eq("pro_id", u.id).eq("paciente_id", pid).eq("status", "ativo").maybeSingle();
+      if (!v) return json(req, { error: "proibido" }, 403);
+      const { data: r } = await admin.from("registro_retornos").select("tipo,texto").eq("paciente_id", pid).eq("registro_id", rid).eq("pro_id", u.id).maybeSingle();
+      if (!r) return json(req, { enviado: false, motivo: "sem_retorno" });
+      if (await jaNoLimite(pid)) return json(req, { enviado: false, motivo: "limite" });
+      if (!(await marcar(pid, "ret:" + rid))) return json(req, { enviado: false, motivo: "repetido" });
+      const { data: pr } = await admin.from("profissionais").select("nome").eq("user_id", u.id).maybeSingle();
+      const nome = String(pr?.nome ?? "Seu nutricionista").split(" ")[0];
+      const n = await enviar(pid, {
+        t: r.tipo === "comentario" ? `${nome} comentou seu treino` : `${nome} curtiu seu treino`,
+        b: r.tipo === "comentario" && r.texto ? String(r.texto).slice(0, 200) : "Continue registrando assim: cada treino deixa o seu plano mais certo.",
+        u: `${SITE}/?n=hoje`, tag: "retorno",
+      });
+      return json(req, { enviado: n > 0 });
     }
     if (action === "teste") {
       const n = await enviar(u.id, { t: "Notificações ativadas", b: "Você vai receber a véspera dos treinos, o lembrete antes de começar, a hora de pesar depois e o aviso da assinatura.", u: `${SITE}/?n=hoje`, tag: "teste" });
