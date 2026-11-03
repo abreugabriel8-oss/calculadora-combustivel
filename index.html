@@ -26,6 +26,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
 </head>
 <body>
+<script>/* erros: guarda o que quebrar desde o primeiro instante; o envio fica para depois que o app carrega */
+(function(){var Q=window.__ERRQ=[];function add(m,src,l,c,st){try{Q.push({m:String(m||'').slice(0,300),src:String(src||''),l:l||0,c:c||0,st:String(st||'').slice(0,1500),t:Date.now()});if(window.errFlush)window.errFlush();}catch(e){}}
+window.addEventListener('error',function(e){if(e&&e.target&&e.target!==window&&!e.message)return;add(e.message,e.filename,e.lineno,e.colno,e.error&&e.error.stack);});
+window.addEventListener('unhandledrejection',function(e){var r=e&&e.reason;add('(promessa) '+(r&&r.message||r),'',0,0,r&&r.stack);});})();</script>
 <script>try{var t=localStorage.getItem("gaTheme")||"dark";if(t==="auto")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t;}catch(e){}</script>
 <title>Calculadora Combustível</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -2757,6 +2761,27 @@ const SB_URL='https://ivvmptiaoruatyvensqe.supabase.co';
 const SB_KEY='sb_publishable_x29ctnGxafVWM6ZTjy9ukA_930OE0Gr';
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const SB=(!IN_CLAUDE&&window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
+/* ===== ERROS (anônimo: mensagem, tela, aparelho e versão; nada do que a pessoa digitou) ===== */
+const APP_BUILD='20261103-1603';
+const ERR={sent:new Set(),n:0,busy:false};
+const ERR_IGN=/^Script error\.?$|ResizeObserver loop|Failed to fetch|Load failed|NetworkError|AbortError|aborted|The user aborted|cancelad|Network request failed|Fetch is aborted|NotAllowedError|chrome-extension|moz-extension|safari-extension/i;
+function errDev(){const ua=navigator.userAgent;const ap=/iphone|ipad/i.test(ua)?'iPhone':/android/i.test(ua)?'Android':/mac/i.test(ua)?'Mac':/windows/i.test(ua)?'Windows':'outro';
+  const br=/edg\//i.test(ua)?'Edge':/samsungbrowser/i.test(ua)?'Samsung':/crios|chrome/i.test(ua)?'Chrome':/fxios|firefox/i.test(ua)?'Firefox':/safari/i.test(ua)?'Safari':'outro';
+  const st=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;return ap+' · '+br+(st?' (app)':' (navegador)');}
+function errTela(){try{let t=typeof curView==='function'?curView():'?';if(typeof FLOW!=='undefined'&&FLOW.mode==='quiz'&&typeof QZ!=='undefined'&&QZ.cur)t+=':quiz:'+QZ.cur;
+  const sh=document.querySelector('.sheet:not([hidden]),[id$="Panel"]:not([hidden])');if(sh&&sh.id)t+=' +'+sh.id;return t;}catch(e){return '?';}}
+window.errFlush=async function(){
+  if(!SB||ERR.busy||!window.__ERRQ||!window.__ERRQ.length)return;ERR.busy=true;
+  try{while(window.__ERRQ.length){const e=window.__ERRQ.shift();
+    if(!e.m||ERR_IGN.test(e.m)||ERR_IGN.test(e.src)||ERR_IGN.test(e.st))continue;
+    if(e.src&&!/^(https?:\/\/[^/]*(gabreutri|netlify|localhost)|file:)/.test(e.src)&&!/index\.html|^\/|gabreutri/.test(e.src))continue; // só erros do próprio app
+    const k=e.m+'|'+e.l;if(ERR.sent.has(k)||ERR.n>=8)continue;ERR.sent.add(k);ERR.n++;
+    let uid=null;try{uid=(typeof ACC!=='undefined'&&ACC.user&&ACC.user.id)||null;}catch(x){}
+    await SB.from('erros_app').insert({user_id:uid,mensagem:e.m,linha:e.l||null,coluna:e.c||null,pilha:e.st||null,tela:errTela(),aparelho:errDev(),versao:APP_BUILD,online:navigator.onLine});
+  }}catch(x){}finally{ERR.busy=false;}
+};
+setTimeout(()=>window.errFlush(),1500);
+
 const ACC={user:null,perfil:null,consent:false,syncing:false};
 const CFG_IDS=['fan','peso','sal','aclim','srBike','srRun','naMedido','gutBike','gutRun','cidade','wkFtp','wkHr','wkPace'];
 
