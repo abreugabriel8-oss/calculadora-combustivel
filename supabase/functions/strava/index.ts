@@ -84,7 +84,7 @@ async function guardar(userId: string, a: any) {
   if (d.startTimeInSeconds && Date.now() / 1000 - d.startTimeInSeconds > 7 * 86400 + 86400) return null;
   const { data: ja } = await admin.from("strava_atividades").select("registrado").eq("user_id", userId).eq("activity_id", a.id).maybeSingle();
   await admin.from("strava_atividades").upsert({ user_id: userId, activity_id: a.id, dados: d }, { onConflict: "user_id,activity_id" });
-  return ja ? null : d; // devolve só quando é nova
+  return { d, nova: !ja, registrado: !!ja?.registrado };
 }
 
 // ---------- aviso do Strava (webhook) ----------
@@ -150,28 +150,30 @@ async function evento(ev: any) {
   if (!a.ok) return;
   await novaAtividade(c.user_id, a.data);
 }
-/* guarda a atividade e, se for nova e de hoje, avisa para pesar e registrar */
+/* guarda a atividade e, se terminou há pouco e ainda não foi registrada, avisa para pesar e registrar.
+   O aviso é por treino (chave sv:<id>), não por dia: o segundo treino do dia também avisa. */
 // deno-lint-ignore no-explicit-any
 async function novaAtividade(userId: string, a: any) {
-  const nova = await guardar(userId, a);
+  const g = await guardar(userId, a);
+  if (!g || g.registrado) return;
+  const nova = g.d;
   const iniUtc = Date.parse(String(a?.start_date ?? "")) / 1000;
   const fim = iniUtc + Number(a?.elapsed_time ?? 0);
-  if (nova && Number.isFinite(iniUtc) && Date.now() / 1000 - fim < 6 * 3600) {
-    const { data: cp } = await admin.from("config_push").select("cron_segredo").eq("id", 1).maybeSingle();
-    if (cp?.cron_segredo) {
-      const dia = new Date((nova.startTimeInSeconds ?? iniUtc) * 1000).toISOString().slice(0, 10);
-      await fetch(`${SB_URL}/functions/v1/notificar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-cron": cp.cron_segredo },
-        body: JSON.stringify({
-          action: "pos_agora", user_id: userId, dia,
-          t: `${SPN[nova.activityType] ?? "Treino"} de ${durTxt(nova.durationInSeconds)} no Strava`,
-          b: "Pese-se agora, antes de beber, e registre o que consumiu. Leva 30 segundos e calibra o seu suor.",
-          u: `/?n=registrar&s=${a.id}`,
-        }),
-      }).catch(() => null);
-    }
-  }
+  if (!Number.isFinite(iniUtc) || Date.now() / 1000 - fim > 6 * 3600) return;
+  const { data: cp } = await admin.from("config_push").select("cron_segredo").eq("id", 1).maybeSingle();
+  if (!cp?.cron_segredo) return;
+  const dia = new Date((nova.startTimeInSeconds ?? iniUtc) * 1000).toISOString().slice(0, 10);
+  const r = await fetch(`${SB_URL}/functions/v1/notificar`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-cron": cp.cron_segredo },
+    body: JSON.stringify({
+      action: "pos_agora", user_id: userId, dia, chave: `sv:${a.id}`, ini: new Date(iniUtc * 1000).toISOString(),
+      t: `${SPN[nova.activityType] ?? "Treino"} de ${durTxt(nova.durationInSeconds)} no Strava`,
+      b: "Pese-se agora, antes de beber, e registre o que consumiu. Leva 30 segundos e calibra o seu suor.",
+      u: `/?n=registrar&s=${a.id}`,
+    }),
+  }).then((x) => x.json()).catch((e) => ({ erro: String(e) }));
+  console.log("strava aviso", a.id, JSON.stringify(r));
 }
 
 // ---------- entrada ----------
@@ -260,7 +262,7 @@ Deno.serve(async (req) => {
         const after = Math.floor(Date.now() / 1000) - 3 * 86400;
         const l = await strava(t.access_token, `/athlete/activities?after=${after}&per_page=15`);
         let n = 0;
-        for (const a of (Array.isArray(l.data) ? l.data : [])) if (await guardar(user.id, a)) n++;
+        for (const a of (Array.isArray(l.data) ? l.data : [])) if ((await guardar(user.id, a))?.nova) n++;
         return json(req, { connected: true, nome: t.athlete?.firstname ?? "", novas: n, webhook: wh });
       }
       case "status": {
@@ -278,7 +280,7 @@ Deno.serve(async (req) => {
         const l = await strava(tok, `/athlete/activities?after=${after}&per_page=15`);
         if (l.status === 401) return json(req, { connected: false });
         let n = 0;
-        for (const a of (Array.isArray(l.data) ? l.data : [])) if (await guardar(user.id, a)) n++;
+        for (const a of (Array.isArray(l.data) ? l.data : [])) if ((await guardar(user.id, a))?.nova) n++;
         return json(req, { connected: true, novas: n });
       }
       case "disconnect": {

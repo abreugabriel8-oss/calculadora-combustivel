@@ -5,7 +5,7 @@
 //   sair {endpoint}            (com login) remove este aparelho
 //   teste                      (com login) manda uma notificação de teste para os aparelhos da pessoa
 //   rodar                      (só o agendador, com o cabeçalho x-cron) envia véspera, pós-treino e assinatura
-//   pos_agora {user_id,dia,t,b,u} (só servidor, com x-cron) aviso imediato de treino novo (Strava)
+//   pos_agora {user_id,dia,chave,ini,t,b,u} (só servidor, com x-cron) aviso imediato de treino novo (Strava), um por treino
 //   retorno {paciente_id,registro_id} (com login de nutricionista) avisa o paciente da curtida ou do comentário
 // Não precisa de segredo: as chaves ficam na tabela config_push, criadas sozinhas.
 import { createClient } from "npm:@supabase/supabase-js@2.116.0";
@@ -258,18 +258,32 @@ Deno.serve(async (req) => {
       const c = await cfg();
       if (req.headers.get("x-cron") !== c.cron_segredo) return json(req, { error: "proibido" }, 403);
       const uid = String(body.user_id ?? ""), dia = String(body.dia ?? "");
-      if (!uid || !/^\d{4}-\d{2}-\d{2}$/.test(dia)) return json(req, { error: "params" }, 400);
+      const chave = String(body.chave ?? "pos:" + dia), ini = Date.parse(String(body.ini ?? ""));
+      if (!uid || !/^\d{4}-\d{2}-\d{2}$/.test(dia) || !/^(pos|sv):[\w-]{1,40}$/.test(chave)) return json(req, { error: "params" }, 400);
       const { data: p } = await admin.from("notif_prefs").select("pos").eq("user_id", uid).maybeSingle();
       if (!p?.pos) return json(req, { enviado: false, motivo: "prefs" });
       const { data: ok } = await admin.rpc("notif_tem_acesso", { p_user: uid });
       if (!ok) return json(req, { enviado: false, motivo: "acesso" });
-      const { count } = await admin.from("registros").select("id", { count: "exact", head: true }).eq("user_id", uid).eq("data", dia);
+      // já registrou ESTE treino (registro criado depois que ele começou); um registro de outro treino do dia não bloqueia
+      let rq = admin.from("registros").select("id", { count: "exact", head: true }).eq("user_id", uid).eq("data", dia);
+      if (Number.isFinite(ini)) rq = rq.gte("criado_em", new Date(ini).toISOString());
+      const { count } = await rq;
       if ((count ?? 0) > 0) return json(req, { enviado: false, motivo: "registrado" });
-      if (await jaNoLimite(uid)) return json(req, { enviado: false, motivo: "limite" });
-      if (!(await marcar(uid, "pos:" + dia))) return json(req, { enviado: false, motivo: "repetido" });
+      // o mesmo treino chegando por outro caminho (Garmin, ou o lembrete do plano) na última hora: não repete
+      const { count: perto } = await admin.from("notif_log").select("chave", { count: "exact", head: true })
+        .eq("user_id", uid).or("chave.like.pos:*,chave.like.sv:*").gt("enviado_em", new Date(Date.now() - 3600e3).toISOString());
+      if ((perto ?? 0) > 0) return json(req, { enviado: false, motivo: "recente" });
+      // limite próprio para avisos de treino (não disputa com véspera e lembrete antes do treino): 4 por dia
+      const { count: hoje } = await admin.from("notif_log").select("chave", { count: "exact", head: true })
+        .eq("user_id", uid).like("chave", "sv:%").gt("enviado_em", new Date(Date.now() - 24 * 3600e3).toISOString());
+      if ((hoje ?? 0) >= 4) return json(req, { enviado: false, motivo: "limite" });
+      if (!(await marcar(uid, chave))) return json(req, { enviado: false, motivo: "repetido" });
+      // o lembrete genérico de pós-treino do dia não vem mais depois deste
+      if (chave !== "pos:" + dia) await marcar(uid, "pos:" + dia);
       const u = String(body.u ?? "/?n=registrar");
-      const n = await enviar(uid, { t: String(body.t ?? "Treino feito? Pese-se agora").slice(0, 90), b: String(body.b ?? "").slice(0, 200), u: SITE + (u.startsWith("/") ? u : "/"), tag: "pos" });
-      return json(req, { enviado: n > 0 });
+      // tag própria por treino: um aviso novo não substitui o anterior ainda não aberto
+      const n = await enviar(uid, { t: String(body.t ?? "Treino feito? Pese-se agora").slice(0, 90), b: String(body.b ?? "").slice(0, 200), u: SITE + (u.startsWith("/") ? u : "/"), tag: chave.startsWith("sv:") ? chave : "pos" });
+      return json(req, { enviado: n > 0, aparelhos: n });
     }
     if (action === "chave") return json(req, { chave: (await cfg()).vapid_pub });
     const u = await usuario(req);
