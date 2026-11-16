@@ -60,6 +60,8 @@ function normaliza(a: any) {
   let tipo: string | null = null;
   if (RUN.has(t)) tipo = t === "VirtualRun" ? "VIRTUAL_RUN" : a.trainer ? "TREADMILL_RUNNING" : t === "TrailRun" ? "TRAIL_RUNNING" : "RUNNING";
   else if (RIDE.has(t)) tipo = t === "VirtualRide" ? "VIRTUAL_RIDE" : a.trainer ? "INDOOR_CYCLING" : "CYCLING";
+  // natação: o Strava não separa piscina de águas abertas; sem GPS (sem ponto de partida) é piscina
+  else if (t === "Swim") tipo = Array.isArray(a.start_latlng) && a.start_latlng.length === 2 ? "OPEN_WATER_SWIMMING" : "LAP_SWIMMING";
   if (!tipo) return null;
   const ini = Date.parse(String(a.start_date_local ?? a.start_date ?? ""));
   return {
@@ -126,7 +128,7 @@ async function webhookCerto() {
   // deno-lint-ignore no-explicit-any
   return Array.isArray(lista) && lista.some((s: any) => s.callback_url === `${SB_URL}/functions/v1/strava/wh/${c.verify_token}`);
 }
-const SPN: Record<string, string> = { RUNNING: "Corrida", TRAIL_RUNNING: "Corrida", TREADMILL_RUNNING: "Corrida na esteira", VIRTUAL_RUN: "Corrida", CYCLING: "Pedal", INDOOR_CYCLING: "Pedal no rolo", VIRTUAL_RIDE: "Pedal no rolo" };
+const SPN: Record<string, string> = { RUNNING: "Corrida", TRAIL_RUNNING: "Corrida", TREADMILL_RUNNING: "Corrida na esteira", VIRTUAL_RUN: "Corrida", CYCLING: "Pedal", INDOOR_CYCLING: "Pedal no rolo", VIRTUAL_RIDE: "Pedal no rolo", LAP_SWIMMING: "Natação", OPEN_WATER_SWIMMING: "Natação em águas abertas" };
 const durTxt = (s: number) => { const m = Math.round(s / 60), h = Math.floor(m / 60), r = m % 60; return h ? `${h}h${r ? String(r).padStart(2, "0") : ""}` : `${r} min`; };
 // deno-lint-ignore no-explicit-any
 async function evento(ev: any) {
